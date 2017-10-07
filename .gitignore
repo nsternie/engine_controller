@@ -3,3 +3,6 @@
 *.bin
 *.hex
 *log.*
+*.map
+*metadata*
+*RemoteSystemsTempFiles*
