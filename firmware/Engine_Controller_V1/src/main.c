@@ -155,7 +155,7 @@ uint16_t samplerate = 50; // Hz
 #define gui_v1			5
 #define gui_byte_packet	6
 uint8_t telemetry_format[3];
-uint16_t telemetry_rate[3];
+uint16_t telemetry_rate[3] = {10,10,10};
 //
 #define HEADER_1 0
 #define HEADER_2 0
