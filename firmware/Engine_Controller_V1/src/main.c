@@ -153,6 +153,7 @@ uint16_t samplerate = 50; // Hz
 #define full_pretty		3
 #define small_pretty	4
 #define gui_v1			5
+#define gui_byte_packet	6
 uint8_t telemetry_format[3];
 uint16_t telemetry_rate[3];
 //
@@ -253,8 +254,6 @@ volatile uint8_t send_xbee_now;
 volatile uint8_t update_motors_now;
 
 uint16_t adc_data[5][16];		// 5 ADCs, 16 channels each.
-uint8_t telem_unstuffed[256];
-uint8_t telem_stuffed[257];
 uint16_t valve_states;
 
 // Motor Variables
@@ -328,6 +327,10 @@ uint8_t xbee_in;							// Temp single byte buffer for rx
 
 uint8_t command_buffer[COMMAND_HISTORY][COMMAND_BUFFER_LENGTH];
 uint8_t command_index = 0;
+
+uint8_t telem_unstuffed[254];
+uint8_t telem_stuffed[256];
+uint8_t unstuffed_packet_length = 0;
 
 
 
@@ -1731,6 +1734,11 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
 		}
 			break;
+
+		case gui_byte_packet:
+			HAL_UART_Transmit(&device, (uint8_t*)telem_stuffed, unstuffed_packet_length+2, 1);
+			break;
+
 		case small_pretty:
 		{
 			snprintf(line, sizeof(line), "\fBatt: %.2f volts\r\n", ebatt);
@@ -1799,15 +1807,19 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 }
 void assemble_telem(){
 
-	// HEADER DATA
-	telem_unstuffed[0] = HEADER_1;
-	telem_unstuffed[1] = HEADER_2;
-	telem_unstuffed[2] = HEADER_3;
-	telem_unstuffed[3] = HEADER_4;
-	telem_unstuffed[4] = HEADER_5;
-	telem_unstuffed[5] = HEADER_6;
-	telem_unstuffed[6] = HEADER_7;
-	telem_unstuffed[7] = HEADER_8;
+	telem_unstuffed[0] = valve_states >> 8;
+	telem_unstuffed[1] = valve_states & 0x00ff;
+	telem_unstuffed[2] = STATE;
+
+	for(int p = 0; p < 16; p++){
+		telem_unstuffed[2+2*p-1] = ((uint16_t) pressure[p]) >> 8;
+		telem_unstuffed[2+2*p] = ((uint16_t) pressure[p]) & 0x00ff;
+	}
+
+	// Stuff the data here
+	// HERE "stuff_data(blah blah);
+
+	unstuffed_packet_length = 32;
 
 }
 void buffer_init(struct buffer *b, uint8_t* data_buffer, size_t size, uint8_t id){
