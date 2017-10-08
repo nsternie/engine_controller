@@ -2108,6 +2108,11 @@ int serial_command(uint8_t* cbuf_in){
 			FIRING_DURATION = atoi(argv[2]);
 		}
 	}	// End "set"
+	else if(strcmp(argv[0], "ambientize") == 0){
+		for(uint8_t n = 0; n < 16; n++){
+			press_cal[OFFSET][n] = adc_data[4][15-n];
+		}
+	}
 	else if(strcmp(argv[0], "enable") == 0){
 		// Get the device id
 		for(uint8_t n = mtr0; n <= mtr3; n++){
