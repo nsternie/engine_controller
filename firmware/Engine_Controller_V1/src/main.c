@@ -641,6 +641,7 @@ telemetry_format[rs422] = gui_v1;
 		  if(micros - state_timer > FIRING_DURATION){
 			  command(mtr0, 0);
 			  command(mtr1, 0);
+			  command(vlv15, 0);
 			  STATE = FULL_DURATION;
 			  state_timer = micros;
 		  }
@@ -1453,7 +1454,7 @@ void command(uint8_t device, int16_t command_value){
 				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_COMMAND);
 				break;
 			case vlv15:
-				if(STATE == IGNITION){
+				if(STATE == IGNITION || STATE == FIRING){
 					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_COMMAND);
 				}
 				break;
