@@ -1454,9 +1454,7 @@ void command(uint8_t device, int16_t command_value){
 				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_COMMAND);
 				break;
 			case vlv15:
-				if(STATE == IGNITION || STATE == FIRING){
-					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_COMMAND);
-				}
+				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_COMMAND);
 				break;
 
 			case led0:
