@@ -238,8 +238,8 @@ char* states[10][15] = {
 
 
 // State durations are in microseconds
-#define IGNITION_DURATION 	750000
-#define FIRING_DURATION 	3000000
+uint32_t IGNITION_DURATION = 750000;
+uint32_t FIRING_DURATION = 3000000;
 
 
 // END STATE DEFINITIONS  /////////////////////////////////
@@ -578,6 +578,9 @@ telemetry_format[rs422] = gui_v1;
 	  //count2 = motor_active[0];
 	  TIME(main_cycle_time);
 	  //count2 = adc_data[2][12];
+
+	  count1 = IGNITION_DURATION;
+	  count2 = FIRING_DURATION;
 	  if(read_adc_now){
 		  read_adc_now = 0;
 		  read_adc_brute();
@@ -2092,7 +2095,12 @@ int serial_command(uint8_t* cbuf_in){
 			char* end;
 			motor_pot_offset[atoi(argv[2])] = strtof(argv[3], &end);
 		}
-
+		else if(strcmp(argv[1], "burn_duration") == 0){
+			IGNITION_DURATION = atoi(argv[2]);
+		}
+		else if(strcmp(argv[1], "valve_delay") == 0){
+			FIRING_DURATION = atoi(argv[2]);
+		}
 	}	// End "set"
 	else if(strcmp(argv[0], "enable") == 0){
 		// Get the device id
@@ -2232,7 +2240,7 @@ void motor_control(){
 	for(uint8_t mtrx = 0; mtrx < 3; mtrx++){
 		if(motor_active[mtrx]){
 
-			count1++;
+
 			//count3 = __HAL_TIM_GET_COUNTER(&htim11);
 			// Read the pot position
 			//read_adc_single()
@@ -2290,7 +2298,7 @@ read_thermocouples(){
 	data <<= 8;
 	data |= rx[1];
 	data >>= 2;
-	count2 = data;
+	//count2 = data;
 
 	__enable_irq();
 
