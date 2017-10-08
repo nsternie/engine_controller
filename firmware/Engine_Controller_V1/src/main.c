@@ -240,6 +240,7 @@ char* states[10][15] = {
 // State durations are in microseconds
 uint32_t IGNITION_DURATION = 750000;
 uint32_t FIRING_DURATION = 3000000;
+uint32_t POST_IGNITE_DELAY = 500000;
 
 
 // END STATE DEFINITIONS  /////////////////////////////////
@@ -581,6 +582,8 @@ telemetry_format[rs422] = gui_v1;
 
 	  count1 = IGNITION_DURATION;
 	  count2 = FIRING_DURATION;
+	  count3 = POST_IGNITE_DELAY;
+
 	  if(read_adc_now){
 		  read_adc_now = 0;
 		  read_adc_brute();
@@ -628,17 +631,20 @@ telemetry_format[rs422] = gui_v1;
 		  if(micros - state_timer > IGNITION_DURATION){
 			  command(mtr0, 90);
 			  command(mtr1, 90);
-			  command(vlv15, 0);
+			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
 			  STATE = FIRING;
 			  state_timer = micros;
 		  }
 
 	  }
 	  else if(STATE == FIRING){
+
+		  if(micros - state_timer > POST_IGNITE_DELAY){
+			  command(vlv15, 0);	// Shut off the igniter now
+		  }
 		  if(micros - state_timer > FIRING_DURATION){
 			  command(mtr0, 0);
 			  command(mtr1, 0);
-			  //command(vlv15, 0);
 			  STATE = FULL_DURATION;
 			  state_timer = micros;
 		  }
@@ -1583,7 +1589,7 @@ void read_adc_brute(){
 		tx[1] = 0b0000100;
 		select_device(adcn);
 		if(HAL_SPI_TransmitReceive(&hspi1, tx, rx, 2, 1) ==  HAL_TIMEOUT){
-			count3++;
+			//count3++;
 		}
 		release_device(adcn);
 
