@@ -309,7 +309,7 @@ uint8_t motor_active[4];
 uint8_t LOGGING_ACTIVE = 0;
 
 #define MAX_COMMAND_ARGS 	7
-#define MAX_COMMAND_LENGTH 	16
+#define MAX_COMMAND_LENGTH 	32
 #define COMMAND_HISTORY 5
 
 #define UART_BUFFER_SIZE 	1024

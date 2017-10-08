@@ -102,7 +102,7 @@ def parse_serial():
 		kifb.setText(str(motor_control_gain[1]))
 		kdfb.setText(str(motor_control_gain[2]))
 
-		count1_label.setText("Ignition_Duration: "+str(count1))
+		count1_label.setText("Ignition Duration: "+str(count1))
 		count2_label.setText("Burn Duration: "+str(count2))
 		count3_label.setText("Post ignite delay: "+str(count3))
 
