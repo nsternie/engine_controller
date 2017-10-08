@@ -2095,7 +2095,7 @@ int serial_command(uint8_t* cbuf_in){
 		else if(strcmp(argv[1], "burn_duration") == 0){
 			FIRING_DURATION = atoi(argv[2]);
 		}
-		else if(strcmp(argv[1], "valve_delay") == 0){
+		else if(strcmp(argv[1], "ignition_duration") == 0){
 			IGNITION_DURATION = atoi(argv[2]);
 		}
 		else if(strcmp(argv[1], "post_ignite_delay") == 0){
