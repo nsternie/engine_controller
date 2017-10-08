@@ -592,7 +592,7 @@ telemetry_format[rs422] = gui_v1;
 		  if(LOGGING_ACTIVE){
 
 		  }
-		  read_thermocouples();
+		  //read_thermocouples();
 	  }
 
 	  if(send_rs422_now){
@@ -609,12 +609,8 @@ telemetry_format[rs422] = gui_v1;
 
 	  if(update_motors_now){
 		  update_motors_now = 0;
-		  //uint16_t cmd;
 		  motor_control();
-
-
 		  TIME(motor_cycle_time);
-
 	  }
 
 	  if(STATE == MANUAL){
@@ -1930,9 +1926,6 @@ void scale_readings(){
 		motor_position[n] -= motor_pot_offset[n];
 	}
 
-	//motor_position[0] -=115;
-
-
 	tbrd = (adc_data[2][5])/1.24;
 	tbrd -= 600;
 
@@ -1940,8 +1933,6 @@ void scale_readings(){
 		pressure[n] = adc_data[4][15-n]-press_cal[OFFSET][n];
 		pressure[n] *= press_cal[SLOPE][n];
 	}
-
-
 
 }
 int serial_command(uint8_t* cbuf_in){
@@ -2102,11 +2093,15 @@ int serial_command(uint8_t* cbuf_in){
 			motor_pot_offset[atoi(argv[2])] = strtof(argv[3], &end);
 		}
 		else if(strcmp(argv[1], "burn_duration") == 0){
-			IGNITION_DURATION = atoi(argv[2]);
-		}
-		else if(strcmp(argv[1], "valve_delay") == 0){
 			FIRING_DURATION = atoi(argv[2]);
 		}
+		else if(strcmp(argv[1], "valve_delay") == 0){
+			IGNITION_DURATION = atoi(argv[2]);
+		}
+		else if(strcmp(argv[1], "post_ignite_delay") == 0){
+			POST_IGNITE_DELAY = atoi(argv[2]);
+		}
+
 	}	// End "set"
 	else if(strcmp(argv[0], "ambientize") == 0){
 		for(uint8_t n = 0; n < 16; n++){
