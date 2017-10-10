@@ -29,7 +29,7 @@ alias = {}
 alias_file = open("devices.alias")
 for line in alias_file:
 	s = line.split('\t')
-	alias[s[0]] = s[1].rstrip('\n')
+	alias[s[0]] = s[1].rstrip('\r\n')
 
 # info_log.write("Alias FIle")
 # for line in alias_file:
