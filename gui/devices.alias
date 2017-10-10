@@ -1,5 +1,18 @@
 vlv0	FILL_OX
 vlv1	VENT_OX
+vlv2	OX Drain
+vlv3	unused
+vlv4	unused
+vlv5	unused
+vlv6	unused
+vlv7	unused
+vlv8	unused
+vlv9	unused
+vlv10	unused
+vlv11	unused
+vlv12	unused
+vlv13	unused
+vlv14	unused
 vlv15	IGNITER
 pressure0	FUEL
 pressure1	OX_MAN
