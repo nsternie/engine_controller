@@ -240,6 +240,7 @@ char* states[10][15] = {
 // State durations are in microseconds
 uint32_t IGNITION_DURATION = 750000;
 uint32_t FIRING_DURATION = 3000000;
+uint32_t POST_IGNITE_DELAY = 500000;
 
 
 // END STATE DEFINITIONS  /////////////////////////////////
@@ -308,7 +309,7 @@ uint8_t motor_active[4];
 uint8_t LOGGING_ACTIVE = 0;
 
 #define MAX_COMMAND_ARGS 	7
-#define MAX_COMMAND_LENGTH 	16
+#define MAX_COMMAND_LENGTH 	32
 #define COMMAND_HISTORY 5
 
 #define UART_BUFFER_SIZE 	1024
@@ -581,6 +582,8 @@ telemetry_format[rs422] = gui_v1;
 
 	  count1 = IGNITION_DURATION;
 	  count2 = FIRING_DURATION;
+	  count3 = POST_IGNITE_DELAY;
+
 	  if(read_adc_now){
 		  read_adc_now = 0;
 		  read_adc_brute();
@@ -589,7 +592,7 @@ telemetry_format[rs422] = gui_v1;
 		  if(LOGGING_ACTIVE){
 
 		  }
-		  read_thermocouples();
+		  //read_thermocouples();
 	  }
 
 	  if(send_rs422_now){
@@ -606,12 +609,8 @@ telemetry_format[rs422] = gui_v1;
 
 	  if(update_motors_now){
 		  update_motors_now = 0;
-		  //uint16_t cmd;
 		  motor_control();
-
-
 		  TIME(motor_cycle_time);
-
 	  }
 
 	  if(STATE == MANUAL){
@@ -628,17 +627,21 @@ telemetry_format[rs422] = gui_v1;
 		  if(micros - state_timer > IGNITION_DURATION){
 			  command(mtr0, 90);
 			  command(mtr1, 90);
-			  command(vlv15, 0);
+			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
 			  STATE = FIRING;
 			  state_timer = micros;
 		  }
 
 	  }
 	  else if(STATE == FIRING){
+
+		  if(micros - state_timer > POST_IGNITE_DELAY){
+			  command(vlv15, 0);	// Shut off the igniter now
+		  }
 		  if(micros - state_timer > FIRING_DURATION){
 			  command(mtr0, 0);
 			  command(mtr1, 0);
-			  //command(vlv15, 0);
+			  command(vlv15, 0);
 			  STATE = FULL_DURATION;
 			  state_timer = micros;
 		  }
@@ -1451,9 +1454,7 @@ void command(uint8_t device, int16_t command_value){
 				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_COMMAND);
 				break;
 			case vlv15:
-				if(STATE == IGNITION){
-					HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_COMMAND);
-				}
+				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_COMMAND);
 				break;
 
 			case led0:
@@ -1583,7 +1584,7 @@ void read_adc_brute(){
 		tx[1] = 0b0000100;
 		select_device(adcn);
 		if(HAL_SPI_TransmitReceive(&hspi1, tx, rx, 2, 1) ==  HAL_TIMEOUT){
-			count3++;
+			//count3++;
 		}
 		release_device(adcn);
 
@@ -1924,9 +1925,6 @@ void scale_readings(){
 		motor_position[n] -= motor_pot_offset[n];
 	}
 
-	//motor_position[0] -=115;
-
-
 	tbrd = (adc_data[2][5])/1.24;
 	tbrd -= 600;
 
@@ -1934,8 +1932,6 @@ void scale_readings(){
 		pressure[n] = adc_data[4][15-n]-press_cal[OFFSET][n];
 		pressure[n] *= press_cal[SLOPE][n];
 	}
-
-
 
 }
 int serial_command(uint8_t* cbuf_in){
@@ -2096,12 +2092,21 @@ int serial_command(uint8_t* cbuf_in){
 			motor_pot_offset[atoi(argv[2])] = strtof(argv[3], &end);
 		}
 		else if(strcmp(argv[1], "burn_duration") == 0){
-			IGNITION_DURATION = atoi(argv[2]);
-		}
-		else if(strcmp(argv[1], "valve_delay") == 0){
 			FIRING_DURATION = atoi(argv[2]);
 		}
+		else if(strcmp(argv[1], "ignition_duration") == 0){
+			IGNITION_DURATION = atoi(argv[2]);
+		}
+		else if(strcmp(argv[1], "post_ignite_delay") == 0){
+			POST_IGNITE_DELAY = atoi(argv[2]);
+		}
+
 	}	// End "set"
+	else if(strcmp(argv[0], "ambientize") == 0){
+		for(uint8_t n = 0; n < 16; n++){
+			press_cal[OFFSET][n] = adc_data[4][15-n];
+		}
+	}
 	else if(strcmp(argv[0], "enable") == 0){
 		// Get the device id
 		for(uint8_t n = mtr0; n <= mtr3; n++){
