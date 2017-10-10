@@ -363,10 +363,13 @@ layout.addWidget(hotfire_button, 15, 5)
 
 
 # Raw Command
+def raw_command():
+	send(raw_command_input.text())
+	raw_command_input.setText("")
 raw_command_input = QtGui.QLineEdit('command entry')
 raw_command_send = QtGui.QPushButton("Send Command")
-raw_command_send.clicked.connect(lambda: send(raw_command_input.text()))
-raw_command_input.returnPressed.connect(lambda: send(raw_command_input.text()))
+raw_command_send.clicked.connect(raw_command)
+raw_command_input.returnPressed.connect(raw_command)
 layout.addWidget(raw_command_input, 16, 5, 1, 2)
 layout.addWidget(raw_command_send, 16, 7)
 
