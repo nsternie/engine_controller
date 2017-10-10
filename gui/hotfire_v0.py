@@ -95,9 +95,12 @@ def parse_serial():
 		samplerate_setpointfb.setText(str(samplerate)+"hz")
 		telemrate_setpointfb.setText(str(telemetry_rate)+"hz")
 		for mtrx in range(0, 4):
-			mtr_setpointfb[mtrx].setText(str(motor_setpoint[0]))
-			mtr_position[mtrx].setText(str(motor_position[0]))
-			mtr_pwm[mtrx].setText("PWM: "+str(motor_pwm[0]))
+			try:
+				mtr_setpointfb[mtrx].setText(str(motor_setpoint[mtrx]))
+				mtr_position[mtrx].setText(str(motor_position[mtrx]))
+				mtr_pwm[mtrx].setText("PWM: "+str(motor_pwm[mtrx]))
+			except:
+				apperently_i_need_a_statment_here = "I dont really know why..."
 
 		#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
 		motor_cycle_rate.setText(str(round(1000000/motor_cycle_time, 3)))
