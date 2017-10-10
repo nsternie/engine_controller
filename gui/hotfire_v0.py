@@ -263,66 +263,66 @@ valve_buttons[13][1].clicked.connect(lambda: command("vlv13", 1))
 valve_buttons[14][1].clicked.connect(lambda: command("vlv14", 1))
 #valve_buttons[15][1].clicked.connect(lambda: command("vlv15", 1)) # This is the igniter channel
 
-# mtr0 control
-mtr0_enable = QtGui.QPushButton("mtr0 ENABLE")
-mtr0_disable = QtGui.QPushButton("mtr0 DISABLE")
-mtr0_setpoint = QtGui.QLineEdit()
-mtr0_position = QtGui.QLabel("POSITION FB")
-mtr0_pwm = QtGui.QLabel("pwm FB")
-mtr0_send = QtGui.QPushButton("Command Setpoint")
-mtr0_setpointfb = QtGui.QLabel("SETPOINT FB")
-mtr0_enable.clicked.connect(lambda: motor_enable(0, 1))
-mtr0_disable.clicked.connect(lambda: motor_enable(0, 0))
-mtr0_send.clicked.connect(lambda: command("mtr0", mtr0_setpoint.text()))
-if 'mtr0' in alias.keys():
-	mtr0_enable.setText(alias['mtr0']+" ENABLE")
-	mtr0_disable.setText(alias['mtr0']+" DISABLE")
-layout.addWidget(mtr0_disable, 1, 5)
-layout.addWidget(mtr0_enable, 1, 6)
-layout.addWidget(mtr0_send,2, 5)
-layout.addWidget(mtr0_pwm, 2, 9)
-layout.addWidget(mtr0_setpoint, 2, 6)
-layout.addWidget(mtr0_setpointfb, 2, 7)
-layout.addWidget(mtr0_position, 2, 8)
+mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
+mtr_enable = []
+mtr_disable = []
+mtr_setpoint = []
+mtr_position = []
+mtr_pwm = []
+mtr_send = []
+mtr_setpointfb = []
 
-# mtr1 control
-mtr1_enable = QtGui.QPushButton("mtr1 ENABLE")
-mtr1_disable = QtGui.QPushButton("mtr1 DISABLE")
-mtr1_setpoint = QtGui.QLineEdit()
-mtr1_position = QtGui.QLabel("POSITION FB")
-mtr1_pwm = QtGui.QLabel("pwm FB")
-mtr1_send = QtGui.QPushButton("Command Setpoint")
-mtr1_setpointfb = QtGui.QLabel("SETPOINT FB")
-mtr1_enable.clicked.connect(lambda: motor_enable(1, 1))
-mtr1_disable.clicked.connect(lambda: motor_enable(1, 0))
-mtr1_send.clicked.connect(lambda: command("mtr1", mtr1_setpoint.text()))
-if 'mtr1' in alias.keys():
-	mtr1_enable.setText(alias['mtr1']+" ENABLE")
-	mtr1_disable.setText(alias['mtr1']+" DISABLE")
-layout.addWidget(mtr1_disable, 3, 5)
-layout.addWidget(mtr1_enable, 3, 6)
-layout.addWidget(mtr1_send,4, 5)
-layout.addWidget(mtr1_setpoint, 4, 6)
-layout.addWidget(mtr1_setpointfb, 4, 7)
-layout.addWidget(mtr1_position, 4, 8)
-layout.addWidget(mtr1_pwm, 4, 9)
+# motor control
+for mtrx in range(0, 4):
+	mtr_enable.append(QtGui.QPushButton(mtr[mtrx]+" ENABLE"))
+	mtr_disable.append(QtGui.QPushButton(mtr[mtrx]+" DISABLE"))
+	mtr_setpoint.append(QtGui.QLineEdit())
+	mtr_position.append(QtGui.QLabel("POS)ITION FB"))
+	mtr_pwm.append(QtGui.QLabel("pwm FB"))
+	mtr_send.append(QtGui.QPushButton("Command Setpoint"))
+	mtr_setpointfb.append(QtGui.QLabel("SETPOINT FB"))
+
+	if mtr[mtrx] in alias.keys():
+		mtr_enable[mtrx].setText(alias[mtr[mtrx]]+" ENABLE")
+		mtr_disable[mtrx].setText(alias[mtr[mtrx]]+" DISABLE")
+	layout.addWidget(mtr_disable[mtrx], 1+(2*mtrx), 5)
+	layout.addWidget(mtr_enable[mtrx], 1+(2*mtrx), 6)
+	layout.addWidget(mtr_send[mtrx],2+(2*mtrx), 5)
+	layout.addWidget(mtr_pwm[mtrx], 2+(2*mtrx), 9)	
+	layout.addWidget(mtr_setpoint[mtrx], 2+(2*mtrx), 6)
+	layout.addWidget(mtr_setpointfb[mtrx], 2+(2*mtrx), 7)
+	layout.addWidget(mtr_position[mtrx], 2+(2*mtrx), 8)
+
+mtr_send[0].clicked.connect(lambda: command('mtr0', mtr_setpoint[0].text()))
+mtr_send[1].clicked.connect(lambda: command('mtr1', mtr_setpoint[1].text()))
+mtr_send[2].clicked.connect(lambda: command('mtr2', mtr_setpoint[2].text()))
+mtr_send[3].clicked.connect(lambda: command('mtr3', mtr_setpoint[3].text()))
+mtr_enable[0].clicked.connect(lambda: motor_enable(0, 1))
+mtr_enable[1].clicked.connect(lambda: motor_enable(1, 1))
+mtr_enable[2].clicked.connect(lambda: motor_enable(2, 1))
+mtr_enable[3].clicked.connect(lambda: motor_enable(3, 1))
+mtr_disable[0].clicked.connect(lambda: motor_enable(0, 0))
+mtr_disable[1].clicked.connect(lambda: motor_enable(1, 0))
+mtr_disable[2].clicked.connect(lambda: motor_enable(2, 0))
+mtr_disable[3].clicked.connect(lambda: motor_enable(3, 0))
+
 
 # Samplerate Set
 samplerate_setpoint = QtGui.QLineEdit()
 samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
 samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
 samplerate_send.clicked.connect(lambda: set("samplerate", samplerate_setpoint.text()))
-layout.addWidget(samplerate_send, 5, 5)
-layout.addWidget(samplerate_setpoint, 5, 6)
-layout.addWidget(samplerate_setpointfb, 5, 7)
+layout.addWidget(samplerate_send, 5, 10)
+layout.addWidget(samplerate_setpoint, 5, 11)
+layout.addWidget(samplerate_setpointfb, 5, 12)
 # Telemrate set
 telemrate_setpoint = QtGui.QLineEdit()
 telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
 telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
 telemrate_send.clicked.connect(lambda: set("telemrate", ("rs422 "+telemrate_setpoint.text())))
-layout.addWidget(telemrate_send, 6, 5)
-layout.addWidget(telemrate_setpoint, 6, 6)
-layout.addWidget(telemrate_setpointfb, 6, 7)
+layout.addWidget(telemrate_send, 6, 10)
+layout.addWidget(telemrate_setpoint, 6, 11)
+layout.addWidget(telemrate_setpointfb, 6, 12)
 
 # Motor gains set
 MOTOR_GAINS_LABEL = QtGui.QLabel("Motor Gains")
@@ -461,7 +461,7 @@ for n in range(0, 16):
 if(1):
 	# Add image
 	logo = QtGui.QLabel(w)
-	logo.setGeometry(800, 100, 800, 300)
+	logo.setGeometry(1000, 300, 800, 300)
 	#use full ABSOLUTE path to the image, not relative
 	logo.setPixmap(QtGui.QPixmap(os.getcwd() + "/masa2.png"))
 
