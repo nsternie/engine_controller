@@ -1,6 +1,6 @@
-vlv0		FILL_OX
-vlv1		VENT_OX
-vlv15		IGNITER
+vlv0	FILL_OX
+vlv1	VENT_OX
+vlv15	IGNITER
 pressure0	FUEL
 pressure1	OX_MAN
 pressure2	OX_TANK
@@ -9,5 +9,5 @@ pressure4	MOTHER
 pressure5	FUEL_MAN
 pressure6	N2
 pressure7	CHAMBER
-mtr0		OX VALVE
-mtr1 		FUEL VALVE
+mtr0	OX VALVE
+mtr1 	FUEL VALVE
