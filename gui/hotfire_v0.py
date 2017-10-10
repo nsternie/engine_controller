@@ -5,6 +5,19 @@ import serial
 import time
 import os
 
+
+# Gloabals
+mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
+mtr_enable = []
+mtr_disable = []
+mtr_setpoint = []
+mtr_position = []
+mtr_pwm = []
+mtr_send = []
+mtr_setpointfb = []
+
+#
+
 run_name = input("Enter run name: ")
 
 serial_log = open(run_name+"_Serial_log.csv", "w+")
@@ -81,12 +94,10 @@ def parse_serial():
 		# Update loop rates
 		samplerate_setpointfb.setText(str(samplerate)+"hz")
 		telemrate_setpointfb.setText(str(telemetry_rate)+"hz")
-		mtr0_setpointfb.setText(str(motor_setpoint[0]))
-		mtr1_setpointfb.setText(str(motor_setpoint[1]))
-		mtr0_position.setText(str(motor_position[0]))
-		mtr1_position.setText(str(motor_position[1]))
-		mtr0_pwm.setText(str(motor_pwm[0]))
-		mtr1_pwm.setText(str(motor_pwm[1]))
+		for mtrx in range(0, 4):
+			mtr_setpointfb[mtrx].setText(str(motor_setpoint[0]))
+			mtr_position[mtrx].setText(str(motor_position[0]))
+			mtr_pwm[mtrx].setText("PWM: "+str(motor_pwm[0]))
 
 		#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
 		motor_cycle_rate.setText(str(round(1000000/motor_cycle_time, 3)))
@@ -263,21 +274,12 @@ valve_buttons[13][1].clicked.connect(lambda: command("vlv13", 1))
 valve_buttons[14][1].clicked.connect(lambda: command("vlv14", 1))
 #valve_buttons[15][1].clicked.connect(lambda: command("vlv15", 1)) # This is the igniter channel
 
-mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
-mtr_enable = []
-mtr_disable = []
-mtr_setpoint = []
-mtr_position = []
-mtr_pwm = []
-mtr_send = []
-mtr_setpointfb = []
-
 # motor control
 for mtrx in range(0, 4):
 	mtr_enable.append(QtGui.QPushButton(mtr[mtrx]+" ENABLE"))
 	mtr_disable.append(QtGui.QPushButton(mtr[mtrx]+" DISABLE"))
 	mtr_setpoint.append(QtGui.QLineEdit())
-	mtr_position.append(QtGui.QLabel("POS)ITION FB"))
+	mtr_position.append(QtGui.QLabel("POSITION FB"))
 	mtr_pwm.append(QtGui.QLabel("pwm FB"))
 	mtr_send.append(QtGui.QPushButton("Command Setpoint"))
 	mtr_setpointfb.append(QtGui.QLabel("SETPOINT FB"))
@@ -288,7 +290,7 @@ for mtrx in range(0, 4):
 	layout.addWidget(mtr_disable[mtrx], 1+(2*mtrx), 5)
 	layout.addWidget(mtr_enable[mtrx], 1+(2*mtrx), 6)
 	layout.addWidget(mtr_send[mtrx],2+(2*mtrx), 5)
-	layout.addWidget(mtr_pwm[mtrx], 2+(2*mtrx), 9)	
+	layout.addWidget(mtr_pwm[mtrx], 1+(2*mtrx), 8)	
 	layout.addWidget(mtr_setpoint[mtrx], 2+(2*mtrx), 6)
 	layout.addWidget(mtr_setpointfb[mtrx], 2+(2*mtrx), 7)
 	layout.addWidget(mtr_position[mtrx], 2+(2*mtrx), 8)
