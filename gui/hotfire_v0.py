@@ -228,10 +228,7 @@ for n in range(0, 16):
 	pressure_labels[n][0].setText(press_id+":")
 	pressure_labels[n][1].setText(str(0)+"psi")
 
-valve_buttons[0][0].setText("FILL OX OFF")
-valve_buttons[1][0].setText("VENT OX OFF")
-valve_buttons[0][1].setText("FILL OX ON")
-valve_buttons[1][1].setText("VENT OX ON")
+
 ## For some reason this doesnt work with a for loop, sorry
 valve_buttons[0][0].clicked.connect(lambda: command("vlv0", 0))
 valve_buttons[1][0].clicked.connect(lambda: command("vlv1", 0))
