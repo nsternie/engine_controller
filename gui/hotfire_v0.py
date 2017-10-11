@@ -23,9 +23,7 @@ run_name = input("Enter run name: ")
 serial_log = open(run_name+"_Serial_log.csv", "w+")
 info_log = open(run_name+"_Command_log.csv", "w+")
 info_log.write("Time, Command/info\n")
-csv_header = "Time(s),valve_states,pressure[0],pressure[1],pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],main_cycle_time,motor_cycle_time,adc_cycle_time,telemetry_cycle_time,ebatt,ibus,telemetry_rate[0],motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],motor_position[0],motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,"
-serial_log.write(csv_header)
-serial_log.write("\n")
+
 
 ## Always start by initializing Qt (only once per application)
 app = QtGui.QApplication([])
@@ -60,7 +58,7 @@ state_dict = {
 }
 
 # Try to open the serial port
-ser = serial.Serial(port=None, baudrate=921600)
+ser = serial.Serial(port=None, baudrate=921600, timeout=0)
 ser.port = "COM5"
 try:
 	ser.open()
@@ -70,7 +68,9 @@ except:
 	print("Could not open Serial Port")
 
 # Parse a line and upate GUI fields
+write_csv_header = True
 def parse_serial():
+
 	if(ser.is_open):
 		line = ser.readline()	
 		line = str(line, 'ascii')
@@ -122,7 +122,7 @@ def parse_serial():
 
 		state_label.setText("STATE = "+state_dict[STATE])
 		
-
+device_list = []
 valve_states = 0
 pressure = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 samplerate = 0
@@ -143,6 +143,10 @@ count3 = 0
 STATE = 0
 
 def parse_packet(split_line):
+	if(write_csv_header):
+		serial_log.write(csv_header)
+		serial_log.write("\n")
+		write_csv_header = False
 	global valve_states
 	global pressure
 	global samplerate
