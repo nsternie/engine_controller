@@ -1,8 +1,11 @@
+# Binaries and other...
 *.o
 *.elf
 *.bin
 *.hex
 *log.*
 *.map
+
+# Eclipse things
 *metadata*
 *RemoteSystemsTempFiles*

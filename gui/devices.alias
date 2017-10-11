@@ -1,3 +1,4 @@
+Device	Alias
 vlv0	FILL_OX
 vlv1	VENT_OX
 vlv2	OX Drain
@@ -22,5 +23,15 @@ pressure4	MOTHER
 pressure5	FUEL_MAN
 pressure6	N2
 pressure7	CHAMBER
+pressure8	N/A
+pressure9	N/A
+pressure10	N/A
+pressure11	N/A
+pressure12	N/A
+pressure13	N/A
+pressure14	N/A
+pressure15	N/A
 mtr0	OX VALVE
 mtr1	FUEL VALVE
+mtr2	unused
+mtr3	unused
