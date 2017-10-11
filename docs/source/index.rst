@@ -9,7 +9,7 @@ Welcome to Engine Controller's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-	test
+	test.rst
 
 
 
