@@ -1,12 +1,12 @@
-|Line 1
-|Line 2
-|Line3 
+| Line 1
+| Line 2
+| Line3 
 still line 3
-|Line 4
+| Line 4
 
 *italics*
 
-|** bold**
+| ** bold**
 
 HEADING
 #######
