@@ -59,7 +59,7 @@ state_dict = {
 
 # Try to open the serial port
 ser = serial.Serial(port=None, baudrate=921600, timeout=0)
-ser.port = "COM5"
+ser.port = "COM13"
 try:
 	ser.open()
 	if(ser.is_open):
@@ -74,10 +74,14 @@ def parse_serial():
 	if(ser.is_open):
 		line = ser.readline()	
 		line = str(line, 'ascii')
-		serial_log.write("%.3f," % time.clock())
-		serial_log.write(line.rstrip('\n'))
-		split_line = line.split(',')
-		parse_packet(split_line)
+		
+		try:
+			split_line = line.split(',')
+			parse_packet(split_line)
+			serial_log.write("%.3f," % time.clock())
+			serial_log.write(line.rstrip('\n'))
+		except:
+			pass
 		#print("Packet parsed")
 		#print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
 
@@ -143,10 +147,10 @@ count3 = 0
 STATE = 0
 
 def parse_packet(split_line):
-	if(write_csv_header):
-		serial_log.write(csv_header)
-		serial_log.write("\n")
-		write_csv_header = False
+	# if(write_csv_header):
+	# 	serial_log.write(csv_header)
+	# 	serial_log.write("\n")
+	# 	write_csv_header = False
 	global valve_states
 	global pressure
 	global samplerate
@@ -159,12 +163,12 @@ def parse_packet(split_line):
 	global ibus
 	global telemetry_rate
 	global motor_control_gain
-	global motor_position
+	global motor_position		
 	global motor_pwm
 	global count1
 	global count2
 	global count3
-	global STATE
+	global State	
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
