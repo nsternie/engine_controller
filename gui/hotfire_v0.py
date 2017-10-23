@@ -47,15 +47,15 @@ for line in alias_file:
 # 	info_log.write(line)
 # info_log.write(str(alias))
 # info_log.write("\n")
-
-state_dict = {
-	0:"ERROR",
-	1:"MANUAL",
-	2:"ARMED",
-	3:"IGNITION",
-	4:"FIRING",
-	5:"FULL_DURATION"
-}
+try:
+	if("STATE_N" in alias.keys()):
+		state_dict = {}
+		for n in range(0, int(alias["STATE_N"])):
+			state_dict[n] = alias["STATE"+str(n)]
+	else:
+		raise Exception("STATE_N definition not found in devices.alias file")
+except Exception:
+	print(Exception)
 
 # Try to open the serial port
 ser = serial.Serial(port=None, baudrate=921600, timeout=0)
