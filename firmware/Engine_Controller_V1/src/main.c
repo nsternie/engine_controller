@@ -582,12 +582,9 @@ telemetry_format[rs422] = gui_v1;
 	  TIME(main_cycle_time);
 	  //count2 = adc_data[2][12];
 
-//	  count1 = IGNITION_DURATION;
-//	  count2 = FIRING_DURATION;
-//	  count3 = POST_IGNITE_DELAY;
-	  count1 = rs422_buf.new_data;
-	  count2 = rs422_buf.filled;
-	  count3 = rs422_buf.head;
+	  count1 = IGNITION_DURATION;
+	  count2 = FIRING_DURATION;
+	  count3 = POST_IGNITE_DELAY;
 
 	  //  We have new rs422 data, parse it
 	  if(rs422_buf.new_data > 0){
