@@ -60,8 +60,8 @@ except Exception:
 	print(Exception)
 
 # Try to open the serial port
-ser = serial.Serial(port=None, baudrate=921600, timeout=0)
-ser.port = "COM13"
+ser = serial.Serial(port=None, baudrate=921600, timeout=0.5)
+ser.port = alias["COM_PORT"]
 try:
 	ser.open()
 	if(ser.is_open):
@@ -76,7 +76,6 @@ def parse_serial():
 	if(ser.is_open):
 		line = ser.readline()	
 		line = str(line, 'ascii')
-		
 		try:
 			split_line = line.split(',')
 			parse_packet(split_line)
@@ -84,8 +83,8 @@ def parse_serial():
 			serial_log.write(line.rstrip('\n'))
 		except:
 			pass
-		#print("Packet parsed")
-		#print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
+		# print("Packet parsed")
+		# print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
 
 		mask = 1
 		# Update valve state feedback
@@ -170,7 +169,7 @@ def parse_packet(split_line):
 	global count1
 	global count2
 	global count3
-	global State	
+	global STATE	
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -477,7 +476,7 @@ for n in range(0, 16):
 if(1):
 	# Add image
 	logo = QtGui.QLabel(w)
-	logo.setGeometry(1000, 300, 800, 300)
+	logo.setGeometry(1000, 250, 800, 250)
 	#use full ABSOLUTE path to the image, not relative
 	logo.setPixmap(QtGui.QPixmap(os.getcwd() + "/masa2.png"))
 
