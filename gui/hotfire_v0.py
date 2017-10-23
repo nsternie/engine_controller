@@ -60,8 +60,10 @@ except Exception:
 	print(Exception)
 
 # Try to open the serial port
-ser = serial.Serial(port=None, baudrate=921600, timeout=0.5)
+
+ser = serial.Serial(port=None, baudrate=4000000, timeout=0.5)
 ser.port = alias["COM_PORT"]
+
 try:
 	ser.open()
 	if(ser.is_open):
