@@ -20,9 +20,10 @@ mtr_setpointfb = []
 
 run_name = input("Enter run name: ")
 
-serial_log = open(run_name+"_Serial_log.csv", "w+")
-info_log = open(run_name+"_Command_log.csv", "w+")
-info_log.write("Time, Command/info\n")
+serial_log = open(run_name+"_serial_log.csv", "w+")
+info_log = open(run_name+"_python_log.csv", "w+")
+command_log = open(run_name+"_command_log.csv", "w+")
+command_log.write("Time, Command/info\n")
 
 
 ## Always start by initializing Qt (only once per application)
@@ -42,24 +43,27 @@ for line in alias_file:
 	s = line.split('\t')
 	alias[s[0]] = s[1].rstrip('\r\n')
 
-# info_log.write("Alias FIle")
-# for line in alias_file:
-# 	info_log.write(line)
-# info_log.write(str(alias))
-# info_log.write("\n")
+info_log.write("Alias FIle")
+for line in alias_file:
+	info_log.write(line)
+info_log.write(str(alias))
+info_log.write("\n")
 
-state_dict = {
-	0:"ERROR",
-	1:"MANUAL",
-	2:"ARMED",
-	3:"IGNITION",
-	4:"FIRING",
-	5:"FULL_DURATION"
-}
+try:
+	if("STATE_N" in alias.keys()):
+		state_dict = {}
+		for n in range(0, int(alias["STATE_N"])):
+			state_dict[n] = alias["STATE"+str(n)]
+	else:
+		raise Exception("STATE_N definition not found in devices.alias file")
+except Exception:
+	print(Exception)
 
 # Try to open the serial port
-ser = serial.Serial(port=None, baudrate=4000000, timeout=0)
-ser.port = "COM13"
+
+ser = serial.Serial(port=None, baudrate=4000000, timeout=0.5)
+ser.port = alias["COM_PORT"]
+
 try:
 	ser.open()
 	if(ser.is_open):
@@ -74,7 +78,6 @@ def parse_serial():
 	if(ser.is_open):
 		line = ser.readline()	
 		line = str(line, 'ascii')
-		
 		try:
 			split_line = line.split(',')
 			parse_packet(split_line)
@@ -82,8 +85,8 @@ def parse_serial():
 			serial_log.write(line.rstrip('\n'))
 		except:
 			pass
-		#print("Packet parsed")
-		#print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
+		# print("Packet parsed")
+		# print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
 
 		mask = 1
 		# Update valve state feedback
@@ -221,7 +224,7 @@ def motor_enable(motor_num, enable):
 def send(command_string):
 	command_string = command_string + " \r"
 	print("SENDING: "+command_string.rstrip('\n'))
-	info_log.write("%.3f,\tSENDING: " % time.clock()+command_string)
+	command_log.write("%.3f,\tSENDING: " % time.clock()+command_string)
 	if(ser.is_open):
 		ser.write(command_string.encode('ascii'))
 
@@ -455,6 +458,7 @@ layout.addWidget(col_label[8], 0, 8)
 
 
 def death():
+	command_log.close()
 	info_log.close()
 	serial_log.close()
 	app.quit()
