@@ -574,7 +574,7 @@ telemetry_format[rs422] = gui_v1;
 //	send_telem(rs422_com, full_pretty);
 //	HAL_Delay(100);
 //}
-
+//command(led0, 1);
   while (1)
   {
 
@@ -582,11 +582,14 @@ telemetry_format[rs422] = gui_v1;
 	  TIME(main_cycle_time);
 	  //count2 = adc_data[2][12];
 
-	  count1 = IGNITION_DURATION;
-	  count2 = FIRING_DURATION;
-	  count3 = POST_IGNITE_DELAY;
+//	  count1 = IGNITION_DURATION;
+//	  count2 = FIRING_DURATION;
+//	  count3 = POST_IGNITE_DELAY;
+	  count1 = rs422_buf.new_data;
+	  count2 = rs422_buf.filled;
+	  count3 = rs422_buf.head;
 
-	  // We have new rs422 data, parse it
+	  //  We have new rs422 data, parse it
 	  if(rs422_buf.new_data > 0){
 		  parse_buffer(&rs422_buf);
 	  }
@@ -607,6 +610,7 @@ telemetry_format[rs422] = gui_v1;
 		  send_telem(rs422_com, telemetry_format[rs422]);
 		  TIME(telemetry_cycle_time);
 		  //trace_printf("ibus: %u, count3: %u\r\n", adc_data[2][1], count3);
+
 	  }
 
 	  if(send_xbee_now){
@@ -1261,7 +1265,7 @@ static void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 921600;
+  huart1.Init.BaudRate = 4000000;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -1877,14 +1881,14 @@ void buffer_write(struct buffer *b, uint8_t* src, size_t size){
 }
 void parse_buffer(struct buffer *b){
 
-	for(uint8_t* n = (b->head)-(b->new_data); n < b->head; n++){
+	for(uint8_t* data_ptr = (b->head)-(b->new_data); data_ptr < b->head; data_ptr++){
 
 		if(b->id == COMMAND_SOURCE){									// Is this the command source
 			for(uint8_t n = 0; n < COMMAND_BUFFER_LENGTH; n ++){		// Copy the buffer into the command buffer then
 				command_buffer[command_index][n] = rs422_data_buf[n];	//
 			}
 
-			if(*(n-1) == '\r'){											// Got a return char, run the command and clear the command buffer
+			if(*(data_ptr) == '\r'){											// Got a return char, run the command and clear the command buffer
 				if(command_index < COMMAND_HISTORY-1){					// Register the command
 					command_index++;
 					serial_command(command_buffer[command_index-1]);	// Copy into command history buffers
