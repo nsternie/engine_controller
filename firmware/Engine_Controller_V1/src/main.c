@@ -73,6 +73,7 @@ struct buffer{
 	uint8_t *head;
 	uint8_t *tail;
 	uint8_t id;
+	uint8_t new_data;
 };
 #define getName(var)  #var
 #define get_state(x) (states[x])
@@ -129,6 +130,7 @@ void scale_readings();
 void buffer_init(struct buffer *b, uint8_t* data_buffer, size_t size, uint8_t id);
 void buffer_read(struct buffer *b, uint8_t* dst, size_t size);
 void buffer_write(struct buffer *b, uint8_t* src, size_t size);
+void parse_buffer(struct buffer *b);
 void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse);
 void error(char * error_message);
 void writeMotor(uint8_t device, int16_t motor_command);
@@ -583,6 +585,11 @@ telemetry_format[rs422] = gui_v1;
 	  count1 = IGNITION_DURATION;
 	  count2 = FIRING_DURATION;
 	  count3 = POST_IGNITE_DELAY;
+
+	  // We have new rs422 data, parse it
+	  if(rs422_buf.new_data > 0){
+		  parse_buffer(&rs422_buf);
+	  }
 
 	  if(read_adc_now){
 		  read_adc_now = 0;
@@ -1834,6 +1841,7 @@ void buffer_init(struct buffer *b, uint8_t* data_buffer, size_t size, uint8_t id
 	b->length = b->end - b->start;
 	b->filled = 0;
 	b->id = id;
+	b->new_data = 0;
 
 	for(uint16_t n = 0; n < b->length; n++){
 		data_buffer[n] = 0;
@@ -1850,49 +1858,44 @@ void buffer_read(struct buffer *b, uint8_t* dst, size_t size){
 	}
 }
 void buffer_write(struct buffer *b, uint8_t* src, size_t size){
-	for(uint16_t n = 0; n < size; n++){
-		if(*(src) == '\b' || *(src) == 127){
-			if(b->filled == 0){}
-			else{
-				*--(b->head) = 0;
-				b->filled--;
+	for(uint16_t n = 0; n < size; n++){	// How even many bytes there are to write (Usually just 1)
+		*(b->head++) = *(src++);		// Write a byte
+		if(b->head > b-> end){			// Wrap around if we went past max address
+			b->head = b->start;			// Set the head to the start
+		}
+		if(b->head==b->tail){			// Head has hit the tail
+			b->tail++;					// Inc tail
+			if(b->tail > b->end){		// Did the tail hit the max addr
+				b->tail = b->start;		// Yep, send it to the start
 			}
 		}
 		else{
-			*(b->head++) = *(src++);
-			if(b->head > b-> end){
-				b->head = b->start;
-			}
-			if(b->head==b->tail){
-				b->tail++;
-				if(b->tail > b->end){
-					b->tail = b->start;
-				}
-			}
-			else{
-				b->filled++;
+			b->filled++;				// No hits, just incr filled
+		}
+	}
+	b->new_data++;					// We now need to run parse_buffer at some point
+}
+void parse_buffer(struct buffer *b){
+
+	for(uint8_t* n = (b->head)-(b->new_data); n < b->head; n++){
+
+		if(b->id == COMMAND_SOURCE){									// Is this the command source
+			for(uint8_t n = 0; n < COMMAND_BUFFER_LENGTH; n ++){		// Copy the buffer into the command buffer then
+				command_buffer[command_index][n] = rs422_data_buf[n];	//
 			}
 
-		}
-		if(b->id == COMMAND_SOURCE){
-			for(uint8_t n = 0; n < COMMAND_BUFFER_LENGTH; n ++){
-				command_buffer[command_index][n] = rs422_data_buf[n];
-			}
-			if(*(b->head-1) == '\r'){
-				// Register the command
-				if(command_index < COMMAND_HISTORY-1){
+			if(*(n-1) == '\r'){											// Got a return char, run the command and clear the command buffer
+				if(command_index < COMMAND_HISTORY-1){					// Register the command
 					command_index++;
-					serial_command(command_buffer[command_index-1]);
+					serial_command(command_buffer[command_index-1]);	// Copy into command history buffers
 				}
-				else{
+				else{													// Command history full, shift all the buffers
 					serial_command(command_buffer[command_index]);
 					// Shift all the lines up 1, (new command line)
 					for(uint8_t n = 0; n < COMMAND_HISTORY-1; n++){
 						strcpy(command_buffer[n], command_buffer[n+1]);
 					}
 				}
-
-
 				// Clear the new line of the command buffer
 				for(uint8_t n = 0; n < 64; n ++){
 					command_buffer[command_index][n] = 0;
@@ -1901,8 +1904,8 @@ void buffer_write(struct buffer *b, uint8_t* src, size_t size){
 				buffer_init(&rs422_buf, rs422_data_buf, UART_BUFFER_SIZE, rs422);
 			}
 		}
-
 	}
+	b->new_data = 0;		// We parsed all new data
 }
 void scale_readings(){
 
