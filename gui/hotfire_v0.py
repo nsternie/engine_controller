@@ -20,9 +20,10 @@ mtr_setpointfb = []
 
 run_name = input("Enter run name: ")
 
-serial_log = open(run_name+"_Serial_log.csv", "w+")
-info_log = open(run_name+"_Command_log.csv", "w+")
-info_log.write("Time, Command/info\n")
+serial_log = open(run_name+"_serial_log.csv", "w+")
+info_log = open(run_name+"_python_log.csv", "w+")
+command_log = open(run_name+"_command_log.csv", "w+")
+command_log.write("Time, Command/info\n")
 
 
 ## Always start by initializing Qt (only once per application)
@@ -42,11 +43,12 @@ for line in alias_file:
 	s = line.split('\t')
 	alias[s[0]] = s[1].rstrip('\r\n')
 
-# info_log.write("Alias FIle")
-# for line in alias_file:
-# 	info_log.write(line)
-# info_log.write(str(alias))
-# info_log.write("\n")
+info_log.write("Alias FIle")
+for line in alias_file:
+	info_log.write(line)
+info_log.write(str(alias))
+info_log.write("\n")
+
 try:
 	if("STATE_N" in alias.keys()):
 		state_dict = {}
@@ -221,7 +223,7 @@ def motor_enable(motor_num, enable):
 def send(command_string):
 	command_string = command_string + " \r"
 	print("SENDING: "+command_string.rstrip('\n'))
-	info_log.write("%.3f,\tSENDING: " % time.clock()+command_string)
+	command_log.write("%.3f,\tSENDING: " % time.clock()+command_string)
 	if(ser.is_open):
 		ser.write(command_string.encode('ascii'))
 
@@ -455,6 +457,7 @@ layout.addWidget(col_label[8], 0, 8)
 
 
 def death():
+	command_log.close()
 	info_log.close()
 	serial_log.close()
 	app.quit()
