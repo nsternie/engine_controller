@@ -125,6 +125,11 @@ def parse_serial():
 		count3_label.setText("Post ignite delay: "+str(count3))
 
 		state_label.setText("STATE = "+state_dict[STATE])
+
+		if(AUTOSTRING == "0"):
+			# No new string sent
+		else:
+			autofeedback.setText(AUTOSTING)
 		
 device_list = []
 valve_states = 0
