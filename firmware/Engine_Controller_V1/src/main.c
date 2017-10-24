@@ -91,6 +91,8 @@ struct autosequence{
 };
 
 struct autosequence autos[NUM_AUTOS];
+int16_t LOG_TO_AUTO = -1;
+
 
 #define getName(var)  #var
 #define get_state(x) (states[x])
@@ -502,6 +504,7 @@ int main(void)
 	  }
 	  strcpy(device_alias[device], alias);
 	}
+	strcpy(device_alias[delay], "delay");
 	strcpy(device_alias[led0], "led0");
 	strcpy(device_alias[mtr0], "mtr0");
 	strcpy(device_alias[mtr1], "mtr1");
@@ -622,8 +625,6 @@ telemetry_format[rs422] = gui_v1;
 	  TIME(main_cycle_time);
 	  //count2 = adc_data[2][12];
 
-	  IGNITION_DURATION = autos[0].next_exec;
-	  FIRING_DURATION = millis;
 	  count1 = IGNITION_DURATION;
 	  count2 = FIRING_DURATION;
 	  count3 = POST_IGNITE_DELAY;
@@ -1993,8 +1994,6 @@ int  serial_command(uint8_t* cbuf_in){
 	}
 
 	// "command"
-	//
-	//
 	if((strcmp(argv[0], "command") == 0)){
 		uint8_t device;
 		// Get the device id
@@ -2002,7 +2001,15 @@ int  serial_command(uint8_t* cbuf_in){
 			if(strcmp(argv[1], device_alias[device]) == 0) break;
 		}
 		int command_value = atoi(argv[2]);
-		command(device, command_value);
+		if(LOG_TO_AUTO == -1){
+			command(device, command_value);
+		}
+		else{
+			autos[LOG_TO_AUTO].device[autos[LOG_TO_AUTO].current_index] = device;
+			autos[LOG_TO_AUTO].command[autos[LOG_TO_AUTO].current_index] = command_value;
+			autos[LOG_TO_AUTO].length++;
+			autos[LOG_TO_AUTO].current_index++;
+		}
 	}
 	// END "command"
 
@@ -2015,7 +2022,9 @@ int  serial_command(uint8_t* cbuf_in){
 			}
 		}
 		command_index = 0;
-	}
+	} // END clear
+
+	// arm
 	if((strcmp(argv[0], "arm") == 0)){
 		if(STATE == MANUAL){
 			STATE = ARMED;
@@ -2024,7 +2033,9 @@ int  serial_command(uint8_t* cbuf_in){
 			motor_active[0] = 1;
 			motor_active[1] = 1;
 		}
-	}
+	} // END arm
+
+	// disarm
 	if((strcmp(argv[0], "disarm") == 0)){
 		if(STATE == ARMED){
 			STATE = MANUAL;
@@ -2034,14 +2045,17 @@ int  serial_command(uint8_t* cbuf_in){
 		}
 		motor_active[0] = 0;
 		motor_active[1] = 0;
-	}
+	}	// END disarm
+
+	// hotfire
 	if((strcmp(argv[0], "hotfire") == 0)){
 		if(STATE == ARMED){
 			STATE = IGNITION;
 			state_timer = micros;
 		}
-	}
+	}	// END hotfire
 
+	// set
 	else if(strcmp(argv[0], "set") == 0){
 		if(strcmp(argv[1], "telemformat") == 0){
 
@@ -2177,6 +2191,25 @@ int  serial_command(uint8_t* cbuf_in){
 			LOGGING_ACTIVE = 0;
 		}
 	}
+
+	else if(strcmp(argv[0], "new_auto") == 0){
+		LOG_TO_AUTO = atoi(argv[1]);
+	}
+	else if(strcmp(argv[0], "end_auto") == 0){
+		autos[LOG_TO_AUTO].current_index = 0;
+		LOG_TO_AUTO = -1;
+	}
+	else if(strcmp(argv[0], "start_auto") == 0){
+		start_auto(atoi(argv[1]));
+	}
+	else if(strcmp(argv[0], "stop_auto") == 0){
+		stop_auto(atoi(argv[1]));
+	}
+	else if(strcmp(argv[0], "kill_auto") == 0){
+		kill_auto(atoi(argv[1]));
+	}
+
+
 	else{
 		// Invalid command
 		cbuf[strlen(cbuf)] = " - INVALID COMMAND";
