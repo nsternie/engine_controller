@@ -92,6 +92,7 @@ struct autosequence{
 
 struct autosequence autos[NUM_AUTOS];
 int16_t LOG_TO_AUTO = -1;
+uint8_t AUTOSTRING[1024];
 
 
 #define getName(var)  #var
@@ -1750,7 +1751,7 @@ void unstuff_data(uint8_t *src, uint8_t *dst, uint16_t length){
 }
 void send_telem(UART_HandleTypeDef device, uint8_t format){
 
-	uint8_t line[1024];
+	uint8_t line[2048];
 
 	switch(format){
 		case gui_v1:
@@ -1772,15 +1773,17 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 
 
 			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.2f,%.2f,%u,%u,%u,%"
-					"u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,\r\n",valve_states,pressure[0],
+					"u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,%s,\r\n",valve_states,pressure[0],
 					pressure[1],pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],
 					pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],main_cycle_time[0],
 					motor_cycle_time[0],adc_cycle_time[0],telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],
 					motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],motor_position[0],motor_position[1],
-					motor_pwm[0],motor_pwm[1],count1,count2,count3, STATE);
+					motor_pwm[0],motor_pwm[1],count1,count2,count3, STATE, AUTOSTRING);
 
 			//while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
 			HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
+
+			strcpy(AUTOSTRING, "0");	// Only send it once every time it is modified
 		}
 			break;
 
@@ -2195,8 +2198,9 @@ int  serial_command(uint8_t* cbuf_in){
 	else if(strcmp(argv[0], "new_auto") == 0){
 		LOG_TO_AUTO = atoi(argv[1]);
 	}
-	else if(strcmp(argv[0], "end_auto") == 0){
+	else if(strcmp(argv[0], "save_auto") == 0){
 		autos[LOG_TO_AUTO].current_index = 0;
+		print_auto(LOG_TO_AUTO);		// Automatically print it when you finish to verify
 		LOG_TO_AUTO = -1;
 	}
 	else if(strcmp(argv[0], "start_auto") == 0){
@@ -2207,6 +2211,9 @@ int  serial_command(uint8_t* cbuf_in){
 	}
 	else if(strcmp(argv[0], "kill_auto") == 0){
 		kill_auto(atoi(argv[1]));
+	}
+	else if(strcmp(argv[0], "print_auto") == 0){
+		print_auto(atoi(argv[1]));
 	}
 
 
@@ -2423,6 +2430,14 @@ void stop_auto(uint16_t index){
 }
 void kill_auto(uint16_t index){
 	autos[index].running = 0;
+}
+void print_auto(uint16_t index){
+	AUTOSTRING = 0;
+	snprintf(AUTOSTRING, sizeof(AUTOSTRING), "Device\tCommand\n");
+	for(uint16_t a = 0; a < autos[LOG_TO_AUTO].length; a++){		// Recursivley generate the autostring
+		snprintf(AUTOSTRING, sizeof(AUTOSTRING), "%s%s\t%s\n",
+				AUTOSTRING, autos[LOG_TO_AUTO].device[a], autos[LOG_TO_AUTO].command[a]);
+	}
 }
 /* USER CODE END 4 */
 
