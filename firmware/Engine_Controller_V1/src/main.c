@@ -74,12 +74,32 @@ struct buffer{
 	uint8_t *tail;
 	uint8_t id;
 };
+
+
+#define MAX_AUTO_LENGTH 20
+#define NUM_AUTOS		5
+
+struct autosequence{
+	char		name[16];
+	uint8_t 	device[MAX_AUTO_LENGTH];
+	int16_t 	command[MAX_AUTO_LENGTH];
+	uint16_t	current_index;
+	uint32_t	last_exec;
+	uint32_t	next_exec;
+	int16_t 	length;
+	uint8_t 	running;
+};
+
+struct autosequence autos[NUM_AUTOS];
+
 #define getName(var)  #var
 #define get_state(x) (states[x])
 #define TIME(x)			(x[0] = (__HAL_TIM_GET_COUNTER(&htim2) - x[1])+1); \
 						(x[1] = __HAL_TIM_GET_COUNTER(&htim2))
 
 #define micros	__HAL_TIM_GET_COUNTER(&htim2)
+#define millis	((__HAL_TIM_GET_COUNTER(&htim2))/1000)
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,6 +154,11 @@ void error(char * error_message);
 void writeMotor(uint8_t device, int16_t motor_command);
 void motor_control();
 void read_thermocouples();
+void run_autos();
+void start_auto(uint16_t index);
+void stop_auto(uint16_t index);
+void kill_auto(uint16_t index);
+
 // END Function prototypes  ///////////////////////////////
 
 /* USER CODE END PFP */
@@ -169,6 +194,8 @@ uint16_t telemetry_rate[3] = {10,10,10};
 // END TELEM DEFINITIONS //////////////////////////////////
 
 // Device definitions  ////////////////////////////////////
+#define delay 0
+
 #define vlv0 20
 #define vlv1 21
 #define vlv2 22
@@ -573,13 +600,30 @@ telemetry_format[rs422] = gui_v1;
 //	HAL_Delay(100);
 //}
 
+
+// Auto test
+//autos[0].device[0] = led0;
+//autos[0].command[0] = 1;
+//autos[0].device[1] = delay;
+//autos[0].command[1] = 250;
+//autos[0].device[2] = led0;
+//autos[0].command[2] = 0;
+//autos[0].device[3] = delay;
+//autos[0].command[3] = 1000;
+//autos[0].length = 3;
+//
+//start_auto(0);
+
   while (1)
   {
+	  run_autos();
 
 	  //count2 = motor_active[0];
 	  TIME(main_cycle_time);
 	  //count2 = adc_data[2][12];
 
+	  IGNITION_DURATION = autos[0].next_exec;
+	  FIRING_DURATION = millis;
 	  count1 = IGNITION_DURATION;
 	  count2 = FIRING_DURATION;
 	  count3 = POST_IGNITE_DELAY;
@@ -1934,7 +1978,7 @@ void scale_readings(){
 	}
 
 }
-int serial_command(uint8_t* cbuf_in){
+int  serial_command(uint8_t* cbuf_in){
 
 	char cbuf[COMMAND_BUFFER_LENGTH];
 	strcpy(cbuf, cbuf_in);
@@ -2308,6 +2352,44 @@ read_thermocouples(){
 	__enable_irq();
 
 
+}
+void run_autos(){
+	for(int n = 0; n < NUM_AUTOS; n++){
+		if(autos[n].running == 1){
+			if(millis > autos[n].next_exec){
+				autos[n].last_exec = millis;
+				if(autos[n].device[autos[n].current_index] == delay){
+					autos[n].next_exec = millis + autos[n].command[autos[n].current_index];
+				}
+				else{
+					command(autos[n].device[autos[n].current_index], autos[n].command[autos[n].current_index]);
+				}
+
+				if(autos[n].current_index == autos[n].length){
+					autos[n].current_index = 0;
+				}
+				else{
+					autos[n].current_index++;
+				}
+			}
+		}
+	}
+}
+void start_auto(uint16_t index){
+
+	autos[index].current_index = 0;
+	autos[index].running = 1;
+	autos[index].next_exec = millis;	// Execute the first command as soon as run_autos is called
+
+}
+void stop_auto(uint16_t index){
+	// This will eventually be a more graceful version of kill
+	// ... so it dosent leave things in a weird state
+	// ... TODO
+	autos[index].running = 0;
+}
+void kill_auto(uint16_t index){
+	autos[index].running = 0;
 }
 /* USER CODE END 4 */
 
