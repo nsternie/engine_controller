@@ -147,10 +147,6 @@ count3 = 0
 STATE = 0
 
 def parse_packet(split_line):
-	# if(write_csv_header):
-	# 	serial_log.write(csv_header)
-	# 	serial_log.write("\n")
-	# 	write_csv_header = False
 	global valve_states
 	global pressure
 	global samplerate
@@ -163,12 +159,13 @@ def parse_packet(split_line):
 	global ibus
 	global telemetry_rate
 	global motor_control_gain
-	global motor_position		
+	global motor_position
 	global motor_pwm
 	global count1
 	global count2
 	global count3
-	global State	
+	global STATE
+	global AUTOSTRING
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -199,6 +196,7 @@ def parse_packet(split_line):
 	count2 = int(split_line[27])
 	count3 = int(split_line[28])
 	STATE = int(split_line[29])
+	AUTOSTRING = str(split_line[30])
 
 
 def command(device, command):
@@ -385,6 +383,9 @@ raw_command_send.clicked.connect(raw_command)
 raw_command_input.returnPressed.connect(raw_command)
 layout.addWidget(raw_command_input, 16, 5, 1, 2)
 layout.addWidget(raw_command_send, 16, 7)
+
+autofeedback = QtGui.QPlainTextEdit("Autosequence feedback")
+layout.addWidget(autofeedback, 1, 10, 4, 3)
 
 # Board Health
 BOARD_HEALTH_LABEL = QtGui.QLabel("Board Health")
