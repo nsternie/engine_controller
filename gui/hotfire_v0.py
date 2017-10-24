@@ -127,7 +127,7 @@ def parse_serial():
 		state_label.setText("STATE = "+state_dict[STATE])
 
 		if(AUTOSTRING == "0"):
-			# No new string sent
+			pass # No new string sent
 		else:
 			autofeedback.setText(AUTOSTING)
 		
