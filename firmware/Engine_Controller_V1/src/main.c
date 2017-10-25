@@ -78,11 +78,11 @@ struct buffer{
 
 #define MAX_AUTO_LENGTH 20
 #define NUM_AUTOS		5
+#define AUTO_STRING_LENGTH	30
 
 struct autosequence{
 	char		name[16];
-	uint8_t 	device[MAX_AUTO_LENGTH];
-	int16_t 	command[MAX_AUTO_LENGTH];
+	uint8_t 	command[MAX_AUTO_LENGTH][AUTO_STRING_LENGTH];
 	uint16_t	current_index;
 	uint32_t	last_exec;
 	uint32_t	next_exec;
@@ -147,7 +147,7 @@ void send_telem(UART_HandleTypeDef device, uint8_t format);	//
 void stuff_data(uint8_t *src, uint8_t *dst, uint16_t length);
 void unstuff_data(uint8_t *src, uint8_t *dst, uint16_t length);
 void assemble_telem();
-int serial_command(uint8_t* cbuf_in);
+uint32_t serial_command(uint8_t* cbuf_in);
 void scale_readings();
 void buffer_init(struct buffer *b, uint8_t* data_buffer, size_t size, uint8_t id);
 void buffer_read(struct buffer *b, uint8_t* dst, size_t size);
@@ -617,6 +617,15 @@ telemetry_format[rs422] = gui_v1;
 //autos[0].length = 3;
 //
 //start_auto(0);
+
+strcpy(autos[0].command[0], "command led0 1\r");
+strcpy(autos[0].command[1], "delay 250\r");
+strcpy(autos[0].command[2], "command led0 0\r");
+strcpy(autos[0].command[3], "delay 500\r");
+autos[0].length = 3;
+
+start_auto(0);
+
 
   while (1)
   {
@@ -1982,7 +1991,7 @@ void scale_readings(){
 	}
 
 }
-int  serial_command(uint8_t* cbuf_in){
+uint32_t  serial_command(uint8_t* cbuf_in){
 
 	char cbuf[COMMAND_BUFFER_LENGTH];
 	strcpy(cbuf, cbuf_in);
@@ -1996,6 +2005,29 @@ int  serial_command(uint8_t* cbuf_in){
 		token = strtok(NULL, s);
 	}
 
+	if(strcmp(argv[0], "save_auto") == 0){
+		autos[LOG_TO_AUTO].current_index = 0;
+		print_auto(LOG_TO_AUTO);		// Automatically print it when you finish to verify
+		LOG_TO_AUTO = -1;
+	}
+
+	if(LOG_TO_AUTO != -1){
+		// We are logging to auto index contained in LOG_TO_AUTO
+		if(strlen(cbuf_in) <= AUTO_STRING_LENGTH){
+			strcpy(autos[LOG_TO_AUTO].command[autos[LOG_TO_AUTO].current_index], cbuf_in);
+		}
+		else{
+			strcpy(autos[LOG_TO_AUTO].command[autos[LOG_TO_AUTO].current_index], "ERROR, COMMAND TO LONG");
+		}
+		autos[LOG_TO_AUTO].length++;
+		autos[LOG_TO_AUTO].current_index++;
+		return 0;
+	}
+
+	if((strcmp(argv[0], "delay") == 0)){
+		return atoi(argv[1]);
+	}
+
 	// "command"
 	if((strcmp(argv[0], "command") == 0)){
 		uint8_t device;
@@ -2004,15 +2036,9 @@ int  serial_command(uint8_t* cbuf_in){
 			if(strcmp(argv[1], device_alias[device]) == 0) break;
 		}
 		int command_value = atoi(argv[2]);
-		if(LOG_TO_AUTO == -1){
-			command(device, command_value);
-		}
-		else{
-			autos[LOG_TO_AUTO].device[autos[LOG_TO_AUTO].current_index] = device;
-			autos[LOG_TO_AUTO].command[autos[LOG_TO_AUTO].current_index] = command_value;
-			autos[LOG_TO_AUTO].length++;
-			autos[LOG_TO_AUTO].current_index++;
-		}
+
+		command(device, command_value);
+
 	}
 	// END "command"
 
@@ -2197,11 +2223,6 @@ int  serial_command(uint8_t* cbuf_in){
 
 	else if(strcmp(argv[0], "new_auto") == 0){
 		LOG_TO_AUTO = atoi(argv[1]);
-	}
-	else if(strcmp(argv[0], "save_auto") == 0){
-		autos[LOG_TO_AUTO].current_index = 0;
-		print_auto(LOG_TO_AUTO);		// Automatically print it when you finish to verify
-		LOG_TO_AUTO = -1;
 	}
 	else if(strcmp(argv[0], "start_auto") == 0){
 		start_auto(atoi(argv[1]));
@@ -2398,13 +2419,7 @@ void run_autos(){
 		if(autos[n].running == 1){
 			if(millis > autos[n].next_exec){
 				autos[n].last_exec = millis;
-				if(autos[n].device[autos[n].current_index] == delay){
-					autos[n].next_exec = millis + autos[n].command[autos[n].current_index];
-				}
-				else{
-					command(autos[n].device[autos[n].current_index], autos[n].command[autos[n].current_index]);
-				}
-
+				autos[n].next_exec = millis + serial_command(autos[n].command[autos[n].current_index]);
 				if(autos[n].current_index == autos[n].length){
 					autos[n].current_index = 0;
 				}
@@ -2432,11 +2447,11 @@ void kill_auto(uint16_t index){
 	autos[index].running = 0;
 }
 void print_auto(uint16_t index){
-	AUTOSTRING = 0;
+	AUTOSTRING[0] = '\0';
 	snprintf(AUTOSTRING, sizeof(AUTOSTRING), "Device\tCommand\n");
 	for(uint16_t a = 0; a < autos[LOG_TO_AUTO].length; a++){		// Recursivley generate the autostring
-		snprintf(AUTOSTRING, sizeof(AUTOSTRING), "%s%s\t%s\n",
-				AUTOSTRING, autos[LOG_TO_AUTO].device[a], autos[LOG_TO_AUTO].command[a]);
+		snprintf(AUTOSTRING, sizeof(AUTOSTRING), "%s%s\n",
+				AUTOSTRING, autos[LOG_TO_AUTO].command[a]);
 	}
 }
 /* USER CODE END 4 */
