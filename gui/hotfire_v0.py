@@ -126,33 +126,33 @@ def parse_serial():
 				except:
 					apperently_i_need_a_statment_here = "I dont really know why..."
 
-				#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
-				motor_cycle_rate.setText(str(round(1000000/motor_cycle_time, 3)))
-				adc_cycle_rate.setText(str(round(1000000/adc_cycle_time, 3)))
-				telemetry_cycle_rate.setText(str(round(1000000/telemetry_cycle_time, 3)))
+			#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
+			motor_cycle_rate.setText(str(round(1000000/motor_cycle_time, 3)))
+			adc_cycle_rate.setText(str(round(1000000/adc_cycle_time, 3)))
+			telemetry_cycle_rate.setText(str(round(1000000/telemetry_cycle_time, 3)))
 
-				# Board health
-				ebatt_value.setText(str(ebatt))
-				ibus_value.setText(str(ibus))
+			# Board health
+			ebatt_value.setText(str(ebatt))
+			ibus_value.setText(str(ibus))
 
-				# motor gain feedback
-				kpfb.setText(str(motor_control_gain[0]))
-				kifb.setText(str(motor_control_gain[1]))
-				kdfb.setText(str(motor_control_gain[2]))
+			# motor gain feedback
+			kpfb.setText(str(motor_control_gain[0]))
+			kifb.setText(str(motor_control_gain[1]))
+			kdfb.setText(str(motor_control_gain[2]))
 
-				count1_label.setText("Ignition Duration: "+str(count1))
-				count2_label.setText("Burn Duration: "+str(count2))
-				count3_label.setText("Post ignite delay: "+str(count3))
+			count1_label.setText("Ignition Duration: "+str(count1))
+			count2_label.setText("Burn Duration: "+str(count2))
+			count3_label.setText("Post ignite delay: "+str(count3))
 
-				state_label.setText("STATE = "+state_dict[STATE])
+			state_label.setText("STATE = "+state_dict[STATE])
 
-				log_to_auto_label.setText("Logging to auto: "+str(LOG_TO_AUTO))
+			log_to_auto_label.setText("Logging to auto: "+str(LOG_TO_AUTO))
 
-				#if(AUTOSTRING == "0"):
-				#	pass 	# No new string sent
-				#else:
-				autofeedback.setPlainText(AUTOSTING+"- RIP")
-				print("AUTOSTRING: "+AUTOSTRING)
+			#if(AUTOSTRING == "0"):
+			#	pass 	# No new string sent
+			#else:
+			autofeedback.setPlainText(AUTOSTING+"- RIP")
+			print("AUTOSTRING: "+AUTOSTRING)
 		except:
 			pass
 		
