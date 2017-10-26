@@ -626,7 +626,6 @@ autos[0].length = 3;
 
 start_auto(0);
 
-
   while (1)
   {
 	  run_autos();
@@ -1780,14 +1779,14 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 				mask <<= 1;
 			}
 
-
-			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.2f,%.2f,%u,%u,%u,%"
-					"u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,%s,\r\n",valve_states,pressure[0],
-					pressure[1],pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],
-					pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],main_cycle_time[0],
+			IGNITION_DURATION = strlen(AUTOSTRING);
+			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2"
+					"f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,%s,%d,\r\n",
+					valve_states,pressure[0],pressure[1],pressure[2],pressure[3],pressure[4],pressure[5],
+					pressure[6],pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],main_cycle_time[0],
 					motor_cycle_time[0],adc_cycle_time[0],telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],
-					motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],motor_position[0],motor_position[1],
-					motor_pwm[0],motor_pwm[1],count1,count2,count3, STATE, AUTOSTRING);
+					motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],
+					motor_position[0],motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,AUTOSTRING,LOG_TO_AUTO);
 
 			//while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
 			HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
@@ -2448,11 +2447,19 @@ void kill_auto(uint16_t index){
 }
 void print_auto(uint16_t index){
 	AUTOSTRING[0] = '\0';
-	snprintf(AUTOSTRING, sizeof(AUTOSTRING), "Device\tCommand\n");
-	for(uint16_t a = 0; a < autos[LOG_TO_AUTO].length; a++){		// Recursivley generate the autostring
-		snprintf(AUTOSTRING, sizeof(AUTOSTRING), "%s%s\n",
-				AUTOSTRING, autos[LOG_TO_AUTO].command[a]);
+	FIRING_DURATION++;
+	uint32_t dst = 0;
+	//snprintf(AUTOSTRING, sizeof(AUTOSTRING), "Device\tCommand\n");
+	for(uint16_t a = 0; a < autos[index].length; a++){		// Recursivley generate the autostring
+		uint8_t temp[2048];
+		strcpy(temp, AUTOSTRING);
+		snprintf(AUTOSTRING, sizeof(AUTOSTRING), "%s%s\n", temp, autos[index].command[a]);
+//		strcpy(AUTOSTRING[dst], autos[index].command[a]);
+//		dst += strlen(autos[index].command[a]);
 	}
+	FIRING_DURATION = strlen(autos[index].command[0]);
+	POST_IGNITE_DELAY = strlen(AUTOSTRING);
+	//strcpy(AUTOSTRING, autos[index].command[0]);
 }
 /* USER CODE END 4 */
 
