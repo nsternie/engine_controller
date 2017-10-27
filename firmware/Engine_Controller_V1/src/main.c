@@ -586,6 +586,8 @@ int main(void)
 
 telemetry_format[rs422] = gui_v1;
 
+command(led0, 1);
+
 //while(1){
 //	read_adc_brute();
 //	scale_readings();
@@ -618,7 +620,7 @@ telemetry_format[rs422] = gui_v1;
 		  if(LOGGING_ACTIVE){
 
 		  }
-		  //read_thermocouples();
+		  read_thermocouples();
 	  }
 
 	  if(send_rs422_now){
@@ -2326,16 +2328,20 @@ read_thermocouples(){
 	uint8_t tx[4];
 	uint8_t rx[4];
 
-	select_device(tc0);
-	HAL_SPI_TransmitReceive(&hspi2, tx, rx, 4, 1);
-	release_device(tc0);
+	for(uint8_t tcx = tc0; tcx < tc3; tcx++){
 
-	int16_t data;
-	data = rx[0];
-	data <<= 8;
-	data |= rx[1];
-	data >>= 2;
-	//count2 = data;
+		select_device(tc0);
+		HAL_SPI_TransmitReceive(&hspi2, tx, rx, 4, 1);
+		release_device(tc0);
+
+		int16_t data;
+		data = rx[0];
+		data <<= 8;
+		data |= rx[1];
+		data >>= 4;
+		FIRING_DURATION = data;
+
+	}
 
 	__enable_irq();
 
