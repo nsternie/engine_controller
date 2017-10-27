@@ -128,6 +128,10 @@ def parse_serial():
 		count3_label.setText("Post ignite delay: "+str(count3))
 
 		state_label.setText("STATE = "+state_dict[STATE])
+
+		thrust_load_label.setText("Thrust = "+str(thrust_load))
+		for n in range(0, 4):
+			load_label[n].setText(str(n)+": "+str(load[n]))		
 		
 device_list = []
 valve_states = 0
@@ -148,12 +152,10 @@ count1 = 0
 count2 = 0
 count3 = 0
 STATE = 0
+load = [0,0,0,0]
+thrust_load = 0
 
 def parse_packet(split_line):
-	# if(write_csv_header):
-	# 	serial_log.write(csv_header)
-	# 	serial_log.write("\n")
-	# 	write_csv_header = False
 	global valve_states
 	global pressure
 	global samplerate
@@ -166,12 +168,14 @@ def parse_packet(split_line):
 	global ibus
 	global telemetry_rate
 	global motor_control_gain
-	global motor_position		
+	global motor_position
 	global motor_pwm
 	global count1
 	global count2
 	global count3
-	global STATE	
+	global STATE
+	global load
+	global thrust_load
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -202,6 +206,11 @@ def parse_packet(split_line):
 	count2 = int(split_line[27])
 	count3 = int(split_line[28])
 	STATE = int(split_line[29])
+	load[0] = float(split_line[30])
+	load[1] = float(split_line[31])
+	load[2] = float(split_line[32])
+	load[3] = float(split_line[33])
+	thrust_load = float(split_line[34])
 
 
 def command(device, command):
@@ -376,6 +385,19 @@ layout.addWidget(state_label, 12, 5)
 layout.addWidget(arm_button, 13, 5)
 layout.addWidget(disarm_button, 14, 5)
 layout.addWidget(hotfire_button, 15, 5)
+
+thrust_load_label = QtGui.QLabel("NET THRUST")
+thrust_load_label.setAlignment(Qt.AlignCenter)
+load_label = []
+for n in range(0, 4):
+	load_label.append(QtGui.QLabel("LOAD "+str(n)))
+layout.addWidget(thrust_load_label, 12, 6, 1, 2)
+layout.addWidget(load_label[0], 13, 6)
+layout.addWidget(load_label[1], 13, 7)
+layout.addWidget(load_label[2], 14, 6)
+layout.addWidget(load_label[3], 14, 7)
+
+
 
 
 # Raw Command
