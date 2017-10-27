@@ -2450,13 +2450,11 @@ void print_auto(uint16_t index){
 	AUTOSTRING[0] = '\0';
 	//snprintf(AUTOSTRING, sizeof(AUTOSTRING), "Device\tCommand\n");
 	for(uint16_t a = 0; a < autos[index].length; a++){		// Recursivley generate the autostring
-		uint8_t temp[2048];
 		uint8_t stripped_string [AUTO_STRING_LENGTH];
 		strcpy(stripped_string, autos[index].command[a]);
 		strtok(stripped_string, "\r\n");
 		strcat(stripped_string, "|");
-		strcpy(temp, AUTOSTRING);
-		snprintf(AUTOSTRING, sizeof(AUTOSTRING), "%s%s", temp, stripped_string);
+		strcat(AUTOSTRING, stripped_string);
 	}
 	//strcpy(AUTOSTRING, autos[index].command[0]);
 }
