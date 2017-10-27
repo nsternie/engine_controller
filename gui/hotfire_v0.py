@@ -148,11 +148,15 @@ def parse_serial():
 
 			log_to_auto_label.setText("Logging to auto: "+str(LOG_TO_AUTO))
 
-			#if(AUTOSTRING == "0"):
-			#	pass 	# No new string sent
-			#else:
-			autofeedback.setPlainText(AUTOSTING+"- RIP")
-			print("AUTOSTRING: "+AUTOSTRING)
+			if(AUTOSTRING == "0"):
+				pass 	# No new string sent
+			else:
+				temp = ""
+				split_auto = AUTOSTRING.split('|')
+				for chunk in split_auto:
+					temp = temp + chunk + "\n"
+				autofeedback.setPlainText(temp)
+				print("AUTOSTRING RECIEVED: "+AUTOSTRING)
 		except:
 			pass
 		
