@@ -1958,8 +1958,8 @@ void scale_readings(){
 	}
 
 	for(uint8_t n = 0; n < 6; n++){
-		load[n] = adc_data[3][15-n]-load_cal[OFFSET[n]];
-		load[n] *= load_cal[SLOPE[n]];
+		load[n] = adc_data[3][15-n]-load_cal[OFFSET][n];
+		load[n] *= load_cal[SLOPE][n];
 	}
 
 	thrust_load = load[0]+load[1]+load[2]+load[3];
