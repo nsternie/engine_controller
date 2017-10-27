@@ -2437,15 +2437,22 @@ void start_auto(uint16_t index){
 	autos[index].running = 1;
 	autos[index].next_exec = millis;	// Execute the first command as soon as run_autos is called
 
+	// State feedback to show the auto is running
+	uint16_t mask = 1 << index;
+	auto_states |= mask;
+
 }
 void stop_auto(uint16_t index){
 	// This will eventually be a more graceful version of kill
 	// ... so it dosent leave things in a weird state
 	// ... TODO
-	autos[index].running = 0;
+	kill_auto(index);
 }
 void kill_auto(uint16_t index){
 	autos[index].running = 0;
+	// State feedbck to show the auto is stopped
+	uint16_t mask = 1 << index;
+	auto_states ^= mask;
 }
 void print_auto(uint16_t index){
 	AUTOSTRING[0] = '\0';
