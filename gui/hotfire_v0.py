@@ -37,6 +37,7 @@ count3 = 0
 STATE = 0
 AUTOSTRING = "0"
 LOG_TO_AUTO = 0
+auto_states = 0
 
 #
 
@@ -157,6 +158,18 @@ def parse_serial():
 					temp = temp + chunk + "\n"
 				autofeedback.setPlainText(temp)
 				print("AUTOSTRING RECIEVED: "+AUTOSTRING)
+
+			mask = 1
+			running_autos_string = "Running Autos: "
+			# Update auto state feedback
+			for n in range(0, 16):
+				state = 0
+				if(mask & auto_states):
+					running_autos_string += (str(n)+", ")
+				mask = mask << 1
+
+			running_autos_label.setText(running_autos_string)
+
 		except:
 			pass
 		
@@ -405,8 +418,11 @@ layout.addWidget(raw_command_send, 16, 7)
 
 log_to_auto_label = QtGui.QLabel("LOG_TO_AUTO")
 autofeedback = QtGui.QPlainTextEdit("Autosequence feedback")
+running_autos_label = QtGui.QLabel("RUNNING_AUTOS")
 layout.addWidget(autofeedback, 1, 10, 4, 3)
 layout.addWidget(log_to_auto_label, 5, 10)
+layout.addWidget(running_autos_label, 6, 10, 1, 2)
+
 # Board Health
 BOARD_HEALTH_LABEL = QtGui.QLabel("Board Health")
 ebatt_label =  QtGui.QLabel("BATT")
