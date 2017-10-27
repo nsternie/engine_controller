@@ -19,7 +19,7 @@ Index	varaible	printf format	units	python type	device name	python override name	
 17	ibus	%.2f	A	float	ibus		STATE	1
 18	telemetry_rate[0]	%u	hz	int	telemetry_rate	telemetry_rate	AUTOSTRING	1
 19	motor_control_gain[0]	%.3f	x	float	motor_control_gain[0]		LOG_TO_AUTO	1
-20	motor_control_gain[1]	%.3f	x	float	motor_control_gain[1]			1
+20	motor_control_gain[1]	%.3f	x	float	motor_control_gain[1]		auto_states	1
 21	motor_control_gain[2]	%.3f	x	float	motor_control_gain[2]			1
 22	motor_position[0]	%.2f	deg	float	motor_position[0]			1
 23	motor_position[1]	%.2f	deg	float	motor_position[1]			1
@@ -31,3 +31,4 @@ Index	varaible	printf format	units	python type	device name	python override name	
 29	STATE	%u	x	int	STATE			
 30	AUTOSTRING	%s	x	str	AUTOSTRING			
 31	LOG_TO_AUTO	%d	x	int	LOG_TO_AUTO			
+32	auto_states	%u	x	int	auto_states			

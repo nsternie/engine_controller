@@ -93,6 +93,7 @@ struct autosequence{
 struct autosequence autos[NUM_AUTOS];
 int16_t LOG_TO_AUTO = -1;
 uint8_t AUTOSTRING[1024];
+uint16_t auto_states;
 
 
 #define getName(var)  #var
@@ -1780,14 +1781,14 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			}
 
 
-			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2"
-					"f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,%s,%d,\r\n",
-					valve_states,pressure[0],pressure[1],pressure[2],pressure[3],pressure[4],pressure[5],
-					pressure[6],pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],main_cycle_time[0],
-					motor_cycle_time[0],adc_cycle_time[0],telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],
-					motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],
-					motor_position[0],motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,AUTOSTRING,LOG_TO_AUTO);
-
+			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,"
+					"%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,"
+					"%u,%u,%u,%s,%d,%u,\r\n",valve_states,pressure[0],pressure[1],pressure[2],
+					pressure[3],pressure[4],pressure[5],pressure[6],pressure[7],samplerate,motor_setpoint[0],
+					motor_setpoint[1],main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],
+					telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],motor_control_gain[0],
+					motor_control_gain[1],motor_control_gain[2],motor_position[0],motor_position[1],
+					motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,AUTOSTRING,LOG_TO_AUTO,auto_states);
 
 			//while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
 			HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);

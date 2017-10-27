@@ -161,7 +161,6 @@ def parse_serial():
 			pass
 		
 
-
 def parse_packet(split_line):
 	global valve_states
 	global pressure
@@ -183,6 +182,7 @@ def parse_packet(split_line):
 	global STATE
 	global AUTOSTRING
 	global LOG_TO_AUTO
+	global auto_states
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -215,6 +215,7 @@ def parse_packet(split_line):
 	STATE = int(split_line[29])
 	AUTOSTRING = str(split_line[30])
 	LOG_TO_AUTO = int(split_line[31])
+	auto_states = int(split_line[32])
 
 
 def command(device, command):
