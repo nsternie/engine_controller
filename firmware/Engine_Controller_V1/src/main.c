@@ -73,6 +73,7 @@ struct buffer{
 	uint8_t *head;
 	uint8_t *tail;
 	uint8_t id;
+	uint8_t new_data;
 };
 
 
@@ -153,6 +154,7 @@ void scale_readings();
 void buffer_init(struct buffer *b, uint8_t* data_buffer, size_t size, uint8_t id);
 void buffer_read(struct buffer *b, uint8_t* dst, size_t size);
 void buffer_write(struct buffer *b, uint8_t* src, size_t size);
+void parse_buffer(struct buffer *b);
 void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse);
 void error(char * error_message);
 void writeMotor(uint8_t device, int16_t motor_command);
@@ -376,6 +378,9 @@ float e5v;
 float e3v;
 float tbrd, tvlv, tmtr;
 float pressure[16];
+float load[6];
+float thrust_load;
+float thermocouple[4];
 
 // CALIBRATIONS
 // All cals are Counts*Cal = real value
@@ -391,6 +396,23 @@ float pressure[16];
 
 #define SLOPE 0
 #define OFFSET 1
+
+float load_cal[2][6] = {{
+		0.187346,
+		0.159383,
+		0.181370,
+		0.184059,
+		1,
+		1,
+},{
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+}};
+
 float press_cal[2][16] = {{
 		// SLOPES
 		0.644531,	// 0
@@ -597,6 +619,8 @@ int main(void)
 
 telemetry_format[rs422] = gui_v1;
 
+command(led0, 1);
+
 //while(1){
 //	read_adc_brute();
 //	scale_readings();
@@ -627,6 +651,7 @@ autos[0].length = 3;
 
 start_auto(0);
 
+
   while (1)
   {
 	  run_autos();
@@ -639,6 +664,11 @@ start_auto(0);
 	  count2 = FIRING_DURATION;
 	  count3 = POST_IGNITE_DELAY;
 
+	  //  We have new rs422 data, parse it
+	  if(rs422_buf.new_data > 0){
+		  parse_buffer(&rs422_buf);
+	  }
+
 	  if(read_adc_now){
 		  read_adc_now = 0;
 		  read_adc_brute();
@@ -647,7 +677,7 @@ start_auto(0);
 		  if(LOGGING_ACTIVE){
 
 		  }
-		  //read_thermocouples();
+		  read_thermocouples();
 	  }
 
 	  if(send_rs422_now){
@@ -655,6 +685,7 @@ start_auto(0);
 		  send_telem(rs422_com, telemetry_format[rs422]);
 		  TIME(telemetry_cycle_time);
 		  //trace_printf("ibus: %u, count3: %u\r\n", adc_data[2][1], count3);
+
 	  }
 
 	  if(send_xbee_now){
@@ -1309,7 +1340,7 @@ static void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 921600;
+  huart1.Init.BaudRate = 4000000;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -1781,14 +1812,20 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			}
 
 
-			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,"
-					"%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,"
-					"%u,%u,%u,%s,%d,%u,\r\n",valve_states,pressure[0],pressure[1],pressure[2],
-					pressure[3],pressure[4],pressure[5],pressure[6],pressure[7],samplerate,motor_setpoint[0],
-					motor_setpoint[1],main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],
+
+			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,"
+					"%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,"
+					"%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.0f,"
+					"%.0f,%.0f,%.0f,\r\n",valve_states,pressure[0],pressure[1],
+					pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],
+					pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],
+					main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],
 					telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],motor_control_gain[0],
-					motor_control_gain[1],motor_control_gain[2],motor_position[0],motor_position[1],
-					motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,AUTOSTRING,LOG_TO_AUTO,auto_states);
+					motor_control_gain[1],motor_control_gain[2],motor_position[0],
+					motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,
+					STATE,load[0],load[1],load[2],load[3],thrust_load,thermocouple[0],
+					thermocouple[1],thermocouple[2],thermocouple[3]);
+
 
 			//while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
 			HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
@@ -1892,6 +1929,7 @@ void buffer_init(struct buffer *b, uint8_t* data_buffer, size_t size, uint8_t id
 	b->length = b->end - b->start;
 	b->filled = 0;
 	b->id = id;
+	b->new_data = 0;
 
 	for(uint16_t n = 0; n < b->length; n++){
 		data_buffer[n] = 0;
@@ -1908,49 +1946,44 @@ void buffer_read(struct buffer *b, uint8_t* dst, size_t size){
 	}
 }
 void buffer_write(struct buffer *b, uint8_t* src, size_t size){
-	for(uint16_t n = 0; n < size; n++){
-		if(*(src) == '\b' || *(src) == 127){
-			if(b->filled == 0){}
-			else{
-				*--(b->head) = 0;
-				b->filled--;
+	for(uint16_t n = 0; n < size; n++){	// How even many bytes there are to write (Usually just 1)
+		*(b->head++) = *(src++);		// Write a byte
+		if(b->head > b-> end){			// Wrap around if we went past max address
+			b->head = b->start;			// Set the head to the start
+		}
+		if(b->head==b->tail){			// Head has hit the tail
+			b->tail++;					// Inc tail
+			if(b->tail > b->end){		// Did the tail hit the max addr
+				b->tail = b->start;		// Yep, send it to the start
 			}
 		}
 		else{
-			*(b->head++) = *(src++);
-			if(b->head > b-> end){
-				b->head = b->start;
-			}
-			if(b->head==b->tail){
-				b->tail++;
-				if(b->tail > b->end){
-					b->tail = b->start;
-				}
-			}
-			else{
-				b->filled++;
+			b->filled++;				// No hits, just incr filled
+		}
+	}
+	b->new_data++;					// We now need to run parse_buffer at some point
+}
+void parse_buffer(struct buffer *b){
+
+	for(uint8_t* data_ptr = (b->head)-(b->new_data); data_ptr < b->head; data_ptr++){
+
+		if(b->id == COMMAND_SOURCE){									// Is this the command source
+			for(uint8_t n = 0; n < COMMAND_BUFFER_LENGTH; n ++){		// Copy the buffer into the command buffer then
+				command_buffer[command_index][n] = rs422_data_buf[n];	//
 			}
 
-		}
-		if(b->id == COMMAND_SOURCE){
-			for(uint8_t n = 0; n < COMMAND_BUFFER_LENGTH; n ++){
-				command_buffer[command_index][n] = rs422_data_buf[n];
-			}
-			if(*(b->head-1) == '\r'){
-				// Register the command
-				if(command_index < COMMAND_HISTORY-1){
+			if(*(data_ptr) == '\r'){											// Got a return char, run the command and clear the command buffer
+				if(command_index < COMMAND_HISTORY-1){					// Register the command
 					command_index++;
-					serial_command(command_buffer[command_index-1]);
+					serial_command(command_buffer[command_index-1]);	// Copy into command history buffers
 				}
-				else{
+				else{													// Command history full, shift all the buffers
 					serial_command(command_buffer[command_index]);
 					// Shift all the lines up 1, (new command line)
 					for(uint8_t n = 0; n < COMMAND_HISTORY-1; n++){
 						strcpy(command_buffer[n], command_buffer[n+1]);
 					}
 				}
-
-
 				// Clear the new line of the command buffer
 				for(uint8_t n = 0; n < 64; n ++){
 					command_buffer[command_index][n] = 0;
@@ -1959,8 +1992,8 @@ void buffer_write(struct buffer *b, uint8_t* src, size_t size){
 				buffer_init(&rs422_buf, rs422_data_buf, UART_BUFFER_SIZE, rs422);
 			}
 		}
-
 	}
+	b->new_data = 0;		// We parsed all new data
 }
 void scale_readings(){
 
@@ -1990,6 +2023,20 @@ void scale_readings(){
 		pressure[n] = adc_data[4][15-n]-press_cal[OFFSET][n];
 		pressure[n] *= press_cal[SLOPE][n];
 	}
+
+
+
+	load[0] = adc_data[3][8];
+	load[1] = adc_data[3][10];
+	load[2] = adc_data[3][12];
+	load[3] = adc_data[3][14];
+	for(uint8_t n = 0; n < 6; n++){
+		load[n] -= load_cal[OFFSET][n];
+		load[n] *= load_cal[SLOPE][n];
+	}
+
+	thrust_load = load[0]+load[1]+load[2]+load[3];
+
 
 }
 uint32_t  serial_command(uint8_t* cbuf_in){
@@ -2400,16 +2447,23 @@ read_thermocouples(){
 	uint8_t tx[4];
 	uint8_t rx[4];
 
-	select_device(tc0);
-	HAL_SPI_TransmitReceive(&hspi2, tx, rx, 4, 1);
-	release_device(tc0);
+	for(uint8_t tcx = tc0; tcx < tc3; tcx++){
 
-	int16_t data;
-	data = rx[0];
-	data <<= 8;
-	data |= rx[1];
-	data >>= 2;
-	//count2 = data;
+		select_device(tcx);
+		HAL_SPI_TransmitReceive(&hspi2, tx, rx, 4, 1);
+		release_device(tcx);
+
+		int16_t data;
+		data = rx[0];
+		data <<= 8;
+		data |= rx[1];
+		data >>= 4;
+		thermocouple[tcx-tc0] = data;
+
+	}
+
+	FIRING_DURATION = thermocouple[0];
+	POST_IGNITE_DELAY = thermocouple[1];
 
 	__enable_irq();
 

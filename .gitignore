@@ -9,3 +9,7 @@
 # Eclipse things
 *metadata*
 *RemoteSystemsTempFiles*
+
+*.xml
+
+*.mk

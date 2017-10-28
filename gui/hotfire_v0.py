@@ -43,9 +43,10 @@ auto_states = 0
 
 run_name = input("Enter run name: ")
 
-serial_log = open(run_name+"_Serial_log.csv", "w+")
-info_log = open(run_name+"_Command_log.csv", "w+")
-info_log.write("Time, Command/info\n")
+serial_log = open(run_name+"_serial_log.csv", "w+")
+info_log = open(run_name+"_python_log.csv", "w+")
+command_log = open(run_name+"_command_log.csv", "w+")
+command_log.write("Time, Command/info\n")
 
 
 ## Always start by initializing Qt (only once per application)
@@ -65,24 +66,27 @@ for line in alias_file:
 	s = line.split('\t')
 	alias[s[0]] = s[1].rstrip('\r\n')
 
-# info_log.write("Alias FIle")
-# for line in alias_file:
-# 	info_log.write(line)
-# info_log.write(str(alias))
-# info_log.write("\n")
+info_log.write("Alias FIle")
+for line in alias_file:
+	info_log.write(line)
+info_log.write(str(alias))
+info_log.write("\n")
 
-state_dict = {
-	0:"ERROR",
-	1:"MANUAL",
-	2:"ARMED",
-	3:"IGNITION",
-	4:"FIRING",
-	5:"FULL_DURATION"
-}
+try:
+	if("STATE_N" in alias.keys()):
+		state_dict = {}
+		for n in range(0, int(alias["STATE_N"])):
+			state_dict[n] = alias["STATE"+str(n)]
+	else:
+		raise Exception("STATE_N definition not found in devices.alias file")
+except Exception:
+	print(Exception)
 
 # Try to open the serial port
-ser = serial.Serial(port=None, baudrate=921600, timeout=0)
-ser.port = "COM13"
+
+ser = serial.Serial(port=None, baudrate=4000000, timeout=0.5)
+ser.port = alias["COM_PORT"]
+
 try:
 	ser.open()
 	if(ser.is_open):
@@ -97,7 +101,6 @@ def parse_serial():
 	if(ser.is_open):
 		line = ser.readline()	
 		line = str(line, 'ascii')
-		
 		try:
 			split_line = line.split(',')
 			parse_packet(split_line)
@@ -172,7 +175,78 @@ def parse_serial():
 
 		except:
 			pass
+		# print("Packet parsed")
+		# print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
+
+		mask = 1
+		# Update valve state feedback
+		for n in range(0, 16):
+			state = 0
+			if(mask & valve_states):
+				state = 1
+			valve_buttons[n][2].setText(str(state))
+			mask = mask << 1
+
+			pressure_labels[n][1].setText(str(pressure[n])+"psi")
+		# Update loop rates
+		samplerate_setpointfb.setText(str(samplerate)+"hz")
+		telemrate_setpointfb.setText(str(telemetry_rate)+"hz")
+		for mtrx in range(0, 4):
+			try:
+				mtr_setpointfb[mtrx].setText(str(motor_setpoint[mtrx]))
+				mtr_position[mtrx].setText(str(motor_position[mtrx]))
+				mtr_pwm[mtrx].setText("PWM: "+str(motor_pwm[mtrx]))
+			except:
+				apperently_i_need_a_statment_here = "I dont really know why..."
+
+		#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
+		motor_cycle_rate.setText(str(round(1000000/motor_cycle_time, 3)))
+		adc_cycle_rate.setText(str(round(1000000/adc_cycle_time, 3)))
+		telemetry_cycle_rate.setText(str(round(1000000/telemetry_cycle_time, 3)))
+
+		# Board health
+		ebatt_value.setText(str(ebatt))
+		ibus_value.setText(str(ibus))
+
+		# motor gain feedback
+		kpfb.setText(str(motor_control_gain[0]))
+		kifb.setText(str(motor_control_gain[1]))
+		kdfb.setText(str(motor_control_gain[2]))
+
+		count1_label.setText("Ignition Duration: "+str(count1))
+		count2_label.setText("Burn Duration: "+str(count2))
+		count3_label.setText("Post ignite delay: "+str(count3))
+
+		state_label.setText("STATE = "+state_dict[STATE])
+
+		thrust_load_label.setText("Thrust = "+str(thrust_load))
+		for n in range(0, 4):
+			load_label[n].setText(str(n)+": "+str(load[n]))
+		for n in range(0, 4):
+			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))		
 		
+device_list = []
+valve_states = 0
+pressure = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+samplerate = 0
+motor_setpoint = [0,0]
+motor_position = [0,0]
+motor_pwm = [0,0]
+main_cycle_time = 1
+motor_cycle_time = 1
+adc_cycle_time = 1
+telemetry_cycle_time = 1
+ebatt = 0
+ibus = 0
+telemetry_rate = 0
+motor_control_gain = [0,0,0]
+count1 = 0
+count2 = 0
+count3 = 0
+STATE = 0
+load = [0,0,0,0]
+thrust_load = 0
+thermocouple = [0, 0, 0, 0]
 
 def parse_packet(split_line):
 	global valve_states
@@ -193,9 +267,6 @@ def parse_packet(split_line):
 	global count2
 	global count3
 	global STATE
-	global AUTOSTRING
-	global LOG_TO_AUTO
-	global auto_states
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -226,9 +297,15 @@ def parse_packet(split_line):
 	count2 = int(split_line[27])
 	count3 = int(split_line[28])
 	STATE = int(split_line[29])
-	AUTOSTRING = str(split_line[30])
-	LOG_TO_AUTO = int(split_line[31])
-	auto_states = int(split_line[32])
+	load[0] = float(split_line[30])
+	load[1] = float(split_line[31])
+	load[2] = float(split_line[32])
+	load[3] = float(split_line[33])
+	thrust_load = float(split_line[34])
+	thermocouple[0] = int(split_line[35])
+	thermocouple[1] = int(split_line[36])
+	thermocouple[2] = int(split_line[37])
+	thermocouple[3] = int(split_line[38])
 
 
 def command(device, command):
@@ -251,7 +328,7 @@ def motor_enable(motor_num, enable):
 def send(command_string):
 	command_string = command_string + " \r"
 	print("SENDING: "+command_string.rstrip('\n'))
-	info_log.write("%.3f,\tSENDING: " % time.clock()+command_string)
+	command_log.write("%.3f,\tSENDING: " % time.clock()+command_string)
 	if(ser.is_open):
 		ser.write(command_string.encode('ascii'))
 
@@ -404,6 +481,28 @@ layout.addWidget(arm_button, 13, 5)
 layout.addWidget(disarm_button, 14, 5)
 layout.addWidget(hotfire_button, 15, 5)
 
+# Loads
+thrust_load_label = QtGui.QLabel("NET THRUST")
+thrust_load_label.setAlignment(Qt.AlignCenter)
+load_label = []
+for n in range(0, 4):
+	load_label.append(QtGui.QLabel("LOAD "+str(n)))
+layout.addWidget(thrust_load_label, 12, 6, 1, 2)
+layout.addWidget(load_label[0], 13, 6)
+layout.addWidget(load_label[1], 13, 7)
+layout.addWidget(load_label[2], 14, 6)
+layout.addWidget(load_label[3], 14, 7)
+
+# Thermoucouples
+tc_label = []
+for n in range(0, 4):
+	tc_label.append(QtGui.QLabel("TC-"+str(n)))
+layout.addWidget(tc_label[0], 12, 11)
+layout.addWidget(tc_label[1], 13, 11)
+layout.addWidget(tc_label[2], 14, 11)
+layout.addWidget(tc_label[3], 15, 11)
+
+
 
 # Raw Command
 def raw_command():
@@ -492,6 +591,7 @@ layout.addWidget(col_label[8], 0, 8)
 
 
 def death():
+	command_log.close()
 	info_log.close()
 	serial_log.close()
 	app.quit()
