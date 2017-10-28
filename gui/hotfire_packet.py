@@ -1,13 +1,4 @@
-write_csv_header = True
 def parse_packet(split_line):
-	if(write_csv_header):
-		device_list = ['valve_states', 'pressure0', 'pressure1', 'pressure2', 'pressure3', 'pressure4', 'pressure5', 'pressure6', 'pressure7', 'samplerate', 'motor_setpoint[0]', 'motor_setpoint[1]', 'main_cycle_time', 'motor_cycle_time', 'adc_cycle_time', 'telemetry_cycle_time', 'ebatt', 'ibus', 'telemetry_rate', 'motor_control_gain[0]', 'motor_control_gain[1]', 'motor_control_gain[2]', 'motor_position[0]', 'motor_position[1]', 'motor_pwm[0]', 'motor_pwm[1]', 'count1', 'count2', 'count3', 'STATE', 'AUTOSTRING', 'LOG_TO_AUTO', 'auto_states', '']
-		for device in range(0, len(device_list)):
-			if device_list[device] in alias.keys():
-				device_list[device] = alias[device_list[device]]
-		csv_header = "Time (s),"
-			csv_header.append(device, ",")
-		write_csv_header = False
 	global valve_states
 	global pressure
 	global samplerate
@@ -26,8 +17,10 @@ def parse_packet(split_line):
 	global count2
 	global count3
 	global STATE
+	global load
+	global thrust_load
+	global thermouple
 	global AUTOSTRING
-	global LOG_TO_AUTO
 	global auto_states
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
@@ -68,3 +61,5 @@ def parse_packet(split_line):
 	thermocouple[1] = int(split_line[36])
 	thermocouple[2] = int(split_line[37])
 	thermocouple[3] = int(split_line[38])
+	auto_states = int(split_line[39])
+	AUTOSTRING = str(split_line[40])
