@@ -1,7 +1,7 @@
 write_csv_header = True
 def parse_packet(split_line):
 	if(write_csv_header):
-		device_list = ['valve_states', 'pressure0', 'pressure1', 'pressure2', 'pressure3', 'pressure4', 'pressure5', 'pressure6', 'pressure7', 'samplerate', 'motor_setpoint[0]', 'motor_setpoint[1]', 'main_cycle_time', 'motor_cycle_time', 'adc_cycle_time', 'telemetry_cycle_time', 'ebatt', 'ibus', 'telemetry_rate', 'motor_control_gain[0]', 'motor_control_gain[1]', 'motor_control_gain[2]', 'motor_position[0]', 'motor_position[1]', 'motor_pwm[0]', 'motor_pwm[1]', 'count1', 'count2', 'count3', 'STATE', 'load[0]', 'load[1]', 'load[2]', 'load[3]', 'thrust_load', '']
+		device_list = ['valve_states', 'pressure0', 'pressure1', 'pressure2', 'pressure3', 'pressure4', 'pressure5', 'pressure6', 'pressure7', 'samplerate', 'motor_setpoint[0]', 'motor_setpoint[1]', 'main_cycle_time', 'motor_cycle_time', 'adc_cycle_time', 'telemetry_cycle_time', 'ebatt', 'ibus', 'telemetry_rate', 'motor_control_gain[0]', 'motor_control_gain[1]', 'motor_control_gain[2]', 'motor_position[0]', 'motor_position[1]', 'motor_pwm[0]', 'motor_pwm[1]', 'count1', 'count2', 'count3', 'STATE', 'load[0]', 'load[1]', 'load[2]', 'load[3]', 'thrust_load', 'thermocouple[0]', 'thermocouple[1]', 'thermocouple[2]', 'thermocouple[3]', '']
 		for device in range(0, len(device_list)):
 			if device_list[device] in alias.keys():
 				device_list[device] = alias[device_list[device]]
@@ -28,6 +28,7 @@ def parse_packet(split_line):
 	global STATE
 	global load
 	global thrust_load
+	global thermouple
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -63,3 +64,7 @@ def parse_packet(split_line):
 	load[2] = float(split_line[32])
 	load[3] = float(split_line[33])
 	thrust_load = float(split_line[34])
+	thermocouple[0] = int(split_line[35])
+	thermocouple[1] = int(split_line[36])
+	thermocouple[2] = int(split_line[37])
+	thermocouple[3] = int(split_line[38])

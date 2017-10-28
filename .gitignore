@@ -11,3 +11,5 @@
 *RemoteSystemsTempFiles*
 
 *.xml
+
+*.mk

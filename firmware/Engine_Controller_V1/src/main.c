@@ -1756,14 +1756,18 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			}
 
 
-			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.2f,%.2f,%u,%u"
-					",%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%"
-					".1f,\r\n",valve_states,pressure[0],pressure[1],pressure[2],pressure[3],pressure[4],
-					pressure[5],pressure[6],pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],
-					main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],telemetry_cycle_time[0],
-					ebatt,ibus,telemetry_rate[0],motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],
-					motor_position[0],motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,
-					load[0],load[1],load[2],load[3],thrust_load);
+			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,"
+					"%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,"
+					"%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.0f,"
+					"%.0f,%.0f,%.0f,\r\n",valve_states,pressure[0],pressure[1],
+					pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],
+					pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],
+					main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],
+					telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],motor_control_gain[0],
+					motor_control_gain[1],motor_control_gain[2],motor_position[0],
+					motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,
+					STATE,load[0],load[1],load[2],load[3],thrust_load,thermocouple[0],
+					thermocouple[1],thermocouple[2],thermocouple[3]);
 
 			//while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
 			HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
