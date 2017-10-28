@@ -349,6 +349,7 @@ float tbrd, tvlv, tmtr;
 float pressure[16];
 float load[6];
 float thrust_load;
+float thermocouple[4];
 
 // CALIBRATIONS
 // All cals are Counts*Cal = real value
@@ -2330,18 +2331,21 @@ read_thermocouples(){
 
 	for(uint8_t tcx = tc0; tcx < tc3; tcx++){
 
-		select_device(tc0);
+		select_device(tcx);
 		HAL_SPI_TransmitReceive(&hspi2, tx, rx, 4, 1);
-		release_device(tc0);
+		release_device(tcx);
 
 		int16_t data;
 		data = rx[0];
 		data <<= 8;
 		data |= rx[1];
 		data >>= 4;
-		FIRING_DURATION = data;
+		thermocouple[tcx-tc0] = data;
 
 	}
+
+	FIRING_DURATION = thermocouple[0];
+	POST_IGNITE_DELAY = thermocouple[1];
 
 	__enable_irq();
 
