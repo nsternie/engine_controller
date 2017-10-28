@@ -398,10 +398,10 @@ float thermocouple[4];
 #define OFFSET 1
 
 float load_cal[2][6] = {{
-		0.187346,
-		0.159383,
-		0.181370,
-		0.184059,
+		1,//0.187346,
+		1,//0.159383,
+		1,//0.181370,
+		1,//0.184059,
 		1,
 		1,
 },{
@@ -661,7 +661,7 @@ strcpy(autos[0].command[i++], "delay 1000\r");
 strcpy(autos[0].command[i++], "command mtr0 0\r");		// Close valves
 strcpy(autos[0].command[i++], "command mtr1 0\r");		//
 strcpy(autos[0].command[i++], "command vlv5 0\r");		// Turn off light
-strcpy(autos[0].command[i++], "delay 500\r");
+strcpy(autos[0].command[i++], "delay 1500\r");
 strcpy(autos[0].command[i++], "command vlv6 1\r");		// Camera trigger
 strcpy(autos[0].command[i++], "delay 100\r");
 strcpy(autos[0].command[i++], "command vlv6 0\r");
