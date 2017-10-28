@@ -75,7 +75,7 @@ Engine_Controller_V1.hex: Engine_Controller_V1.elf
 
 Engine_Controller_V1.siz: Engine_Controller_V1.elf
 	@echo 'Invoking: Cross ARM GNU Print Size'
-	arm-none-eabi-size --format=berkeley "Engine_Controller_V1.elf"
+	arm-none-eabi-size --format=sysv "Engine_Controller_V1.elf"
 	@echo 'Finished building: $@'
 	@echo ' '
 

@@ -16,6 +16,29 @@ mtr_pwm = []
 mtr_send = []
 mtr_setpointfb = []
 
+device_list = []
+valve_states = 0
+pressure = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+samplerate = 0
+motor_setpoint = [0,0]
+motor_position = [0,0]
+motor_pwm = [0,0]
+main_cycle_time = 1
+motor_cycle_time = 1
+adc_cycle_time = 1
+telemetry_cycle_time = 1
+ebatt = 0
+ibus = 0
+telemetry_rate = 0
+motor_control_gain = [0,0,0]
+count1 = 0
+count2 = 0
+count3 = 0
+STATE = 0
+AUTOSTRING = "0"
+LOG_TO_AUTO = 0
+auto_states = 0
+
 #
 
 run_name = input("Enter run name: ")
@@ -83,6 +106,73 @@ def parse_serial():
 			parse_packet(split_line)
 			serial_log.write("%.3f," % time.clock())
 			serial_log.write(line.rstrip('\n'))
+			#print("Packet parsed")
+			#print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
+
+			mask = 1
+			# Update valve state feedback
+			for n in range(0, 16):
+				state = 0
+				if(mask & valve_states):
+					state = 1
+				valve_buttons[n][2].setText(str(state))
+				mask = mask << 1
+
+				pressure_labels[n][1].setText(str(pressure[n])+"psi")
+			# Update loop rates
+			samplerate_setpointfb.setText(str(samplerate)+"hz")
+			telemrate_setpointfb.setText(str(telemetry_rate)+"hz")
+			for mtrx in range(0, 4):
+				try:
+					mtr_setpointfb[mtrx].setText(str(motor_setpoint[mtrx]))
+					mtr_position[mtrx].setText(str(motor_position[mtrx]))
+					mtr_pwm[mtrx].setText("PWM: "+str(motor_pwm[mtrx]))
+				except:
+					apperently_i_need_a_statment_here = "I dont really know why..."
+
+			#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
+			motor_cycle_rate.setText(str(round(1000000/motor_cycle_time, 3)))
+			adc_cycle_rate.setText(str(round(1000000/adc_cycle_time, 3)))
+			telemetry_cycle_rate.setText(str(round(1000000/telemetry_cycle_time, 3)))
+
+			# Board health
+			ebatt_value.setText(str(ebatt))
+			ibus_value.setText(str(ibus))
+
+			# motor gain feedback
+			kpfb.setText(str(motor_control_gain[0]))
+			kifb.setText(str(motor_control_gain[1]))
+			kdfb.setText(str(motor_control_gain[2]))
+
+			count1_label.setText("Ignition Duration: "+str(count1))
+			count2_label.setText("Burn Duration: "+str(count2))
+			count3_label.setText("Post ignite delay: "+str(count3))
+
+			state_label.setText("STATE = "+state_dict[STATE])
+
+			log_to_auto_label.setText("Logging to auto: "+str(LOG_TO_AUTO))
+
+			if(AUTOSTRING == "0"):
+				pass 	# No new string sent
+			else:
+				temp = ""
+				split_auto = AUTOSTRING.split('|')
+				for chunk in split_auto:
+					temp = temp + chunk + "\n"
+				autofeedback.setPlainText(temp)
+				print("AUTOSTRING RECIEVED: "+AUTOSTRING)
+
+			mask = 1
+			running_autos_string = "Running Autos: "
+			# Update auto state feedback
+			for n in range(0, 16):
+				state = 0
+				if(mask & auto_states):
+					running_autos_string += (str(n)+", ")
+				mask = mask << 1
+
+			running_autos_label.setText(running_autos_string)
+
 		except:
 			pass
 		# print("Packet parsed")
@@ -177,9 +267,6 @@ def parse_packet(split_line):
 	global count2
 	global count3
 	global STATE
-	global load
-	global thrust_load
-	global thermouple
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -219,7 +306,6 @@ def parse_packet(split_line):
 	thermocouple[1] = int(split_line[36])
 	thermocouple[2] = int(split_line[37])
 	thermocouple[3] = int(split_line[38])
-
 
 
 def command(device, command):
@@ -346,17 +432,17 @@ samplerate_setpoint = QtGui.QLineEdit()
 samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
 samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
 samplerate_send.clicked.connect(lambda: set("samplerate", samplerate_setpoint.text()))
-layout.addWidget(samplerate_send, 5, 10)
-layout.addWidget(samplerate_setpoint, 5, 11)
-layout.addWidget(samplerate_setpointfb, 5, 12)
+layout.addWidget(samplerate_send, 7, 10)
+layout.addWidget(samplerate_setpoint, 7, 11)
+layout.addWidget(samplerate_setpointfb, 7, 12)
 # Telemrate set
 telemrate_setpoint = QtGui.QLineEdit()
 telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
 telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
 telemrate_send.clicked.connect(lambda: set("telemrate", ("rs422 "+telemrate_setpoint.text())))
-layout.addWidget(telemrate_send, 6, 10)
-layout.addWidget(telemrate_setpoint, 6, 11)
-layout.addWidget(telemrate_setpointfb, 6, 12)
+layout.addWidget(telemrate_send, 8, 10)
+layout.addWidget(telemrate_setpoint, 8, 11)
+layout.addWidget(telemrate_setpointfb, 8, 12)
 
 # Motor gains set
 MOTOR_GAINS_LABEL = QtGui.QLabel("Motor Gains")
@@ -428,6 +514,13 @@ raw_command_send.clicked.connect(raw_command)
 raw_command_input.returnPressed.connect(raw_command)
 layout.addWidget(raw_command_input, 16, 5, 1, 2)
 layout.addWidget(raw_command_send, 16, 7)
+
+log_to_auto_label = QtGui.QLabel("LOG_TO_AUTO")
+autofeedback = QtGui.QPlainTextEdit("Autosequence feedback")
+running_autos_label = QtGui.QLabel("RUNNING_AUTOS")
+layout.addWidget(autofeedback, 1, 10, 4, 3)
+layout.addWidget(log_to_auto_label, 5, 10)
+layout.addWidget(running_autos_label, 6, 10, 1, 2)
 
 # Board Health
 BOARD_HEALTH_LABEL = QtGui.QLabel("Board Health")
@@ -517,10 +610,11 @@ for n in range(0, 16):
 
 if(1):
 	# Add image
-	logo = QtGui.QLabel(w)
-	logo.setGeometry(1000, 250, 800, 250)
+	#logo = QtGui.QLabel(w)
+	#logo.setGeometry(1000, 250, 800, 250)
 	#use full ABSOLUTE path to the image, not relative
-	logo.setPixmap(QtGui.QPixmap(os.getcwd() + "/masa2.png"))
+	#logo.setPixmap(QtGui.QPixmap(os.getcwd() + "/masa2.png"))
+	pass
 
 if(0):
 	p = w.palette()
