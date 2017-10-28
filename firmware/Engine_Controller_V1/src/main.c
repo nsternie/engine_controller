@@ -367,10 +367,10 @@ float thermocouple[4];
 #define OFFSET 1
 
 float load_cal[2][6] = {{
-		1,
-		1,
-		1,
-		1,
+		0.187346,
+		0.159383,
+		0.181370,
+		0.184059,
 		1,
 		1,
 },{
@@ -1964,8 +1964,14 @@ void scale_readings(){
 		pressure[n] *= press_cal[SLOPE][n];
 	}
 
+
+
+	load[0] = adc_data[3][8];
+	load[1] = adc_data[3][10];
+	load[2] = adc_data[3][12];
+	load[3] = adc_data[3][14];
 	for(uint8_t n = 0; n < 6; n++){
-		load[n] = adc_data[3][15-n]-load_cal[OFFSET][n];
+		load[n] -= load_cal[OFFSET][n];
 		load[n] *= load_cal[SLOPE][n];
 	}
 
