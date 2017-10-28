@@ -296,18 +296,18 @@ uint16_t valve_states;
 #define Kd 2
 float motor_setpoint[4];
 float motor_control_gain[3] = {
-		500,
+		1000,
 		0.0,
 		0.0
 };
 const float motor_pot_slope[4] = {
-		0.06591797,
+		-0.06591797,
 		0.06591797,
 		1,
 		1
 };
 float motor_pot_offset[4] = {
-		133.0,
+		-185,
 		78.5,
 		0,
 		0
@@ -325,7 +325,7 @@ const float motor_limit_low[4] = {
 		0
 };
 const float pot_polarity[4] = {
-		1,
+		-1,
 		-1,
 		1,
 		1
