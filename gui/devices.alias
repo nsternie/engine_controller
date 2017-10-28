@@ -6,10 +6,10 @@ vlv3	unused
 vlv4	unused
 vlv5	unused
 vlv6	unused
-vlv7	OUTLET 1
-vlv8	OUTLET 2
-vlv9	OUTLET 3
-vlv10	OUTLET 4
+vlv7	Heat-Mid
+vlv8	Head-Right
+vlv9	Heat-Left
+vlv10	Water
 vlv11	unused
 vlv12	unused
 vlv13	unused
