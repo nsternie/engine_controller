@@ -131,7 +131,9 @@ def parse_serial():
 
 		thrust_load_label.setText("Thrust = "+str(thrust_load))
 		for n in range(0, 4):
-			load_label[n].setText(str(n)+": "+str(load[n]))		
+			load_label[n].setText(str(n)+": "+str(load[n]))
+		for n in range(0, 4):
+			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))		
 		
 device_list = []
 valve_states = 0
@@ -154,6 +156,7 @@ count3 = 0
 STATE = 0
 load = [0,0,0,0]
 thrust_load = 0
+thermocouple = [0, 0, 0, 0]
 
 def parse_packet(split_line):
 	global valve_states
@@ -176,6 +179,7 @@ def parse_packet(split_line):
 	global STATE
 	global load
 	global thrust_load
+	global thermouple
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -211,6 +215,11 @@ def parse_packet(split_line):
 	load[2] = float(split_line[32])
 	load[3] = float(split_line[33])
 	thrust_load = float(split_line[34])
+	thermocouple[0] = int(split_line[35])
+	thermocouple[1] = int(split_line[36])
+	thermocouple[2] = int(split_line[37])
+	thermocouple[3] = int(split_line[38])
+
 
 
 def command(device, command):
@@ -386,6 +395,7 @@ layout.addWidget(arm_button, 13, 5)
 layout.addWidget(disarm_button, 14, 5)
 layout.addWidget(hotfire_button, 15, 5)
 
+# Loads
 thrust_load_label = QtGui.QLabel("NET THRUST")
 thrust_load_label.setAlignment(Qt.AlignCenter)
 load_label = []
@@ -397,6 +407,14 @@ layout.addWidget(load_label[1], 13, 7)
 layout.addWidget(load_label[2], 14, 6)
 layout.addWidget(load_label[3], 14, 7)
 
+# Thermoucouples
+tc_label = []
+for n in range(0, 4):
+	tc_label.append(QtGui.QLabel("TC-"+str(n)))
+layout.addWidget(tc_label[0], 12, 11)
+layout.addWidget(tc_label[1], 13, 11)
+layout.addWidget(tc_label[2], 14, 11)
+layout.addWidget(tc_label[3], 15, 11)
 
 
 

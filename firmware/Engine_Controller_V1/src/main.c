@@ -349,6 +349,7 @@ float tbrd, tvlv, tmtr;
 float pressure[16];
 float load[6];
 float thrust_load;
+float thermocouple[4];
 
 // CALIBRATIONS
 // All cals are Counts*Cal = real value
@@ -586,6 +587,8 @@ int main(void)
 
 telemetry_format[rs422] = gui_v1;
 
+command(led0, 1);
+
 //while(1){
 //	read_adc_brute();
 //	scale_readings();
@@ -618,7 +621,7 @@ telemetry_format[rs422] = gui_v1;
 		  if(LOGGING_ACTIVE){
 
 		  }
-		  //read_thermocouples();
+		  read_thermocouples();
 	  }
 
 	  if(send_rs422_now){
@@ -1753,14 +1756,18 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			}
 
 
-			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.2f,%.2f,%u,%u"
-					",%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%"
-					".1f,\r\n",valve_states,pressure[0],pressure[1],pressure[2],pressure[3],pressure[4],
-					pressure[5],pressure[6],pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],
-					main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],telemetry_cycle_time[0],
-					ebatt,ibus,telemetry_rate[0],motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],
-					motor_position[0],motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,
-					load[0],load[1],load[2],load[3],thrust_load);
+			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,"
+					"%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,"
+					"%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.0f,"
+					"%.0f,%.0f,%.0f,\r\n",valve_states,pressure[0],pressure[1],
+					pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],
+					pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],
+					main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],
+					telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],motor_control_gain[0],
+					motor_control_gain[1],motor_control_gain[2],motor_position[0],
+					motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,
+					STATE,load[0],load[1],load[2],load[3],thrust_load,thermocouple[0],
+					thermocouple[1],thermocouple[2],thermocouple[3]);
 
 			//while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
 			HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
@@ -2326,16 +2333,23 @@ read_thermocouples(){
 	uint8_t tx[4];
 	uint8_t rx[4];
 
-	select_device(tc0);
-	HAL_SPI_TransmitReceive(&hspi2, tx, rx, 4, 1);
-	release_device(tc0);
+	for(uint8_t tcx = tc0; tcx < tc3; tcx++){
 
-	int16_t data;
-	data = rx[0];
-	data <<= 8;
-	data |= rx[1];
-	data >>= 2;
-	//count2 = data;
+		select_device(tcx);
+		HAL_SPI_TransmitReceive(&hspi2, tx, rx, 4, 1);
+		release_device(tcx);
+
+		int16_t data;
+		data = rx[0];
+		data <<= 8;
+		data |= rx[1];
+		data >>= 4;
+		thermocouple[tcx-tc0] = data;
+
+	}
+
+	FIRING_DURATION = thermocouple[0];
+	POST_IGNITE_DELAY = thermocouple[1];
 
 	__enable_irq();
 
