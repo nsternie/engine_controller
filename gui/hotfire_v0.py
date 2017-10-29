@@ -223,7 +223,9 @@ def parse_serial():
 		for n in range(0, 4):
 			load_label[n].setText(str(n)+": "+str(load[n]))
 		for n in range(0, 4):
-			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))		
+			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))	
+
+		pressure_labels[4][1].setText(str(round(pressure[4]*(625/400), 2))+"psi")
 		
 device_list = []
 valve_states = 0

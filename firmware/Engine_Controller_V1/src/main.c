@@ -77,7 +77,7 @@ struct buffer{
 };
 
 
-#define MAX_AUTO_LENGTH 20
+#define MAX_AUTO_LENGTH 30
 #define NUM_AUTOS		5
 #define AUTO_STRING_LENGTH	30
 
@@ -651,20 +651,25 @@ command(led0, 1);
 
 // HOTFIRE AUTO
 uint16_t i = 0;
+strcpy(autos[0].command[i++], "command vlv5 1\r");		// Turn on light
+strcpy(autos[0].command[i++], "delay 4250\r");
+strcpy(autos[0].command[i++], "command vlv10 1\r");		// Turn on water
+strcpy(autos[0].command[i++], "delay 250\r");
 strcpy(autos[0].command[i++], "command vlv15 1\r");		// Turn on igniter
 strcpy(autos[0].command[i++], "delay 500\r");
 strcpy(autos[0].command[i++], "command mtr0 90\r");		// Open Vlaves
 strcpy(autos[0].command[i++], "command mtr1 90\r");		//
 strcpy(autos[0].command[i++], "command vlv15 0\r");		// Turn off igniter
-strcpy(autos[0].command[i++], "command vlv5 1\r");		// Turn on light
 strcpy(autos[0].command[i++], "delay 1000\r");
 strcpy(autos[0].command[i++], "command mtr0 0\r");		// Close valves
 strcpy(autos[0].command[i++], "command mtr1 0\r");		//
-strcpy(autos[0].command[i++], "command vlv5 0\r");		// Turn off light
-strcpy(autos[0].command[i++], "delay 1500\r");
+strcpy(autos[0].command[i++], "command vlv10 0\r");		// Turn off water
+strcpy(autos[0].command[i++], "delay 1000\r");
 strcpy(autos[0].command[i++], "command vlv6 1\r");		// Camera trigger
 strcpy(autos[0].command[i++], "delay 100\r");
 strcpy(autos[0].command[i++], "command vlv6 0\r");
+strcpy(autos[0].command[i++], "delay 5000\r");
+strcpy(autos[0].command[i++], "command vlv5 0\r");		// Turn off light
 strcpy(autos[0].command[i++], "stop_auto 0\r");
 
 
@@ -731,11 +736,11 @@ autos[0].length = i;
 		  }
 
 		  if(micros - state_timer > IGNITION_DURATION){
-			  command(mtr0, 90);
-			  command(mtr1, 90);
-			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
-			  STATE = FIRING;
-			  state_timer = micros;
+//			  command(mtr0, 90);
+//			  command(mtr1, 90);
+//			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
+//			  STATE = FIRING;
+//			  state_timer = micros;
 		  }
 
 	  }
@@ -2137,6 +2142,7 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 		if(STATE == ARMED){
 			STATE = IGNITION;
 			state_timer = micros;
+			start_auto(0);
 		}
 	}	// END hotfire
 
