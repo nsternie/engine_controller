@@ -5,14 +5,26 @@ import serial
 import time
 import os
 
+
+# Gloabals
+mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
+mtr_enable = []
+mtr_disable = []
+mtr_setpoint = []
+mtr_position = []
+mtr_pwm = []
+mtr_send = []
+mtr_setpointfb = []
+
+#
+
 run_name = input("Enter run name: ")
 
-serial_log = open(run_name+"_Serial_log.csv", "w+")
-info_log = open(run_name+"_Command_log.csv", "w+")
-info_log.write("Time, Command/info\n")
-csv_header = "Time(s),valve_states,pressure[0],pressure[1],pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],main_cycle_time,motor_cycle_time,adc_cycle_time,telemetry_cycle_time,ebatt,ibus,telemetry_rate[0],motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],motor_position[0],motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,"
-serial_log.write(csv_header)
-serial_log.write("\n")
+serial_log = open(run_name+"_serial_log.csv", "w+")
+info_log = open(run_name+"_python_log.csv", "w+")
+command_log = open(run_name+"_command_log.csv", "w+")
+command_log.write("Time, Command/info\n")
+
 
 ## Always start by initializing Qt (only once per application)
 app = QtGui.QApplication([])
@@ -29,26 +41,29 @@ alias = {}
 alias_file = open("devices.alias")
 for line in alias_file:
 	s = line.split('\t')
-	alias[s[0]] = s[1].rstrip('\n')
+	alias[s[0]] = s[1].rstrip('\r\n')
 
-# info_log.write("Alias FIle")
-# for line in alias_file:
-# 	info_log.write(line)
-# info_log.write(str(alias))
-# info_log.write("\n")
+info_log.write("Alias FIle")
+for line in alias_file:
+	info_log.write(line)
+info_log.write(str(alias))
+info_log.write("\n")
 
-state_dict = {
-	0:"ERROR",
-	1:"MANUAL",
-	2:"ARMED",
-	3:"IGNITION",
-	4:"FIRING",
-	5:"FULL_DURATION"
-}
+try:
+	if("STATE_N" in alias.keys()):
+		state_dict = {}
+		for n in range(0, int(alias["STATE_N"])):
+			state_dict[n] = alias["STATE"+str(n)]
+	else:
+		raise Exception("STATE_N definition not found in devices.alias file")
+except Exception:
+	print(Exception)
 
 # Try to open the serial port
-ser = serial.Serial(port=None, baudrate=921600)
-ser.port = "COM5"
+
+ser = serial.Serial(port=None, baudrate=4000000, timeout=0.5)
+ser.port = alias["COM_PORT"]
+
 try:
 	ser.open()
 	if(ser.is_open):
@@ -57,16 +72,21 @@ except:
 	print("Could not open Serial Port")
 
 # Parse a line and upate GUI fields
+write_csv_header = True
 def parse_serial():
+
 	if(ser.is_open):
 		line = ser.readline()	
 		line = str(line, 'ascii')
-		serial_log.write("%.3f," % time.clock())
-		serial_log.write(line.rstrip('\n'))
-		split_line = line.split(',')
-		parse_packet(split_line)
-		#print("Packet parsed")
-		#print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
+		try:
+			split_line = line.split(',')
+			parse_packet(split_line)
+			serial_log.write("%.3f," % time.clock())
+			serial_log.write(line.rstrip('\n'))
+		except:
+			pass
+		# print("Packet parsed")
+		# print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
 
 		mask = 1
 		# Update valve state feedback
@@ -81,12 +101,13 @@ def parse_serial():
 		# Update loop rates
 		samplerate_setpointfb.setText(str(samplerate)+"hz")
 		telemrate_setpointfb.setText(str(telemetry_rate)+"hz")
-		mtr0_setpointfb.setText(str(motor_setpoint[0]))
-		mtr1_setpointfb.setText(str(motor_setpoint[1]))
-		mtr0_position.setText(str(motor_position[0]))
-		mtr1_position.setText(str(motor_position[1]))
-		mtr0_pwm.setText(str(motor_pwm[0]))
-		mtr1_pwm.setText(str(motor_pwm[1]))
+		for mtrx in range(0, 4):
+			try:
+				mtr_setpointfb[mtrx].setText(str(motor_setpoint[mtrx]))
+				mtr_position[mtrx].setText(str(motor_position[mtrx]))
+				mtr_pwm[mtrx].setText("PWM: "+str(motor_pwm[mtrx]))
+			except:
+				apperently_i_need_a_statment_here = "I dont really know why..."
 
 		#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
 		motor_cycle_rate.setText(str(round(1000000/motor_cycle_time, 3)))
@@ -102,13 +123,19 @@ def parse_serial():
 		kifb.setText(str(motor_control_gain[1]))
 		kdfb.setText(str(motor_control_gain[2]))
 
-		count1_label.setText(str(count1))
-		count2_label.setText(str(count2))
-		count3_label.setText(str(count3))
+		count1_label.setText("Ignition Duration: "+str(count1))
+		count2_label.setText("Burn Duration: "+str(count2))
+		count3_label.setText("Post ignite delay: "+str(count3))
 
 		state_label.setText("STATE = "+state_dict[STATE])
-		
 
+		thrust_load_label.setText("Thrust = "+str(thrust_load))
+		for n in range(0, 4):
+			load_label[n].setText(str(n)+": "+str(load[n]))
+		for n in range(0, 4):
+			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))		
+		
+device_list = []
 valve_states = 0
 pressure = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 samplerate = 0
@@ -127,6 +154,9 @@ count1 = 0
 count2 = 0
 count3 = 0
 STATE = 0
+load = [0,0,0,0]
+thrust_load = 0
+thermocouple = [0, 0, 0, 0]
 
 def parse_packet(split_line):
 	global valve_states
@@ -147,6 +177,9 @@ def parse_packet(split_line):
 	global count2
 	global count3
 	global STATE
+	global load
+	global thrust_load
+	global thermouple
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -177,6 +210,16 @@ def parse_packet(split_line):
 	count2 = int(split_line[27])
 	count3 = int(split_line[28])
 	STATE = int(split_line[29])
+	load[0] = float(split_line[30])
+	load[1] = float(split_line[31])
+	load[2] = float(split_line[32])
+	load[3] = float(split_line[33])
+	thrust_load = float(split_line[34])
+	thermocouple[0] = int(split_line[35])
+	thermocouple[1] = int(split_line[36])
+	thermocouple[2] = int(split_line[37])
+	thermocouple[3] = int(split_line[38])
+
 
 
 def command(device, command):
@@ -199,7 +242,7 @@ def motor_enable(motor_num, enable):
 def send(command_string):
 	command_string = command_string + " \r"
 	print("SENDING: "+command_string.rstrip('\n'))
-	info_log.write("%.3f,\tSENDING: " % time.clock()+command_string)
+	command_log.write("%.3f,\tSENDING: " % time.clock()+command_string)
 	if(ser.is_open):
 		ser.write(command_string.encode('ascii'))
 
@@ -228,10 +271,7 @@ for n in range(0, 16):
 	pressure_labels[n][0].setText(press_id+":")
 	pressure_labels[n][1].setText(str(0)+"psi")
 
-valve_buttons[0][0].setText("FILL OX OFF")
-valve_buttons[1][0].setText("VENT OX OFF")
-valve_buttons[0][1].setText("FILL OX ON")
-valve_buttons[1][1].setText("VENT OX ON")
+
 ## For some reason this doesnt work with a for loop, sorry
 valve_buttons[0][0].clicked.connect(lambda: command("vlv0", 0))
 valve_buttons[1][0].clicked.connect(lambda: command("vlv1", 0))
@@ -266,60 +306,57 @@ valve_buttons[13][1].clicked.connect(lambda: command("vlv13", 1))
 valve_buttons[14][1].clicked.connect(lambda: command("vlv14", 1))
 #valve_buttons[15][1].clicked.connect(lambda: command("vlv15", 1)) # This is the igniter channel
 
-# mtr0 control
-mtr0_enable = QtGui.QPushButton("mtr0 ENABLE")
-mtr0_disable = QtGui.QPushButton("mtr0 DISABLE")
-mtr0_setpoint = QtGui.QLineEdit()
-mtr0_position = QtGui.QLabel("POSITION FB")
-mtr0_pwm = QtGui.QLabel("pwm FB")
-mtr0_send = QtGui.QPushButton("Command Setpoint")
-mtr0_setpointfb = QtGui.QLabel("SETPOINT FB")
-mtr0_enable.clicked.connect(lambda: motor_enable(0, 1))
-mtr0_disable.clicked.connect(lambda: motor_enable(0, 0))
-mtr0_send.clicked.connect(lambda: command("mtr0", mtr0_setpoint.text()))
-layout.addWidget(mtr0_disable, 1, 5)
-layout.addWidget(mtr0_enable, 1, 6)
-layout.addWidget(mtr0_send,2, 5)
-layout.addWidget(mtr0_pwm, 2, 9)
-layout.addWidget(mtr0_setpoint, 2, 6)
-layout.addWidget(mtr0_setpointfb, 2, 7)
-layout.addWidget(mtr0_position, 2, 8)
+# motor control
+for mtrx in range(0, 4):
+	mtr_enable.append(QtGui.QPushButton(mtr[mtrx]+" ENABLE"))
+	mtr_disable.append(QtGui.QPushButton(mtr[mtrx]+" DISABLE"))
+	mtr_setpoint.append(QtGui.QLineEdit())
+	mtr_position.append(QtGui.QLabel("POSITION FB"))
+	mtr_pwm.append(QtGui.QLabel("pwm FB"))
+	mtr_send.append(QtGui.QPushButton("Command Setpoint"))
+	mtr_setpointfb.append(QtGui.QLabel("SETPOINT FB"))
 
-# mtr1 control
-mtr1_enable = QtGui.QPushButton("mtr1 ENABLE")
-mtr1_disable = QtGui.QPushButton("mtr1 DISABLE")
-mtr1_setpoint = QtGui.QLineEdit()
-mtr1_position = QtGui.QLabel("POSITION FB")
-mtr1_pwm = QtGui.QLabel("pwm FB")
-mtr1_send = QtGui.QPushButton("Command Setpoint")
-mtr1_setpointfb = QtGui.QLabel("SETPOINT FB")
-mtr1_enable.clicked.connect(lambda: motor_enable(1, 1))
-mtr1_disable.clicked.connect(lambda: motor_enable(1, 0))
-mtr1_send.clicked.connect(lambda: command("mtr1", mtr1_setpoint.text()))
-layout.addWidget(mtr1_disable, 3, 5)
-layout.addWidget(mtr1_enable, 3, 6)
-layout.addWidget(mtr1_send,4, 5)
-layout.addWidget(mtr1_setpoint, 4, 6)
-layout.addWidget(mtr1_setpointfb, 4, 7)
-layout.addWidget(mtr1_position, 4, 8)
-layout.addWidget(mtr1_pwm, 4, 9)
+	if mtr[mtrx] in alias.keys():
+		mtr_enable[mtrx].setText(alias[mtr[mtrx]]+" ENABLE")
+		mtr_disable[mtrx].setText(alias[mtr[mtrx]]+" DISABLE")
+	layout.addWidget(mtr_disable[mtrx], 1+(2*mtrx), 5)
+	layout.addWidget(mtr_enable[mtrx], 1+(2*mtrx), 6)
+	layout.addWidget(mtr_send[mtrx],2+(2*mtrx), 5)
+	layout.addWidget(mtr_pwm[mtrx], 1+(2*mtrx), 8)	
+	layout.addWidget(mtr_setpoint[mtrx], 2+(2*mtrx), 6)
+	layout.addWidget(mtr_setpointfb[mtrx], 2+(2*mtrx), 7)
+	layout.addWidget(mtr_position[mtrx], 2+(2*mtrx), 8)
+
+mtr_send[0].clicked.connect(lambda: command('mtr0', mtr_setpoint[0].text()))
+mtr_send[1].clicked.connect(lambda: command('mtr1', mtr_setpoint[1].text()))
+mtr_send[2].clicked.connect(lambda: command('mtr2', mtr_setpoint[2].text()))
+mtr_send[3].clicked.connect(lambda: command('mtr3', mtr_setpoint[3].text()))
+mtr_enable[0].clicked.connect(lambda: motor_enable(0, 1))
+mtr_enable[1].clicked.connect(lambda: motor_enable(1, 1))
+mtr_enable[2].clicked.connect(lambda: motor_enable(2, 1))
+mtr_enable[3].clicked.connect(lambda: motor_enable(3, 1))
+mtr_disable[0].clicked.connect(lambda: motor_enable(0, 0))
+mtr_disable[1].clicked.connect(lambda: motor_enable(1, 0))
+mtr_disable[2].clicked.connect(lambda: motor_enable(2, 0))
+mtr_disable[3].clicked.connect(lambda: motor_enable(3, 0))
+
 
 # Samplerate Set
 samplerate_setpoint = QtGui.QLineEdit()
 samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
 samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
 samplerate_send.clicked.connect(lambda: set("samplerate", samplerate_setpoint.text()))
-layout.addWidget(samplerate_send, 5, 5)
-layout.addWidget(samplerate_setpoint, 5, 6)
-layout.addWidget(samplerate_setpointfb, 5, 7)
+layout.addWidget(samplerate_send, 5, 10)
+layout.addWidget(samplerate_setpoint, 5, 11)
+layout.addWidget(samplerate_setpointfb, 5, 12)
 # Telemrate set
 telemrate_setpoint = QtGui.QLineEdit()
 telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
 telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
 telemrate_send.clicked.connect(lambda: set("telemrate", ("rs422 "+telemrate_setpoint.text())))
-layout.addWidget(telemrate_send, 6, 5)
-layout.addWidget(telemrate_setpoint, 6, 6)
-layout.addWidget(telemrate_setpointfb, 6, 7)
+layout.addWidget(telemrate_send, 6, 10)
+layout.addWidget(telemrate_setpoint, 6, 11)
+layout.addWidget(telemrate_setpointfb, 6, 12)
 
 # Motor gains set
 MOTOR_GAINS_LABEL = QtGui.QLabel("Motor Gains")
@@ -358,12 +395,37 @@ layout.addWidget(arm_button, 13, 5)
 layout.addWidget(disarm_button, 14, 5)
 layout.addWidget(hotfire_button, 15, 5)
 
+# Loads
+thrust_load_label = QtGui.QLabel("NET THRUST")
+thrust_load_label.setAlignment(Qt.AlignCenter)
+load_label = []
+for n in range(0, 4):
+	load_label.append(QtGui.QLabel("LOAD "+str(n)))
+layout.addWidget(thrust_load_label, 12, 6, 1, 2)
+layout.addWidget(load_label[0], 13, 6)
+layout.addWidget(load_label[1], 13, 7)
+layout.addWidget(load_label[2], 14, 6)
+layout.addWidget(load_label[3], 14, 7)
+
+# Thermoucouples
+tc_label = []
+for n in range(0, 4):
+	tc_label.append(QtGui.QLabel("TC-"+str(n)))
+layout.addWidget(tc_label[0], 12, 11)
+layout.addWidget(tc_label[1], 13, 11)
+layout.addWidget(tc_label[2], 14, 11)
+layout.addWidget(tc_label[3], 15, 11)
+
+
 
 # Raw Command
+def raw_command():
+	send(raw_command_input.text())
+	raw_command_input.setText("")
 raw_command_input = QtGui.QLineEdit('command entry')
 raw_command_send = QtGui.QPushButton("Send Command")
-raw_command_send.clicked.connect(lambda: send(raw_command_input.text()))
-raw_command_input.returnPressed.connect(lambda: send(raw_command_input.text()))
+raw_command_send.clicked.connect(raw_command)
+raw_command_input.returnPressed.connect(raw_command)
 layout.addWidget(raw_command_input, 16, 5, 1, 2)
 layout.addWidget(raw_command_send, 16, 7)
 
@@ -436,6 +498,7 @@ layout.addWidget(col_label[8], 0, 8)
 
 
 def death():
+	command_log.close()
 	info_log.close()
 	serial_log.close()
 	app.quit()
@@ -455,7 +518,7 @@ for n in range(0, 16):
 if(1):
 	# Add image
 	logo = QtGui.QLabel(w)
-	logo.setGeometry(800, 100, 800, 300)
+	logo.setGeometry(1000, 250, 800, 250)
 	#use full ABSOLUTE path to the image, not relative
 	logo.setPixmap(QtGui.QPixmap(os.getcwd() + "/masa2.png"))
 
