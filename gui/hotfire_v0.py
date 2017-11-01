@@ -223,7 +223,9 @@ def parse_serial():
 		for n in range(0, 4):
 			load_label[n].setText(str(n)+": "+str(load[n]))
 		for n in range(0, 4):
-			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))		
+			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))	
+
+		pressure_labels[4][1].setText(str(round(pressure[4]*(625/400), 2))+"psi")
 		
 device_list = []
 valve_states = 0
@@ -247,6 +249,8 @@ STATE = 0
 load = [0,0,0,0]
 thrust_load = 0
 thermocouple = [0, 0, 0, 0]
+auto_states= 0
+AUTOSTRING = ""
 
 def parse_packet(split_line):
 	global valve_states
@@ -267,6 +271,11 @@ def parse_packet(split_line):
 	global count2
 	global count3
 	global STATE
+	global load
+	global thrust_load
+	global thermouple
+	global AUTOSTRING
+	global auto_states
 	valve_states = int(split_line[0])
 	pressure[0] = float(split_line[1])
 	pressure[1] = float(split_line[2])
@@ -306,6 +315,9 @@ def parse_packet(split_line):
 	thermocouple[1] = int(split_line[36])
 	thermocouple[2] = int(split_line[37])
 	thermocouple[3] = int(split_line[38])
+	auto_states = int(split_line[39])
+	AUTOSTRING = str(split_line[40])
+
 
 
 def command(device, command):

@@ -77,7 +77,7 @@ struct buffer{
 };
 
 
-#define MAX_AUTO_LENGTH 20
+#define MAX_AUTO_LENGTH 30
 #define NUM_AUTOS		5
 #define AUTO_STRING_LENGTH	30
 
@@ -296,18 +296,18 @@ uint16_t valve_states;
 #define Kd 2
 float motor_setpoint[4];
 float motor_control_gain[3] = {
-		500,
+		1000,
 		0.0,
 		0.0
 };
 const float motor_pot_slope[4] = {
-		0.06591797,
+		-0.06591797,
 		0.06591797,
 		1,
 		1
 };
 float motor_pot_offset[4] = {
-		133.0,
+		-185,
 		78.5,
 		0,
 		0
@@ -325,7 +325,7 @@ const float motor_limit_low[4] = {
 		0
 };
 const float pot_polarity[4] = {
-		1,
+		-1,
 		-1,
 		1,
 		1
@@ -398,10 +398,10 @@ float thermocouple[4];
 #define OFFSET 1
 
 float load_cal[2][6] = {{
-		0.187346,
-		0.159383,
-		0.181370,
-		0.184059,
+		1,//0.187346,
+		1,//0.159383,
+		1,//0.181370,
+		1,//0.184059,
 		1,
 		1,
 },{
@@ -643,13 +643,38 @@ command(led0, 1);
 //
 //start_auto(0);
 
-strcpy(autos[0].command[0], "command led0 1\r");
-strcpy(autos[0].command[1], "delay 250\r");
-strcpy(autos[0].command[2], "command led0 0\r");
-strcpy(autos[0].command[3], "delay 500\r");
-autos[0].length = 3;
+//strcpy(autos[0].command[0], "command led0 1\r");
+//strcpy(autos[0].command[1], "delay 250\r");
+//strcpy(autos[0].command[2], "command led0 0\r");
+//strcpy(autos[0].command[3], "delay 500\r");
+//autos[0].length = 3;
 
-start_auto(0);
+// HOTFIRE AUTO
+uint16_t i = 0;
+strcpy(autos[0].command[i++], "command vlv5 1\r");		// Turn on light
+strcpy(autos[0].command[i++], "delay 4250\r");
+strcpy(autos[0].command[i++], "command vlv10 1\r");		// Turn on water
+strcpy(autos[0].command[i++], "delay 250\r");
+strcpy(autos[0].command[i++], "command vlv15 1\r");		// Turn on igniter
+strcpy(autos[0].command[i++], "delay 500\r");
+strcpy(autos[0].command[i++], "command mtr0 90\r");		// Open Vlaves
+strcpy(autos[0].command[i++], "command mtr1 90\r");		//
+strcpy(autos[0].command[i++], "command vlv15 0\r");		// Turn off igniter
+strcpy(autos[0].command[i++], "delay 1000\r");
+strcpy(autos[0].command[i++], "command mtr0 0\r");		// Close valves
+strcpy(autos[0].command[i++], "command mtr1 0\r");		//
+strcpy(autos[0].command[i++], "command vlv10 0\r");		// Turn off water
+strcpy(autos[0].command[i++], "delay 1000\r");
+strcpy(autos[0].command[i++], "command vlv6 1\r");		// Camera trigger
+strcpy(autos[0].command[i++], "delay 100\r");
+strcpy(autos[0].command[i++], "command vlv6 0\r");
+strcpy(autos[0].command[i++], "delay 5000\r");
+strcpy(autos[0].command[i++], "command vlv5 0\r");		// Turn off light
+strcpy(autos[0].command[i++], "stop_auto 0\r");
+
+
+
+autos[0].length = i;
 
 
   while (1)
@@ -711,11 +736,11 @@ start_auto(0);
 		  }
 
 		  if(micros - state_timer > IGNITION_DURATION){
-			  command(mtr0, 90);
-			  command(mtr1, 90);
-			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
-			  STATE = FIRING;
-			  state_timer = micros;
+//			  command(mtr0, 90);
+//			  command(mtr1, 90);
+//			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
+//			  STATE = FIRING;
+//			  state_timer = micros;
 		  }
 
 	  }
@@ -1812,19 +1837,7 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			}
 
 
-
-			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,"
-					"%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,"
-					"%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.0f,"
-					"%.0f,%.0f,%.0f,\r\n",valve_states,pressure[0],pressure[1],
-					pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],
-					pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],
-					main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],
-					telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],motor_control_gain[0],
-					motor_control_gain[1],motor_control_gain[2],motor_position[0],
-					motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,
-					STATE,load[0],load[1],load[2],load[3],thrust_load,thermocouple[0],
-					thermocouple[1],thermocouple[2],thermocouple[3]);
+			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.0f,%.0f,%.0f,%.0f,%d,%s,\r\n",valve_states,pressure[0],pressure[1],pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],motor_position[0],motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,load[0],load[1],load[2],load[3],thrust_load,thermocouple[0],thermocouple[1],thermocouple[2],thermocouple[3],auto_states,AUTOSTRING);
 
 
 			//while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
@@ -2129,6 +2142,7 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 		if(STATE == ARMED){
 			STATE = IGNITION;
 			state_timer = micros;
+			start_auto(0);
 		}
 	}	// END hotfire
 

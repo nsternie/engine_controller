@@ -6,10 +6,10 @@ vlv3	unused
 vlv4	unused
 vlv5	unused
 vlv6	unused
-vlv7	unused
-vlv8	unused
-vlv9	unused
-vlv10	unused
+vlv7	Heat-Right
+vlv8	Head-Mid
+vlv9	Heat-Left
+vlv10	Water
 vlv11	unused
 vlv12	unused
 vlv13	unused
@@ -18,11 +18,11 @@ vlv15	IGNITER
 pressure0	FUEL
 pressure1	OX_MAN
 pressure2	OX_TANK
-pressure3	NOT USED
+pressure3	CHAMBER
 pressure4	MOTHER
 pressure5	FUEL_MAN
 pressure6	N2
-pressure7	CHAMBER
+pressure7	MEH
 pressure8	N/A
 pressure9	N/A
 pressure10	N/A
