@@ -1,6 +1,9 @@
 #include "telem.h"
 #include "pack_telem_defines.h"
 
+#define PACKET_SEP '\n'
+#define FinishBlock(X) (*code_ptr = (X), code_ptr = stuffed++, code = 0x01)
+
 void pack_telem(uint8_t *dst){
 	*(dst+1) = TELEM_ITEM_1;
 	*(dst+2) = TELEM_ITEM_2;
@@ -257,4 +260,24 @@ void pack_telem(uint8_t *dst){
 	*(dst+253) = TELEM_ITEM_253;
 	*(dst+254) = TELEM_ITEM_254;
 
+}
+
+void stuff_telem(uint8_t *unstuffed, uint8_t *stuffed){
+	const uint8_t *end = unstuffed + PACKET_SIZE;
+	uint8_t *code_ptr = stuffed++;
+	uint8_t code = 0x01;
+
+	while (unstuffed < end){
+		if (*unstuffed == PACKET_SEP)
+			FinishBlock(code);
+		else{
+			*stuffed++ = *unstuffed;
+			if (++code == 0xFF){
+				FinishBlock(code);
+			}
+		}
+		unstuffed++;
+	}
+
+	FinishBlock(code);
 }

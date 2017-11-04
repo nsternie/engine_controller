@@ -2,4 +2,4 @@
 
 void pack_telem(uint8_t *dst);
 
-void stuff_telem(uint8_t *unstuffed, uint8_t *stuffed, uint8_t len);
+void stuff_telem(uint8_t *unstuffed, uint8_t *stuffed);

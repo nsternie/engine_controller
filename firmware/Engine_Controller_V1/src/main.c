@@ -116,9 +116,6 @@ void read_adc_brute();										// Brute force read all the adcs. Blocking. Slow
 void print_adc_raw(UART_HandleTypeDef device);				// Print all the ADC things in a decentish table
 uint8_t configure_devices();								// Send Configuration data to the spirit.
 void send_telem(UART_HandleTypeDef device, uint8_t format);	//
-#define FinishBlock(X) (*code_ptr = (X), code_ptr = dst++, code = 0x01)
-void stuff_data(uint8_t *src, uint8_t *dst, uint16_t length);
-void unstuff_data(uint8_t *src, uint8_t *dst, uint16_t length);
 void assemble_telem();
 int serial_command(uint8_t* cbuf_in);
 void scale_readings();
@@ -1397,39 +1394,7 @@ uint8_t configure_devices(){
 	return config_succcess;
 
 }
-void stuff_data(uint8_t *src, uint8_t *dst, uint16_t length){
-	const uint8_t *end = src + length;
-	uint8_t *code_ptr = dst++;
-	uint8_t code = 0x01;
 
-	while (src < end){
-		if (*src == 0){
-			FinishBlock(code);
-		}
-		else{
-			*dst++ = *src;
-			if (++code == 0xFF){
-				FinishBlock(code);
-			}
-		}
-		src++;
-	}
-	FinishBlock(code);
-}
-void unstuff_data(uint8_t *src, uint8_t *dst, uint16_t length){
-
-	const uint8_t *end = src + length;
-	while (src < end){
-		int code = *src++;
-		for (int i = 1; i < code; i++){
-			*dst++ = *src++;
-		}
-		if (code < 0xFF){
-			*dst++ = 0;
-		}
-	}
-
-}
 void send_telem(UART_HandleTypeDef device, uint8_t format){
 
 	uint8_t line[1024];
