@@ -1,40 +1,40 @@
 name	firmware_variable	min_val	max_val	unit	firmware_type	printf_format	type_cast	xmit_scale	device	python_variable_override	python_type	python_globals	|
 Valve State Feedback	valve_states				uint16_t	%u	uint16_t	1			int	valve_states	|
 Pressure 0	pressure[0]	-100	3000	psi	float	%.1f	int16_t	1	pressure0		float	pressure	|
-Pressure 1	pressure[1]	-100	3000	psi	float	%.1f	int16_t	1	pressure1		float		|
-Pressure 2	pressure[2]	-100	3000	psi	float	%.1f	int16_t	1	pressure2		float		|
-Pressure 3	pressure[3]	-100	3000	psi	float	%.1f	int16_t	1	pressure3		float		|
-Pressure 4	pressure[4]	-100	3000	psi	float	%.1f	int16_t	1	pressure4		float		|
-Pressure 5	pressure[5]	-100	3000	psi	float	%.1f	int16_t	1	pressure5		float		|
-Pressure 6	pressure[6]	-100	3000	psi	float	%.1f	int16_t	1	pressure6		float		|
-Pressure 7	pressure[7]	-100	3000	psi	float	%.1f	int16_t	1	pressure7		float		|
-ADC rate	samplerate	0	1000000	Hz		%d	uint32_t	1			int		|
-motor_setpoint[0]	motor_setpoint[0]	-500	500	degrees		%.2f	int32_t	1000			float		|
-motor_setpoint[1]	motor_setpoint[1]	-500	500	degrees		%.2f	int32_t	1000			float		|
-main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int		|
-motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int		|
-adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int		|
-telemetry_cycle_time[0]	telemetry_cycle_time[0]			microseconds		%u	uint16_t	1		telemetry_cycle_time	int		|
-ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float		|
-ibus	ibus	-10	150	Amps		%.2f	int16_t	1000			float		|
-telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t			telemetry_rate	int		|
-motor_control_gain[0]	motor_control_gain[0]					%.3f	uint16_t				float		|
-motor_control_gain[1]	motor_control_gain[1]					%.3f	uint16_t				float		|
-motor_control_gain[2]	motor_control_gain[2]					%.3f	uint16_t				float		|
+Pressure 1	pressure[1]	-100	3000	psi	float	%.1f	int16_t	1	pressure1		float	samplerate	|
+Pressure 2	pressure[2]	-100	3000	psi	float	%.1f	int16_t	1	pressure2		float	motor_setpoint	|
+Pressure 3	pressure[3]	-100	3000	psi	float	%.1f	int16_t	1	pressure3		float	main_cycle_time	|
+Pressure 4	pressure[4]	-100	3000	psi	float	%.1f	int16_t	1	pressure4		float	motor_cycle_time	|
+Pressure 5	pressure[5]	-100	3000	psi	float	%.1f	int16_t	1	pressure5		float	adc_cycle_time	|
+Pressure 6	pressure[6]	-100	3000	psi	float	%.1f	int16_t	1	pressure6		float	telemetry_cycle_time	|
+Pressure 7	pressure[7]	-100	3000	psi	float	%.1f	int16_t	1	pressure7		float	ebatt	|
+ADC rate	samplerate	0	1000000	Hz		%d	uint32_t	1			int	ibus	|
+motor_setpoint[0]	motor_setpoint[0]	-500	500	degrees		%.2f	int32_t	1000			float	telemetry_rate	|
+motor_setpoint[1]	motor_setpoint[1]	-500	500	degrees		%.2f	int32_t	1000			float	motor_control_gain	|
+main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int	motor_position	|
+motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int	motor_pwm	|
+adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int	count1	|
+telemetry_cycle_time[0]	telemetry_cycle_time[0]			microseconds		%u	uint16_t	1		telemetry_cycle_time	int	count2	|
+ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	count3	|
+ibus	ibus	-10	150	Amps		%.2f	int16_t	100			float	STATE	|
+telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	int	load	|
+motor_control_gain[0]	motor_control_gain[0]					%.3f	uint16_t	1			float	thrust_load	|
+motor_control_gain[1]	motor_control_gain[1]					%.3f	uint16_t	1			float	thermouple	|
+motor_control_gain[2]	motor_control_gain[2]					%.3f	uint16_t	1			float		|
 motor_position[0]	motor_position[0]					%.2f	int32_t	1000			float		|
 motor_position[1]	motor_position[1]					%.2f	int32_t	1000			float		|
-motor_pwm[0]	motor_pwm[0]					%d	int16_t				int		|
-motor_pwm[1]	motor_pwm[1]					%d	int16_t				int		|
-count1	count1					%u	uint32_t				int		|
-count2	count2					%u	uint32_t				int		|
-count3	count3					%u	uint32_t				int		|
-STATE	STATE					%u	uint8_t				int		|
+motor_pwm[0]	motor_pwm[0]					%d	int16_t	1			int		|
+motor_pwm[1]	motor_pwm[1]					%d	int16_t	1			int		|
+count1	count1					%u	uint32_t	1			int		|
+count2	count2					%u	uint32_t	1			int		|
+count3	count3					%u	uint32_t	1			int		|
+STATE	STATE					%u	uint8_t	1			int		|
 load[0]	load[0]			lbs		%.1f	int16_t	10			float		|
 load[1]	load[1]			lbs		%.1f	int16_t	10			float		|
 load[2]	load[2]			lbs		%.1f	int16_t	10			float		|
 load[3]	load[3]			lbs		%.1f	int16_t	10			float		|
 thrust_load	thrust_load	-200	2000	lbs		%.1f	int32_t	10			float		|
-thermocouple[0]	thermocouple[0]	-100	1500	degC		%.0f	int16_t				int		|
-thermocouple[1]	thermocouple[1]	-100	1500	degC		%.0f	int16_t				int		|
-thermocouple[2]	thermocouple[2]	-100	1500	degC		%.0f	int16_t				int		|
-thermocouple[3]	thermocouple[3]	-100	1500	degC		%.0f	int16_t				int		|
+thermocouple[0]	thermocouple[0]	-100	1500	degC		%.0f	int16_t	1			int		|
+thermocouple[1]	thermocouple[1]	-100	1500	degC		%.0f	int16_t	1			int		|
+thermocouple[2]	thermocouple[2]	-100	1500	degC		%.0f	int16_t	1			int		|
+thermocouple[3]	thermocouple[3]	-100	1500	degC		%.0f	int16_t	1			int		|
