@@ -258,7 +258,6 @@ void pack_telem(uint8_t *dst){
 	*(dst+251) = TELEM_ITEM_251;
 	*(dst+252) = TELEM_ITEM_252;
 	*(dst+253) = TELEM_ITEM_253;
-	*(dst+254) = TELEM_ITEM_254;
 
 }
 
