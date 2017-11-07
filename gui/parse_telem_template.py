@@ -56,15 +56,15 @@ type_range_negative = {
 }
 
 type_unpack_arg = {
-	"char"		:	"\">c\"",
-	"uint8_t"	:	"\">B\"",
-	"int8_t"	:	"\">b\"",
-	"uint16_t"	:	"\">H\"",
-	"int16_t"	:	"\">h\"",
-	"uint32_t"	:	"\">I\"",
-	"int32_t"	:	"\">i\"",
-	"uint64_t"	:	"\">L\"",
-	"int64_t"	:	"\">l\"",
+	"char"		:	"\"<c\"",
+	"uint8_t"	:	"\"<B\"",
+	"int8_t"	:	"\"<b\"",
+	"uint16_t"	:	"\"<H\"",
+	"int16_t"	:	"\"<h\"",
+	"uint32_t"	:	"\"<I\"",
+	"int32_t"	:	"\"<i\"",
+	"uint64_t"	:	"\"<L\"",
+	"int64_t"	:	"\"<l\"",
 }
 
 n = 0
