@@ -131,26 +131,25 @@ for line in template_file:
 		if(python_variable_override):
 			python_variable = python_variable_override
 
-		python_string += "\t\tbyte_rep = 0"
-		for m in range(0, byte_length):
-			python_string += " + packet["+str(packet_byte_length-byte_length+m)+"]"
+		python_string += "\t\tbyte_rep = "
+		python_string += "packet["+str(packet_byte_length-byte_length)+":"+ str(packet_byte_length)+"]"
 		python_string += "\n"
 			
 			
 		python_string += 	"\t\t"+python_variable+" = "+python_type+ \
 							"((float(struct.unpack("+type_unpack_arg[type_cast] + \
-							", byte_rep)))/"+xmit_scale+")\n"
+							", byte_rep)[0]))/"+xmit_scale+")\n"
 
 
 		device_list.append(split_string[5])
 		for m in range(0, byte_length):
-			pack_telem_defines_h_string += "#define\tTELEM_ITEM_"+str(packet_byte_length-byte_length+m-1)+ \
+			pack_telem_defines_h_string += "#define\tTELEM_ITEM_"+str(packet_byte_length-byte_length+m)+ \
 			"\t(("+type_cast+") ("+str(firmware_variable)+"*"+str(xmit_scale)+")) >> "+str(8*m)+" \n"
 
 	n += 1;
 
-for m in range(packet_byte_length, 255):
-	pack_telem_defines_h_string += "#define\tTELEM_ITEM_"+str(m-1)+"\t0\n"
+for m in range(packet_byte_length, 254):
+	pack_telem_defines_h_string += "#define\tTELEM_ITEM_"+str(m)+"\t0\n"
 pack_telem_defines_h_string += "#define\tPACKET_SIZE\t"+str(packet_byte_length)+"\n"
 
 
