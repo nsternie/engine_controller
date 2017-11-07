@@ -25,6 +25,7 @@ run_name = input("Enter run name: ")
 serial_log = open(run_name+"_serial_log.csv", "w+")
 info_log = open(run_name+"_python_log.csv", "w+")
 command_log = open(run_name+"_command_log.csv", "w+")
+data_log = open(run_name+'_datalog.csv', 'w+')
 command_log.write("Time, Command/info\n")
 
 
@@ -78,13 +79,26 @@ write_csv_header = True
 def parse_serial():
 
 	if(ser.is_open):
-		line = ser.readline()	
+		# Read a packet
+		packet = ser.readline()	
+		# Unstuff the packet
+		unstuffed = b''
+		index = int(packet[0])
+		for n in range(1, len(packet)):
+			temp = packet[n:n+1]
+			if(n == index):
+				index = int(packet[n])+n
+				temp = b'\n'
+			unstuffed = unstuffed + temp
+		packet = unstuffed
 		#line = str(line, 'ascii')
 		#try:
 			#split_line = line.split(',')
+		unpack_packet(line)
 		parse_packet(line)
-		#serial_log.write("%.3f," % time.clock())
-		#serial_log.write(line.rstrip('\n'))
+		print("line len: "+str(len(packet)))
+		serial_log.write("%.3f," % time.clock())
+		serial_log.write(str(packet)+'\n')
 		# except:
 		# 	print("Error")
 		# 	pass
@@ -160,6 +174,8 @@ STATE = 0
 load = [0,0,0,0]
 thrust_load = 0
 thermocouple = [0, 0, 0, 0]
+
+
 
 def parse_packet(packet):
 		## GLOBALS ##
