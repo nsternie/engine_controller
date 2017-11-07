@@ -5,6 +5,7 @@
 #define FinishBlock(X) (*code_ptr = (X), code_ptr = stuffed++, code = 0x01)
 
 void pack_telem(uint8_t *dst){
+	*dst = TELEM_ITEM_0;
 	*(dst+1) = TELEM_ITEM_1;
 	*(dst+2) = TELEM_ITEM_2;
 	*(dst+3) = TELEM_ITEM_3;
@@ -277,6 +278,7 @@ void stuff_telem(uint8_t *unstuffed, uint8_t *stuffed){
 		}
 		unstuffed++;
 	}
+	*stuffed = '\n';
 
 	FinishBlock(code);
 }
