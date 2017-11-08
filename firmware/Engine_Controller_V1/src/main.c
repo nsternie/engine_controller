@@ -135,7 +135,6 @@ void read_thermocouples();
 
 /* USER CODE BEGIN 0 */
 
-
 /* USER CODE END 0 */
 
 int main(void)
@@ -1631,8 +1630,14 @@ void scale_readings(){
 		pressure[n] *= press_cal[SLOPE][n];
 	}
 
+
+
+	load[0] = adc_data[3][8];
+	load[1] = adc_data[3][10];
+	load[2] = adc_data[3][12];
+	load[3] = adc_data[3][14];
 	for(uint8_t n = 0; n < 6; n++){
-		load[n] = adc_data[3][15-n]-load_cal[OFFSET][n];
+		load[n] -= load_cal[OFFSET][n];
 		load[n] *= load_cal[SLOPE][n];
 	}
 
