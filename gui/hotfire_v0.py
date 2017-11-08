@@ -4,6 +4,8 @@ import pyqtgraph as pg
 import serial
 import time
 import os
+from hotfire_packet import ECParse
+import struct
 
 
 # Gloabals
@@ -23,6 +25,7 @@ run_name = input("Enter run name: ")
 serial_log = open(run_name+"_serial_log.csv", "w+")
 info_log = open(run_name+"_python_log.csv", "w+")
 command_log = open(run_name+"_command_log.csv", "w+")
+data_log = open(run_name+"_datalog.csv", "w+")
 command_log.write("Time, Command/info\n")
 
 
@@ -76,15 +79,32 @@ write_csv_header = True
 def parse_serial():
 
 	if(ser.is_open):
-		line = ser.readline()	
-		line = str(line, 'ascii')
-		try:
-			split_line = line.split(',')
-			parse_packet(split_line)
-			serial_log.write("%.3f," % time.clock())
-			serial_log.write(line.rstrip('\n'))
-		except:
-			pass
+		# Read a packet
+		packet = ser.readline()	
+		# Unstuff the packet
+		data_log.write("Stuffed: "+str(packet)+'\n')
+		
+		unstuffed = b''
+		index = int(packet[0])
+		for n in range(1, len(packet)):
+			temp = packet[n:n+1]
+			if(n == index):
+				index = int(packet[n])+n
+				temp = b'\n'
+			unstuffed = unstuffed + temp
+		packet = unstuffed
+		data_log.write("Unstuffed: "+str(packet)+'\n\n')
+		print("Packet type: ", type(packet))
+		#line = str(line, 'ascii')
+		#try:
+			#split_line = line.split(',')
+		parse_packet(packet)
+		print("line len: "+str(len(packet)))
+		serial_log.write("%.3f," % time.clock())
+		serial_log.write(str(packet)+'\n')
+		# except:
+		# 	print("Error")
+		# 	pass
 		# print("Packet parsed")
 		# print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
 
@@ -158,7 +178,10 @@ load = [0,0,0,0]
 thrust_load = 0
 thermocouple = [0, 0, 0, 0]
 
-def parse_packet(split_line):
+
+
+def parse_packet(packet):
+		## GLOBALS ##
 	global valve_states
 	global pressure
 	global samplerate
@@ -180,45 +203,85 @@ def parse_packet(split_line):
 	global load
 	global thrust_load
 	global thermouple
-	valve_states = int(split_line[0])
-	pressure[0] = float(split_line[1])
-	pressure[1] = float(split_line[2])
-	pressure[2] = float(split_line[3])
-	pressure[3] = float(split_line[4])
-	pressure[4] = float(split_line[5])
-	pressure[5] = float(split_line[6])
-	pressure[6] = float(split_line[7])
-	pressure[7] = float(split_line[8])
-	samplerate = int(split_line[9])
-	motor_setpoint[0] = float(split_line[10])
-	motor_setpoint[1] = float(split_line[11])
-	main_cycle_time = int(split_line[12])
-	motor_cycle_time = int(split_line[13])
-	adc_cycle_time = int(split_line[14])
-	telemetry_cycle_time = int(split_line[15])
-	ebatt = float(split_line[16])
-	ibus = float(split_line[17])
-	telemetry_rate = int(split_line[18])
-	motor_control_gain[0] = float(split_line[19])
-	motor_control_gain[1] = float(split_line[20])
-	motor_control_gain[2] = float(split_line[21])
-	motor_position[0] = float(split_line[22])
-	motor_position[1] = float(split_line[23])
-	motor_pwm[0] = int(split_line[24])
-	motor_pwm[1] = int(split_line[25])
-	count1 = int(split_line[26])
-	count2 = int(split_line[27])
-	count3 = int(split_line[28])
-	STATE = int(split_line[29])
-	load[0] = float(split_line[30])
-	load[1] = float(split_line[31])
-	load[2] = float(split_line[32])
-	load[3] = float(split_line[33])
-	thrust_load = float(split_line[34])
-	thermocouple[0] = int(split_line[35])
-	thermocouple[1] = int(split_line[36])
-	thermocouple[2] = int(split_line[37])
-	thermocouple[3] = int(split_line[38])
+	byte_rep = packet[0:2]
+	valve_states = int((float(struct.unpack("<H", byte_rep)[0]))/1)
+	byte_rep = packet[2:4]
+	pressure[0] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[4:6]
+	pressure[1] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[6:8]
+	pressure[2] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[8:10]
+	pressure[3] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[10:12]
+	pressure[4] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[12:14]
+	pressure[5] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[14:16]
+	pressure[6] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[16:18]
+	pressure[7] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[18:22]
+	samplerate = int((float(struct.unpack("<I", byte_rep)[0]))/1)
+	byte_rep = packet[22:26]
+	motor_setpoint[0] = float((float(struct.unpack("<i", byte_rep)[0]))/1000)
+	byte_rep = packet[26:30]
+	motor_setpoint[1] = float((float(struct.unpack("<i", byte_rep)[0]))/1000)
+	byte_rep = packet[30:32]
+	main_cycle_time = int((float(struct.unpack("<H", byte_rep)[0]))/1)
+	byte_rep = packet[32:34]
+	motor_cycle_time = int((float(struct.unpack("<H", byte_rep)[0]))/1)
+	byte_rep = packet[34:36]
+	adc_cycle_time = int((float(struct.unpack("<H", byte_rep)[0]))/1)
+	byte_rep = packet[36:40]
+	telemetry_cycle_time = int((float(struct.unpack("<I", byte_rep)[0]))/1)
+	byte_rep = packet[40:42]
+	ebatt = float((float(struct.unpack("<h", byte_rep)[0]))/1000)
+	byte_rep = packet[42:44]
+	ibus = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+	byte_rep = packet[44:46]
+	telemetry_rate = int((float(struct.unpack("<H", byte_rep)[0]))/1)
+	byte_rep = packet[46:48]
+	motor_control_gain[0] = float((float(struct.unpack("<H", byte_rep)[0]))/1)
+	byte_rep = packet[48:50]
+	motor_control_gain[1] = float((float(struct.unpack("<H", byte_rep)[0]))/1)
+	byte_rep = packet[50:52]
+	motor_control_gain[2] = float((float(struct.unpack("<H", byte_rep)[0]))/1)
+	byte_rep = packet[52:56]
+	motor_position[0] = float((float(struct.unpack("<i", byte_rep)[0]))/1000)
+	byte_rep = packet[56:60]
+	motor_position[1] = float((float(struct.unpack("<i", byte_rep)[0]))/1000)
+	byte_rep = packet[60:62]
+	motor_pwm[0] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[62:64]
+	motor_pwm[1] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[64:68]
+	count1 = int((float(struct.unpack("<I", byte_rep)[0]))/1)
+	byte_rep = packet[68:72]
+	count2 = int((float(struct.unpack("<I", byte_rep)[0]))/1)
+	byte_rep = packet[72:76]
+	count3 = int((float(struct.unpack("<I", byte_rep)[0]))/1)
+	byte_rep = packet[76:77]
+	STATE = int((float(struct.unpack("<B", byte_rep)[0]))/1)
+	byte_rep = packet[77:79]
+	load[0] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
+	byte_rep = packet[79:81]
+	load[1] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
+	byte_rep = packet[81:83]
+	load[2] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
+	byte_rep = packet[83:85]
+	load[3] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
+	byte_rep = packet[85:89]
+	thrust_load = float((float(struct.unpack("<i", byte_rep)[0]))/10)
+	byte_rep = packet[89:91]
+	thermocouple[0] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[91:93]
+	thermocouple[1] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[93:95]
+	thermocouple[2] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[95:97]
+	thermocouple[3] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+
 
 
 
@@ -501,6 +564,7 @@ def death():
 	command_log.close()
 	info_log.close()
 	serial_log.close()
+	data_log.close()
 	app.quit()
 
 KILL = QtGui.QPushButton("KILL")

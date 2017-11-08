@@ -1,4 +1,5 @@
-uint8_t telem_unstuffed[];
-uint8_t telem_stuffed[];
+#include <stdint.h>
 
-void assemble_telem();
+void pack_telem(uint8_t *dst);
+
+void stuff_telem(uint8_t *unstuffed, uint8_t *stuffed);
