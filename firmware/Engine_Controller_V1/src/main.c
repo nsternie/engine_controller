@@ -40,6 +40,7 @@
 #include "globals.h"
 #include "calibrations.h"
 #include "telem.h"
+#include "pack_telem_defines.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -279,9 +280,9 @@ int main(void)
 //
 //	  trace_printf("Got through all of that\r\n");
 
-telemetry_format[rs422] = gui_v1;
+//telemetry_format[rs422] = gui_v1;
+	telemetry_format[rs422] = gui_byte_packet;
 
-command(led0, 1);
 
 //while(1){
 //	read_adc_brute();
@@ -1437,7 +1438,11 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			break;
 
 		case gui_byte_packet:
-			HAL_UART_Transmit(&device, (uint8_t*)telem_stuffed, unstuffed_packet_length+2, 1);
+			command(led0, 1);
+			pack_telem(telem_unstuffed);
+			stuff_telem(telem_unstuffed, telem_stuffed);
+			HAL_UART_Transmit(&device, (uint8_t*)telem_stuffed, PACKET_SIZE+2, 1);
+			command(led0, 0);
 			break;
 
 		case small_pretty:

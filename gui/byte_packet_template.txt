@@ -14,7 +14,7 @@ motor_setpoint[1]	motor_setpoint[1]	-500	500	degrees		%.2f	int32_t	1000			float	
 main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int	motor_position	|
 motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int	motor_pwm	|
 adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int	count1	|
-telemetry_cycle_time[0]	telemetry_cycle_time[0]			microseconds		%u	uint16_t	1		telemetry_cycle_time	int	count2	|
+telemetry_cycle_time[0]	telemetry_cycle_time[0]			microseconds		%u	uint32_t	1		telemetry_cycle_time	int	count2	|
 ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	count3	|
 ibus	ibus	-10	150	Amps		%.2f	int16_t	100			float	STATE	|
 telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	int	load	|
