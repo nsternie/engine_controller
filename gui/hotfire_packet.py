@@ -24,6 +24,8 @@ class ECParse:
 		global load
 		global thrust_load
 		global thermouple
+		global ivlv
+		global evlv
 		byte_rep = packet[0:2]
 		valve_states = int((float(struct.unpack("<H", byte_rep)[0]))/1)
 		byte_rep = packet[2:4]
@@ -102,3 +104,53 @@ class ECParse:
 		thermocouple[2] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[95:97]
 		thermocouple[3] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+		byte_rep = packet[97:99]
+		ivlv[0] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[99:101]
+		ivlv[1] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[101:103]
+		ivlv[2] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[103:105]
+		ivlv[3] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[105:107]
+		ivlv[4] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[107:109]
+		ivlv[5] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[109:111]
+		ivlv[6] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[111:113]
+		ivlv[7] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[113:115]
+		ivlv[15] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[115:117]
+		evlv[0] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[117:119]
+		evlv[1] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[119:121]
+		evlv[2] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[121:123]
+		evlv[3] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[123:125]
+		evlv[4] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[125:127]
+		evlv[5] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[127:129]
+		evlv[6] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[129:131]
+		evlv[7] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[131:133]
+		evlv[8] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[133:135]
+		evlv[9] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[135:137]
+		evlv[10] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[137:139]
+		evlv[11] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[139:141]
+		evlv[12] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[141:143]
+		evlv[13] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[143:145]
+		evlv[14] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[145:147]
+		evlv[15] = float((float(struct.unpack("<h", byte_rep)[0]))/100)

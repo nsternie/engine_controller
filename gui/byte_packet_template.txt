@@ -14,14 +14,14 @@ motor_setpoint[1]	motor_setpoint[1]	-500	500	degrees		%.2f	int32_t	1000			float	
 main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int	motor_position	|
 motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int	motor_pwm	|
 adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int	count1	|
-telemetry_cycle_time[0]	telemetry_cycle_time[0]			microseconds		%u	uint32_t	1		telemetry_cycle_time	int	count2	|
+telemetry_cycle_time[0]	telemetry_cycle_time[0]	0	1000000	microseconds		%u	uint32_t	1		telemetry_cycle_time	int	count2	|
 ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	count3	|
 ibus	ibus	-10	150	Amps		%.2f	int16_t	100			float	STATE	|
 telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	int	load	|
 motor_control_gain[0]	motor_control_gain[0]					%.3f	uint16_t	1			float	thrust_load	|
 motor_control_gain[1]	motor_control_gain[1]					%.3f	uint16_t	1			float	thermouple	|
-motor_control_gain[2]	motor_control_gain[2]					%.3f	uint16_t	1			float		|
-motor_position[0]	motor_position[0]					%.2f	int32_t	1000			float		|
+motor_control_gain[2]	motor_control_gain[2]					%.3f	uint16_t	1			float	ivlv	|
+motor_position[0]	motor_position[0]					%.2f	int32_t	1000			float	evlv	|
 motor_position[1]	motor_position[1]					%.2f	int32_t	1000			float		|
 motor_pwm[0]	motor_pwm[0]					%d	int16_t	1			int		|
 motor_pwm[1]	motor_pwm[1]					%d	int16_t	1			int		|
@@ -38,3 +38,28 @@ thermocouple[0]	thermocouple[0]	-100	1500	degC		%.0f	int16_t	1			int		|
 thermocouple[1]	thermocouple[1]	-100	1500	degC		%.0f	int16_t	1			int		|
 thermocouple[2]	thermocouple[2]	-100	1500	degC		%.0f	int16_t	1			int		|
 thermocouple[3]	thermocouple[3]	-100	1500	degC		%.0f	int16_t	1			int		|
+ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float		|
+ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float		|
+ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	100			float		|
+ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	100			float		|
+ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float		|
+ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	100			float		|
+ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	100			float		|
+ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float		|
+ivlv[15]	ivlv[15]	-1	20	Amps		%.1f	int16_t	100			float		|
+evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[1]	evlv[1]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[2]	evlv[2]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[3]	evlv[3]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[4]	evlv[4]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[5]	evlv[5]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[6]	evlv[6]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[7]	evlv[7]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[8]	evlv[8]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[9]	evlv[9]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[10]	evlv[10]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[11]	evlv[11]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[12]	evlv[12]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[13]	evlv[13]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[14]	evlv[14]	-5	15	Volts		%.1f	int16_t	100			float		|
+evlv[15]	evlv[15]	-5	15	Volts		%.1f	int16_t	100			float		|
