@@ -67,3 +67,7 @@ uint16_t samplerate = 50; // Hz
 uint8_t telemetry_format[3];
 uint16_t telemetry_rate[3] = {10,10,10};
 uint8_t device_alias[100][10];
+struct autosequence autos[NUM_AUTOS];
+int16_t LOG_TO_AUTO = -1;
+uint8_t AUTOSTRING[1024];
+uint16_t auto_states;

@@ -154,3 +154,7 @@ class ECParse:
 		evlv[14] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
 		byte_rep = packet[145:147]
 		evlv[15] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		byte_rep = packet[147:149]
+		LOG_TO_AUTO = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+		byte_rep = packet[149:151]
+		auto_states = int((float(struct.unpack("<H", byte_rep)[0]))/1)

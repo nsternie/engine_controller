@@ -73,26 +73,6 @@ UART_HandleTypeDef huart1;
 
 
 
-#define MAX_AUTO_LENGTH 30
-#define NUM_AUTOS		5
-#define AUTO_STRING_LENGTH	30
-
-struct autosequence{
-	char		name[16];
-	uint8_t 	command[MAX_AUTO_LENGTH][AUTO_STRING_LENGTH];
-	uint16_t	current_index;
-	uint32_t	last_exec;
-	uint32_t	next_exec;
-	int16_t 	length;
-	uint8_t 	running;
-};
-
-struct autosequence autos[NUM_AUTOS];
-int16_t LOG_TO_AUTO = -1;
-uint8_t AUTOSTRING[1024];
-uint16_t auto_states;
-
-
 #define getName(var)  #var
 #define get_state(x) (states[x])
 #define TIME(x)			(x[0] = (__HAL_TIM_GET_COUNTER(&htim2) - x[1])+1); \

@@ -37,7 +37,6 @@ count1 = 0
 count2 = 0
 count3 = 0
 STATE = 0
-AUTOSTRING = "0"
 LOG_TO_AUTO = 0
 auto_states = 0
 
@@ -129,27 +128,27 @@ def parse_serial():
 		# 	print("Error")
 		# 	pass
 
-			state_label.setText("STATE = "+state_dict[STATE])
+		state_label.setText("STATE = "+state_dict[STATE])
 
-			log_to_auto_label.setText("Logging to auto: "+str(LOG_TO_AUTO))
-			if(AUTOSTRING == "0"):
-				pass 	# No new string sent
-			else:
-				temp = ""
-				split_auto = AUTOSTRING.split('|')
-				for chunk in split_auto:
-					temp = temp + chunk + "\n"
-				autofeedback.setPlainText(temp)
-				print("AUTOSTRING RECIEVED: "+AUTOSTRING)
+		log_to_auto_label.setText("Logging to auto: "+str(LOG_TO_AUTO))
+		# if(AUTOSTRING == "0"):
+		# 	pass 	# No new string sent
+		# else:
+		# 	temp = ""
+		# 	split_auto = AUTOSTRING.split('|')
+		# 	for chunk in split_auto:
+		# 		temp = temp + chunk + "\n"
+		# 	autofeedback.setPlainText(temp)
+		# 	print("AUTOSTRING RECIEVED: "+AUTOSTRING)
 
-			mask = 1
-			running_autos_string = "Running Autos: "
-			# Update auto state feedback
-			for n in range(0, 16):
-				state = 0
-				if(mask & auto_states):
-					running_autos_string += (str(n)+", ")
-				mask = mask << 1
+		mask = 1
+		running_autos_string = "Running Autos: "
+		# Update auto state feedback
+		for n in range(0, 16):
+			state = 0
+			if(mask & auto_states):
+				running_autos_string += (str(n)+", ")
+			mask = mask << 1
 
 			running_autos_label.setText(running_autos_string)
 		# print("Packet parsed")
@@ -201,7 +200,7 @@ def parse_serial():
 		thrust_load_label.setText("Thrust = "+str(thrust_load))
 		for n in range(0, 4):
 			load_label[n].setText(str(n)+": "+str(load[n]))
-		for n in range(0, 4):
+
 
 
 		
@@ -227,13 +226,15 @@ STATE = 0
 load = [0,0,0,0]
 thrust_load = 0
 thermocouple = [0, 0, 0, 0]
-auto_states= 0
-AUTOSTRING = ""ivlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+auto_states = 0
+LOG_TO_AUTO = 0
+ivlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 evlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 
+
 def parse_packet(packet):
-		## GLOBALS ##
+	## GLOBALS ##
 	global valve_states
 	global pressure
 	global samplerate
@@ -255,7 +256,6 @@ def parse_packet(packet):
 	global load
 	global thrust_load
 	global thermouple
-
 	global ivlv
 	global evlv
 	byte_rep = packet[0:2]
@@ -386,6 +386,11 @@ def parse_packet(packet):
 	evlv[14] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
 	byte_rep = packet[145:147]
 	evlv[15] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+	byte_rep = packet[147:149]
+	LOG_TO_AUTO = int((float(struct.unpack("<h", byte_rep)[0]))/1)
+	byte_rep = packet[149:151]
+	auto_states = int((float(struct.unpack("<H", byte_rep)[0]))/1)
+
 
 
 

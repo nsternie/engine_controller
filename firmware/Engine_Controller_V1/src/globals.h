@@ -15,6 +15,8 @@
 // END TELEM DEFINITIONS //////////////////////////////////
 
 // Device definitions  ////////////////////////////////////
+#define delay 0
+
 #define vlv0 20
 #define vlv1 21
 #define vlv2 22
@@ -161,6 +163,23 @@ extern uint8_t telemetry_format[3];
 extern uint16_t telemetry_rate[3];
 extern uint8_t device_alias[100][10];
 //
+#define MAX_AUTO_LENGTH 30
+#define NUM_AUTOS		5
+#define AUTO_STRING_LENGTH	30
 
+struct autosequence{
+	char		name[16];
+	uint8_t 	command[MAX_AUTO_LENGTH][AUTO_STRING_LENGTH];
+	uint16_t	current_index;
+	uint32_t	last_exec;
+	uint32_t	next_exec;
+	int16_t 	length;
+	uint8_t 	running;
+};
+
+struct autosequence autos[NUM_AUTOS];
+int16_t LOG_TO_AUTO;
+uint8_t AUTOSTRING[1024];
+uint16_t auto_states;
 
 #endif
