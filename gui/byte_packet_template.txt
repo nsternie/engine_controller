@@ -29,11 +29,11 @@ count1	count1					%u	uint32_t	1			int		|
 count2	count2					%u	uint32_t	1			int		|
 count3	count3					%u	uint32_t	1			int		|
 STATE	STATE					%u	uint8_t	1			int		|
-load[0]	load[0]	0	1000	lbs		%.1f	int16_t	1			float		|
-load[1]	load[1]	0	1000	lbs		%.1f	int16_t	1			float		|
-load[2]	load[2]	0	1000	lbs		%.1f	int16_t	1			float		|
-load[3]	load[3]	0	1000	lbs		%.1f	int16_t	1			float		|
-thrust_load	thrust_load	-200	2000	lbs		%.1f	int32_t	10			float		|
+load[0]	load[0]	-100	1000	lbs		%.1f	int16_t	10			float		|
+load[1]	load[1]	-100	1000	lbs		%.1f	int16_t	10			float		|
+load[2]	load[2]	-100	1000	lbs		%.1f	int16_t	10			float		|
+load[3]	load[3]	-100	1000	lbs		%.1f	int16_t	10			float		|
+thrust_load	thrust_load	-200	4000	lbs		%.1f	int32_t	10			float		|
 thermocouple[0]	thermocouple[0]	-100	1500	degC		%.0f	int16_t	1			int		|
 thermocouple[1]	thermocouple[1]	-100	1500	degC		%.0f	int16_t	1			int		|
 thermocouple[2]	thermocouple[2]	-100	1500	degC		%.0f	int16_t	1			int		|

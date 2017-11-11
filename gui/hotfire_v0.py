@@ -111,8 +111,6 @@ def parse_serial():
 			# Read a packet
 		packet = ser.readline()	
 		# Unstuff the packet
-		data_log.write("Stuffed: "+str(packet)+'\n')
-		
 		unstuffed = b''
 		index = int(packet[0])
 		for n in range(1, len(packet)):
@@ -122,7 +120,6 @@ def parse_serial():
 				temp = b'\n'
 			unstuffed = unstuffed + temp
 		packet = unstuffed
-		data_log.write("Unstuffed: "+str(packet)+'\n\n')
 		#line = str(line, 'ascii')
 		#try:
 			#split_line = line.split(',')
@@ -207,6 +204,7 @@ def parse_serial():
 			load_label[n].setText(str(n)+": "+str(load[n]))
 		for n in range(0, 4):
 			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))
+
 
 
 
@@ -298,13 +296,13 @@ def parse_packet(packet):
 	byte_rep = packet[76:77]
 	STATE = int((float(struct.unpack("<B", byte_rep)[0]))/1)
 	byte_rep = packet[77:79]
-	load[0] = float((float(struct.unpack("<H", byte_rep)[0]))/10)
+	load[0] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
 	byte_rep = packet[79:81]
-	load[1] = float((float(struct.unpack("<H", byte_rep)[0]))/10)
+	load[1] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
 	byte_rep = packet[81:83]
-	load[2] = float((float(struct.unpack("<H", byte_rep)[0]))/10)
+	load[2] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
 	byte_rep = packet[83:85]
-	load[3] = float((float(struct.unpack("<H", byte_rep)[0]))/10)
+	load[3] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
 	byte_rep = packet[85:89]
 	thrust_load = float((float(struct.unpack("<i", byte_rep)[0]))/10)
 	byte_rep = packet[89:91]
@@ -368,10 +366,7 @@ def parse_packet(packet):
 	byte_rep = packet[147:149]
 	LOG_TO_AUTO = int((float(struct.unpack("<h", byte_rep)[0]))/1)
 	byte_rep = packet[149:151]
-	auto_states = int((float(struct.unpack("<H", byte_rep)[0]))/1)
-
-
-
+	auto_states = int((float(struct.unpack("<H", byte_rep)[0])))
 
 
 def command(device, command):

@@ -1700,7 +1700,6 @@ void scale_readings(){
 
 
 }
-
 uint32_t  serial_command(uint8_t* cbuf_in){
 
 	char cbuf[COMMAND_BUFFER_LENGTH];
@@ -1931,7 +1930,12 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 			LOGGING_ACTIVE = 0;
 		}
 	}
-
+	else if(strcmp(argv[0], "tare") == 0){
+		load_cal[OFFSET][0] = adc_data[3][15];
+		load_cal[OFFSET][1] = adc_data[3][14];
+		load_cal[OFFSET][2] = adc_data[3][13];
+		load_cal[OFFSET][3] = adc_data[3][12];
+	}
 	else if(strcmp(argv[0], "new_auto") == 0){
 		LOG_TO_AUTO = atoi(argv[1]);
 	}

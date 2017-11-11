@@ -89,13 +89,13 @@ class ECParse:
 		byte_rep = packet[76:77]
 		STATE = int((float(struct.unpack("<B", byte_rep)[0]))/1)
 		byte_rep = packet[77:79]
-		load[0] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+		load[0] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
 		byte_rep = packet[79:81]
-		load[1] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+		load[1] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
 		byte_rep = packet[81:83]
-		load[2] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+		load[2] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
 		byte_rep = packet[83:85]
-		load[3] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
+		load[3] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
 		byte_rep = packet[85:89]
 		thrust_load = float((float(struct.unpack("<i", byte_rep)[0]))/10)
 		byte_rep = packet[89:91]
