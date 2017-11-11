@@ -37,8 +37,13 @@ count1 = 0
 count2 = 0
 count3 = 0
 STATE = 0
-LOG_TO_AUTO = 0
+load = [0,0,0,0]
+thrust_load = 0
+thermocouple = [0, 0, 0, 0]
 auto_states = 0
+LOG_TO_AUTO = 0
+ivlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+evlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 #
 
@@ -200,36 +205,8 @@ def parse_serial():
 		thrust_load_label.setText("Thrust = "+str(thrust_load))
 		for n in range(0, 4):
 			load_label[n].setText(str(n)+": "+str(load[n]))
-
-
-
-		
-device_list = []
-valve_states = 0
-pressure = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-samplerate = 0
-motor_setpoint = [0,0]
-motor_position = [0,0]
-motor_pwm = [0,0]
-main_cycle_time = 1
-motor_cycle_time = 1
-adc_cycle_time = 1
-telemetry_cycle_time = 1
-ebatt = 0
-ibus = 0
-telemetry_rate = 0
-motor_control_gain = [0,0,0]
-count1 = 0
-count2 = 0
-count3 = 0
-STATE = 0
-load = [0,0,0,0]
-thrust_load = 0
-thermocouple = [0, 0, 0, 0]
-auto_states = 0
-LOG_TO_AUTO = 0
-ivlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-evlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		for n in range(0, 4):
+			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))
 
 
 
@@ -258,6 +235,8 @@ def parse_packet(packet):
 	global thermouple
 	global ivlv
 	global evlv
+	global LOG_TO_AUTO
+	global auto_states
 	byte_rep = packet[0:2]
 	valve_states = int((float(struct.unpack("<H", byte_rep)[0]))/1)
 	byte_rep = packet[2:4]
@@ -319,13 +298,13 @@ def parse_packet(packet):
 	byte_rep = packet[76:77]
 	STATE = int((float(struct.unpack("<B", byte_rep)[0]))/1)
 	byte_rep = packet[77:79]
-	load[0] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
+	load[0] = float((float(struct.unpack("<H", byte_rep)[0]))/10)
 	byte_rep = packet[79:81]
-	load[1] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
+	load[1] = float((float(struct.unpack("<H", byte_rep)[0]))/10)
 	byte_rep = packet[81:83]
-	load[2] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
+	load[2] = float((float(struct.unpack("<H", byte_rep)[0]))/10)
 	byte_rep = packet[83:85]
-	load[3] = float((float(struct.unpack("<h", byte_rep)[0]))/10)
+	load[3] = float((float(struct.unpack("<H", byte_rep)[0]))/10)
 	byte_rep = packet[85:89]
 	thrust_load = float((float(struct.unpack("<i", byte_rep)[0]))/10)
 	byte_rep = packet[89:91]
@@ -614,9 +593,9 @@ layout.addWidget(raw_command_send, zr+16, zc+7)
 log_to_auto_label = QtGui.QLabel("LOG_TO_AUTO")
 autofeedback = QtGui.QPlainTextEdit("Autosequence feedback")
 running_autos_label = QtGui.QLabel("RUNNING_AUTOS")
-layout.addWidget(autofeedback, 1, 10, 4, 3)
-layout.addWidget(log_to_auto_label, 5, 10)
-layout.addWidget(running_autos_label, 6, 10, 1, 2)
+layout.addWidget(autofeedback, zr+1, zc+10, 4, 3)
+layout.addWidget(log_to_auto_label, zr+5, zc+10)
+layout.addWidget(running_autos_label, zr+6, zc+10, 1, 2)
 
 # Board Health
 BOARD_HEALTH_LABEL = QtGui.QLabel("Board Health")
