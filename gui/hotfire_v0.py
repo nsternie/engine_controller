@@ -7,6 +7,7 @@ import os
 from hotfire_packet import ECParse
 import struct
 
+parser = ECParse()
 
 # Gloabals
 mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
@@ -18,32 +19,7 @@ mtr_pwm = []
 mtr_send = []
 mtr_setpointfb = []
 
-device_list = []
-valve_states = 0
-pressure = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-samplerate = 0
-motor_setpoint = [0,0]
-motor_position = [0,0]
-motor_pwm = [0,0]
-main_cycle_time = 1
-motor_cycle_time = 1
-adc_cycle_time = 1
-telemetry_cycle_time = 1
-ebatt = 0
-ibus = 0
-telemetry_rate = 0
-motor_control_gain = [0,0,0]
-count1 = 0
-count2 = 0
-count3 = 0
-STATE = 0
-load = [0,0,0,0]
-thrust_load = 0
-thermocouple = [0, 0, 0, 0]
-auto_states = 0
-LOG_TO_AUTO = 0
-ivlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-evlv = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
 
 #
 
@@ -53,8 +29,9 @@ serial_log = open(run_name+"_serial_log.csv", "w+")
 info_log = open(run_name+"_python_log.csv", "w+")
 command_log = open(run_name+"_command_log.csv", "w+")
 data_log = open(run_name+"_datalog.csv", "w+")
-command_log.write("Time, Command/info\n")
 
+command_log.write("Time, Command/info\n")
+data_log.write(parser.csv_header)
 
 ## Always start by initializing Qt (only once per application)
 app = QtGui.QApplication([])
@@ -123,16 +100,16 @@ def parse_serial():
 		#line = str(line, 'ascii')
 		#try:
 			#split_line = line.split(',')
-		parse_packet(packet)
+		parser.parse_packet(packet)
 		serial_log.write("%.3f," % time.clock())
 		serial_log.write(str(packet)+'\n')
 		# except:
 		# 	print("Error")
 		# 	pass
 
-		state_label.setText("STATE = "+state_dict[STATE])
+		state_label.setText("STATE = "+state_dict[parser.STATE])
 
-		log_to_auto_label.setText("Logging to auto: "+str(LOG_TO_AUTO))
+		log_to_auto_label.setText("Logging to auto: "+str(parser.LOG_TO_AUTO))
 		# if(AUTOSTRING == "0"):
 		# 	pass 	# No new string sent
 		# else:
@@ -148,7 +125,7 @@ def parse_serial():
 		# Update auto state feedback
 		for n in range(0, 16):
 			state = 0
-			if(mask & auto_states):
+			if(mask & parser.auto_states):
 				running_autos_string += (str(n)+", ")
 			mask = mask << 1
 
@@ -160,50 +137,50 @@ def parse_serial():
 		# Update valve state feedback
 		for n in range(0, 16):
 			state = 0
-			if(mask & valve_states):
+			if(mask & parser.valve_states):
 				state = 1
 			valve_buttons[n][2].setText(str(state))
-			valve_buttons[n][3].setText(str(ivlv[n]))
-			valve_buttons[n][4].setText(str(evlv[n]))
+			valve_buttons[n][3].setText(str(parser.ivlv[n]))
+			valve_buttons[n][4].setText(str(parser.evlv[n]))
 			mask = mask << 1
 
-			pressure_labels[n][1].setText(str(pressure[n])+"psi")
+			pressure_labels[n][1].setText(str(parser.pressure[n])+"psi")
 		# Update loop rates
-		samplerate_setpointfb.setText(str(samplerate)+"hz")
-		telemrate_setpointfb.setText(str(telemetry_rate)+"hz")
+		samplerate_setpointfb.setText(str(parser.samplerate)+"hz")
+		telemrate_setpointfb.setText(str(parser.telemetry_rate)+"hz")
 		for mtrx in range(0, 4):
 			try:
-				mtr_setpointfb[mtrx].setText(str(motor_setpoint[mtrx]))
-				mtr_position[mtrx].setText(str(motor_position[mtrx]))
-				mtr_pwm[mtrx].setText("PWM: "+str(motor_pwm[mtrx]))
+				mtr_setpointfb[mtrx].setText(str(parser.motor_setpoint[mtrx]))
+				mtr_position[mtrx].setText(str(parser.motor_position[mtrx]))
+				mtr_pwm[mtrx].setText("PWM: "+str(parser.motor_pwm[mtrx]))
 			except:
-				apperently_i_need_a_statment_here = "I dont really know why..."
+				pass
 
 		#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
-		motor_cycle_rate.setText(str(round(1000000/motor_cycle_time, 3)))
-		adc_cycle_rate.setText(str(round(1000000/adc_cycle_time, 3)))
-		telemetry_cycle_rate.setText(str(round(1000000/telemetry_cycle_time, 3)))
+		motor_cycle_rate.setText(str(round(1000000/parser.motor_cycle_time, 3)))
+		adc_cycle_rate.setText(str(round(1000000/parser.adc_cycle_time, 3)))
+		telemetry_cycle_rate.setText(str(round(1000000/parser.telemetry_cycle_time, 3)))
 
 		# Board health
-		ebatt_value.setText(str(ebatt))
-		ibus_value.setText(str(ibus))
+		ebatt_value.setText(str(parser.ebatt))
+		ibus_value.setText(str(parser.ibus))
 
 		# motor gain feedback
-		kpfb.setText(str(motor_control_gain[0]))
-		kifb.setText(str(motor_control_gain[1]))
-		kdfb.setText(str(motor_control_gain[2]))
+		kpfb.setText(str(parser.motor_control_gain[0]))
+		kifb.setText(str(parser.motor_control_gain[1]))
+		kdfb.setText(str(parser.motor_control_gain[2]))
 
-		count1_label.setText("Ignition Duration: "+str(count1))
-		count2_label.setText("Burn Duration: "+str(count2))
-		count3_label.setText("Post ignite delay: "+str(count3))
+		count1_label.setText("Ignition Duration: "+str(parser.count1))
+		count2_label.setText("Burn Duration: "+str(parser.count2))
+		count3_label.setText("Post ignite delay: "+str(parser.count3))
 
-		state_label.setText("STATE = "+state_dict[STATE])
+		state_label.setText("STATE = "+state_dict[parser.STATE])
 
-		thrust_load_label.setText("Thrust = "+str(thrust_load))
+		thrust_load_label.setText("Thrust = "+str(parser.thrust_load))
 		for n in range(0, 4):
-			load_label[n].setText(str(n)+": "+str(load[n]))
+			load_label[n].setText(str(n)+": "+str(parser.load[n]))
 		for n in range(0, 4):
-			tc_label[n].setText("TC-"+str(n)+": "+str(thermocouple[n]))
+			tc_label[n].setText("TC-"+str(n)+": "+str(parser.thermocouple[n]))
 
 
 
