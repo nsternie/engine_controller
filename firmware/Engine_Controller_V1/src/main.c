@@ -71,12 +71,36 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
+
+
+#define MAX_AUTO_LENGTH 30
+#define NUM_AUTOS		5
+#define AUTO_STRING_LENGTH	30
+
+struct autosequence{
+	char		name[16];
+	uint8_t 	command[MAX_AUTO_LENGTH][AUTO_STRING_LENGTH];
+	uint16_t	current_index;
+	uint32_t	last_exec;
+	uint32_t	next_exec;
+	int16_t 	length;
+	uint8_t 	running;
+};
+
+struct autosequence autos[NUM_AUTOS];
+int16_t LOG_TO_AUTO = -1;
+uint8_t AUTOSTRING[1024];
+uint16_t auto_states;
+
+
 #define getName(var)  #var
 #define get_state(x) (states[x])
 #define TIME(x)			(x[0] = (__HAL_TIM_GET_COUNTER(&htim2) - x[1])+1); \
 						(x[1] = __HAL_TIM_GET_COUNTER(&htim2))
 
 #define micros	__HAL_TIM_GET_COUNTER(&htim2)
+#define millis	((__HAL_TIM_GET_COUNTER(&htim2))/1000)
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -118,7 +142,7 @@ void print_adc_raw(UART_HandleTypeDef device);				// Print all the ADC things in
 uint8_t configure_devices();								// Send Configuration data to the spirit.
 void send_telem(UART_HandleTypeDef device, uint8_t format);	//
 void assemble_telem();
-int serial_command(uint8_t* cbuf_in);
+uint32_t serial_command(uint8_t* cbuf_in);
 void scale_readings();
 void buffer_init(struct buffer *b, uint8_t* data_buffer, size_t size, uint8_t id);
 void buffer_read(struct buffer *b, uint8_t* dst, size_t size);
@@ -129,6 +153,11 @@ void error(char * error_message);
 void writeMotor(uint8_t device, int16_t motor_command);
 void motor_control();
 void read_thermocouples();
+void run_autos();
+void start_auto(uint16_t index);
+void stop_auto(uint16_t index);
+void kill_auto(uint16_t index);
+
 // END Function prototypes  ///////////////////////////////
 
 /* USER CODE END PFP */
@@ -191,6 +220,7 @@ int main(void)
 	  }
 	  strcpy(device_alias[device], alias);
 	}
+	strcpy(device_alias[delay], "delay");
 	strcpy(device_alias[led0], "led0");
 	strcpy(device_alias[mtr0], "mtr0");
 	strcpy(device_alias[mtr1], "mtr1");
@@ -279,8 +309,10 @@ int main(void)
 //
 //	  trace_printf("Got through all of that\r\n");
 
+
 //telemetry_format[rs422] = gui_v1;
 	telemetry_format[rs422] = gui_byte_packet;
+
 
 
 //while(1){
@@ -290,9 +322,59 @@ int main(void)
 //	send_telem(rs422_com, full_pretty);
 //	HAL_Delay(100);
 //}
-//command(led0, 1);
+
+
+
+// Auto test
+//autos[0].device[0] = led0;
+//autos[0].command[0] = 1;
+//autos[0].device[1] = delay;
+//autos[0].command[1] = 250;
+//autos[0].device[2] = led0;
+//autos[0].command[2] = 0;
+//autos[0].device[3] = delay;
+//autos[0].command[3] = 1000;
+//autos[0].length = 3;
+//
+//start_auto(0);
+
+//strcpy(autos[0].command[0], "command led0 1\r");
+//strcpy(autos[0].command[1], "delay 250\r");
+//strcpy(autos[0].command[2], "command led0 0\r");
+//strcpy(autos[0].command[3], "delay 500\r");
+//autos[0].length = 3;
+
+// HOTFIRE AUTO
+uint16_t i = 0;
+strcpy(autos[0].command[i++], "command vlv5 1\r");		// Turn on light
+strcpy(autos[0].command[i++], "delay 4250\r");
+strcpy(autos[0].command[i++], "command vlv10 1\r");		// Turn on water
+strcpy(autos[0].command[i++], "delay 250\r");
+strcpy(autos[0].command[i++], "command vlv15 1\r");		// Turn on igniter
+strcpy(autos[0].command[i++], "delay 500\r");
+strcpy(autos[0].command[i++], "command mtr0 90\r");		// Open Vlaves
+strcpy(autos[0].command[i++], "command mtr1 90\r");		//
+strcpy(autos[0].command[i++], "command vlv15 0\r");		// Turn off igniter
+strcpy(autos[0].command[i++], "delay 1000\r");
+strcpy(autos[0].command[i++], "command mtr0 0\r");		// Close valves
+strcpy(autos[0].command[i++], "command mtr1 0\r");		//
+strcpy(autos[0].command[i++], "command vlv10 0\r");		// Turn off water
+strcpy(autos[0].command[i++], "delay 1000\r");
+strcpy(autos[0].command[i++], "command vlv6 1\r");		// Camera trigger
+strcpy(autos[0].command[i++], "delay 100\r");
+strcpy(autos[0].command[i++], "command vlv6 0\r");
+strcpy(autos[0].command[i++], "delay 5000\r");
+strcpy(autos[0].command[i++], "command vlv5 0\r");		// Turn off light
+strcpy(autos[0].command[i++], "stop_auto 0\r");
+
+
+
+autos[0].length = i;
+
+
   while (1)
   {
+	  run_autos();
 
 	  //count2 = motor_active[0];
 	  TIME(main_cycle_time);
@@ -349,11 +431,12 @@ int main(void)
 		  }
 
 		  if(micros - state_timer > IGNITION_DURATION){
-			  command(mtr0, 90);
-			  command(mtr1, 90);
-			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
-			  STATE = FIRING;
-			  state_timer = micros;
+
+//			  command(mtr0, 90);
+//			  command(mtr1, 90);
+//			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
+//			  STATE = FIRING;
+//			  state_timer = micros;
 		  }
 
 	  }
@@ -1397,7 +1480,7 @@ uint8_t configure_devices(){
 
 void send_telem(UART_HandleTypeDef device, uint8_t format){
 
-	uint8_t line[1024];
+	uint8_t line[2048];
 
 	switch(format){
 		case gui_v1:
@@ -1418,21 +1501,13 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			}
 
 
-			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,"
-					"%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,"
-					"%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.0f,"
-					"%.0f,%.0f,%.0f,\r\n",valve_states,pressure[0],pressure[1],
-					pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],
-					pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],
-					main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],
-					telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],motor_control_gain[0],
-					motor_control_gain[1],motor_control_gain[2],motor_position[0],
-					motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,
-					STATE,load[0],load[1],load[2],load[3],thrust_load,thermocouple[0],
-					thermocouple[1],thermocouple[2],thermocouple[3]);
+			snprintf(line, sizeof(line), "%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%d,%.2f,%.2f,%u,%u,%u,%u,%.2f,%.2f,%u,%.3f,%.3f,%.3f,%.2f,%.2f,%d,%d,%u,%u,%u,%u,%.1f,%.1f,%.1f,%.1f,%.1f,%.0f,%.0f,%.0f,%.0f,%d,%s,\r\n",valve_states,pressure[0],pressure[1],pressure[2],pressure[3],pressure[4],pressure[5],pressure[6],pressure[7],samplerate,motor_setpoint[0],motor_setpoint[1],main_cycle_time[0],motor_cycle_time[0],adc_cycle_time[0],telemetry_cycle_time[0],ebatt,ibus,telemetry_rate[0],motor_control_gain[0],motor_control_gain[1],motor_control_gain[2],motor_position[0],motor_position[1],motor_pwm[0],motor_pwm[1],count1,count2,count3,STATE,load[0],load[1],load[2],load[3],thrust_load,thermocouple[0],thermocouple[1],thermocouple[2],thermocouple[3],auto_states,AUTOSTRING);
+
 
 			//while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
 			HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
+
+			strcpy(AUTOSTRING, "0");	// Only send it once every time it is modified
 		}
 			break;
 
@@ -1645,7 +1720,8 @@ void scale_readings(){
 
 
 }
-int serial_command(uint8_t* cbuf_in){
+
+uint32_t  serial_command(uint8_t* cbuf_in){
 
 	char cbuf[COMMAND_BUFFER_LENGTH];
 	strcpy(cbuf, cbuf_in);
@@ -1659,9 +1735,30 @@ int serial_command(uint8_t* cbuf_in){
 		token = strtok(NULL, s);
 	}
 
+	if(strcmp(argv[0], "save_auto") == 0){
+		autos[LOG_TO_AUTO].current_index = 0;
+		print_auto(LOG_TO_AUTO);		// Automatically print it when you finish to verify
+		LOG_TO_AUTO = -1;
+	}
+
+	if(LOG_TO_AUTO != -1){
+		// We are logging to auto index contained in LOG_TO_AUTO
+		if(strlen(cbuf_in) <= AUTO_STRING_LENGTH){
+			strcpy(autos[LOG_TO_AUTO].command[autos[LOG_TO_AUTO].current_index], cbuf_in);
+		}
+		else{
+			strcpy(autos[LOG_TO_AUTO].command[autos[LOG_TO_AUTO].current_index], "ERROR, COMMAND TO LONG");
+		}
+		autos[LOG_TO_AUTO].length++;
+		autos[LOG_TO_AUTO].current_index++;
+		return 0;
+	}
+
+	if((strcmp(argv[0], "delay") == 0)){
+		return atoi(argv[1]);
+	}
+
 	// "command"
-	//
-	//
 	if((strcmp(argv[0], "command") == 0)){
 		uint8_t device;
 		// Get the device id
@@ -1669,7 +1766,9 @@ int serial_command(uint8_t* cbuf_in){
 			if(strcmp(argv[1], device_alias[device]) == 0) break;
 		}
 		int command_value = atoi(argv[2]);
+
 		command(device, command_value);
+
 	}
 	// END "command"
 
@@ -1682,7 +1781,9 @@ int serial_command(uint8_t* cbuf_in){
 			}
 		}
 		command_index = 0;
-	}
+	} // END clear
+
+	// arm
 	if((strcmp(argv[0], "arm") == 0)){
 		if(STATE == MANUAL){
 			STATE = ARMED;
@@ -1691,7 +1792,9 @@ int serial_command(uint8_t* cbuf_in){
 			motor_active[0] = 1;
 			motor_active[1] = 1;
 		}
-	}
+	} // END arm
+
+	// disarm
 	if((strcmp(argv[0], "disarm") == 0)){
 		if(STATE == ARMED){
 			STATE = MANUAL;
@@ -1701,14 +1804,18 @@ int serial_command(uint8_t* cbuf_in){
 		}
 		motor_active[0] = 0;
 		motor_active[1] = 0;
-	}
+	}	// END disarm
+
+	// hotfire
 	if((strcmp(argv[0], "hotfire") == 0)){
 		if(STATE == ARMED){
 			STATE = IGNITION;
 			state_timer = micros;
+			start_auto(0);
 		}
-	}
+	}	// END hotfire
 
+	// set
 	else if(strcmp(argv[0], "set") == 0){
 		if(strcmp(argv[1], "telemformat") == 0){
 
@@ -1844,6 +1951,24 @@ int serial_command(uint8_t* cbuf_in){
 			LOGGING_ACTIVE = 0;
 		}
 	}
+
+	else if(strcmp(argv[0], "new_auto") == 0){
+		LOG_TO_AUTO = atoi(argv[1]);
+	}
+	else if(strcmp(argv[0], "start_auto") == 0){
+		start_auto(atoi(argv[1]));
+	}
+	else if(strcmp(argv[0], "stop_auto") == 0){
+		stop_auto(atoi(argv[1]));
+	}
+	else if(strcmp(argv[0], "kill_auto") == 0){
+		kill_auto(atoi(argv[1]));
+	}
+	else if(strcmp(argv[0], "print_auto") == 0){
+		print_auto(atoi(argv[1]));
+	}
+
+
 	else{
 		// Invalid command
 		cbuf[strlen(cbuf)] = " - INVALID COMMAND";
@@ -2026,6 +2151,57 @@ read_thermocouples(){
 	__enable_irq();
 
 
+}
+void run_autos(){
+	for(int n = 0; n < NUM_AUTOS; n++){
+		if(autos[n].running == 1){
+			if(millis > autos[n].next_exec){
+				autos[n].last_exec = millis;
+				autos[n].next_exec = millis + serial_command(autos[n].command[autos[n].current_index]);
+				if(autos[n].current_index == autos[n].length){
+					autos[n].current_index = 0;
+				}
+				else{
+					autos[n].current_index++;
+				}
+			}
+		}
+	}
+}
+void start_auto(uint16_t index){
+
+	autos[index].current_index = 0;
+	autos[index].running = 1;
+	autos[index].next_exec = millis;	// Execute the first command as soon as run_autos is called
+
+	// State feedback to show the auto is running
+	uint16_t mask = 1 << index;
+	auto_states |= mask;
+
+}
+void stop_auto(uint16_t index){
+	// This will eventually be a more graceful version of kill
+	// ... so it dosent leave things in a weird state
+	// ... TODO
+	kill_auto(index);
+}
+void kill_auto(uint16_t index){
+	autos[index].running = 0;
+	// State feedbck to show the auto is stopped
+	uint16_t mask = 1 << index;
+	auto_states ^= mask;
+}
+void print_auto(uint16_t index){
+	AUTOSTRING[0] = '\0';
+	//snprintf(AUTOSTRING, sizeof(AUTOSTRING), "Device\tCommand\n");
+	for(uint16_t a = 0; a < autos[index].length; a++){		// Recursivley generate the autostring
+		uint8_t stripped_string [AUTO_STRING_LENGTH];
+		strcpy(stripped_string, autos[index].command[a]);
+		strtok(stripped_string, "\r\n");
+		strcat(stripped_string, "|");
+		strcat(AUTOSTRING, stripped_string);
+	}
+	//strcpy(AUTOSTRING, autos[index].command[0]);
 }
 /* USER CODE END 4 */
 
