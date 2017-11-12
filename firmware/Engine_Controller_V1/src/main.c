@@ -133,10 +133,10 @@ void error(char * error_message);
 void writeMotor(uint8_t device, int16_t motor_command);
 void motor_control();
 void read_thermocouples();
-void run_autos();
-void start_auto(uint16_t index);
-void stop_auto(uint16_t index);
-void kill_auto(uint16_t index);
+void run_auto(struct autosequence *a);
+void start_auto(struct autosequence *a);
+void stop_auto(struct autosequence *a);
+void kill_auto(struct autosequence *a);
 
 // END Function prototypes  ///////////////////////////////
 
@@ -206,6 +206,11 @@ int main(void)
 	strcpy(device_alias[mtr1], "mtr1");
 	strcpy(device_alias[mtr2], "mtr2");
 	strcpy(device_alias[mtr3], "mtr3");
+
+	// Set auto numbers
+	for(int n = 0; n < NUM_AUTOS; n++){
+		autos[n].number = n;
+	}
 
 	serial_command("set samplerate 50");
 	// Motor control loop rate
@@ -354,15 +359,15 @@ autos[0].length = i;
 
   while (1)
   {
-	  run_autos();
+	  for(int n = 0; n < NUM_AUTOS; n++){
+		run_auto(&autos[n]);
+	  }
 
 	  //count2 = motor_active[0];
 	  TIME(main_cycle_time);
 	  //count2 = adc_data[2][12];
 
-	  count1 = IGNITION_DURATION;
-	  count2 = FIRING_DURATION;
-	  count3 = POST_IGNITE_DELAY;
+
 
 	  //  We have new rs422 data, parse it
 	  if(rs422_buf.new_data > 0){
@@ -1940,16 +1945,16 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 		LOG_TO_AUTO = atoi(argv[1]);
 	}
 	else if(strcmp(argv[0], "start_auto") == 0){
-		start_auto(atoi(argv[1]));
+		start_auto(&autos[atoi(argv[1])]);
 	}
 	else if(strcmp(argv[0], "stop_auto") == 0){
-		stop_auto(atoi(argv[1]));
+		stop_auto(&autos[atoi(argv[1])]);
 	}
 	else if(strcmp(argv[0], "kill_auto") == 0){
-		kill_auto(atoi(argv[1]));
+		kill_auto(&autos[atoi(argv[1])]);
 	}
 	else if(strcmp(argv[0], "print_auto") == 0){
-		print_auto(atoi(argv[1]));
+		print_auto(&autos[atoi(argv[1])]);
 	}
 
 
@@ -2136,56 +2141,54 @@ read_thermocouples(){
 
 
 }
-void run_autos(){
-	for(int n = 0; n < NUM_AUTOS; n++){
-		if(autos[n].running == 1){
-			if(millis > autos[n].next_exec){
-				autos[n].last_exec = millis;
-				autos[n].next_exec = millis + serial_command(autos[n].command[autos[n].current_index]);
-				if(autos[n].current_index == autos[n].length){
-					autos[n].current_index = 0;
-				}
-				else{
-					autos[n].current_index++;
-				}
+void run_auto(struct autosequence *a){
+	if(a->running == 1){
+		if(millis > a->next_exec){
+
+			if(a->current_index == a->length){
+				a->current_index = 0;
+			}
+			else{
+				a->last_exec = millis;
+				a->next_exec = millis + serial_command(a->command[a->current_index]);
+				a->current_index++;
 			}
 		}
 	}
 }
-void start_auto(uint16_t index){
+void start_auto(struct autosequence *a){
 
-	autos[index].current_index = 0;
-	autos[index].running = 1;
-	autos[index].next_exec = millis;	// Execute the first command as soon as run_autos is called
+	a->current_index = 0;
+	a->running = 1;
+	a->next_exec = millis;	// Execute the first command as soon as run_autos is called
 
 	// State feedback to show the auto is running
-	uint16_t mask = 1 << index;
+	uint16_t mask = 1 << a->number;
 	auto_states |= mask;
 
 }
-void stop_auto(uint16_t index){
+void stop_auto(struct autosequence *a){
 	// This will eventually be a more graceful version of kill
 	// ... so it dosent leave things in a weird state
 	// ... TODO
-	kill_auto(index);
+	kill_auto(a);
 }
-void kill_auto(uint16_t index){
-	autos[index].running = 0;
+void kill_auto(struct autosequence *a){
+	a->running = 0;
 	// State feedbck to show the auto is stopped
-	uint16_t mask = 1 << index;
+	uint16_t mask = 1 << a->number;
 	auto_states ^= mask;
 }
-void print_auto(uint16_t index){
+void print_auto(struct autosequence *a){
 	AUTOSTRING[0] = '\0';
 	//snprintf(AUTOSTRING, sizeof(AUTOSTRING), "Device\tCommand\n");
-	for(uint16_t a = 0; a < autos[index].length; a++){		// Recursivley generate the autostring
+	for(uint16_t n = 0; n < a->length; n++){		// Recursivley generate the autostring
 		uint8_t stripped_string [AUTO_STRING_LENGTH];
-		strcpy(stripped_string, autos[index].command[a]);
+		strcpy(stripped_string, a->command[n]);
 		strtok(stripped_string, "\r\n");
 		strcat(stripped_string, "|");
 		strcat(AUTOSTRING, stripped_string);
 	}
-	//strcpy(AUTOSTRING, autos[index].command[0]);
 }
 /* USER CODE END 4 */
 

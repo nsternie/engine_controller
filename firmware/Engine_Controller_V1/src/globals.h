@@ -169,6 +169,7 @@ extern uint8_t device_alias[100][10];
 
 struct autosequence{
 	char		name[16];
+	uint8_t 	number;
 	uint8_t 	command[MAX_AUTO_LENGTH][AUTO_STRING_LENGTH];
 	uint16_t	current_index;
 	uint32_t	last_exec;
