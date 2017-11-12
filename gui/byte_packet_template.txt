@@ -16,7 +16,7 @@ motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cyc
 adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int	count1	0	|
 telemetry_cycle_time[0]	telemetry_cycle_time[0]	0	1000000	microseconds		%u	uint32_t	1		telemetry_cycle_time	int	count2	0	|
 ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	count3	0	|
-ibus	ibus	-10	150	Amps		%.2f	int16_t	100			float	STATE	0	|
+Bus Current	ibus	-10	150	Amps		%.2f	int16_t	100			float	STATE	0	|
 telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	int	load	[0]*4	|
 motor_control_gain[0]	motor_control_gain[0]					%.3f	uint16_t	1			float	thrust_load	0	|
 motor_control_gain[1]	motor_control_gain[1]					%.3f	uint16_t	1			float	thermocouple	[0]*4	|

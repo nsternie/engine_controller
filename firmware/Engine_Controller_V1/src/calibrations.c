@@ -43,6 +43,7 @@ const float pot_polarity[4] = {
 
 
 float load_cal[2][6] = {{
+		// SLOPES
 		0.5,
 		0.5,
 		0.5,
@@ -50,6 +51,7 @@ float load_cal[2][6] = {{
 		1,
 		1,
 },{
+		// OFFSETS
 		0,
 		0,
 		0,
