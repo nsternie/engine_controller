@@ -101,6 +101,7 @@ def parse_serial():
 		#try:
 			#split_line = line.split(',')
 		parser.parse_packet(packet)
+		data_log.write(parser.log_string+'\n')
 		serial_log.write("%.3f," % time.clock())
 		serial_log.write(str(packet)+'\n')
 		# except:
