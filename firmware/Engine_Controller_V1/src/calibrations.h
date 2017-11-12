@@ -6,6 +6,8 @@
 #define Ki 1
 #define Kd 2
 
+#define I_LIMIT 500
+
 #define ebatt_cal 	0.00328102		// Cal'd with meter 9/8/17
 #define ibus_cal	0.01702200
 #define evlv_cal  	0.00324707

@@ -86,11 +86,11 @@ class ECParse:
 		byte_rep = packet[62:64]
 		self.motor_pwm[1] = int((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[64:68]
-		self.count1 = int((float(struct.unpack("<I", byte_rep)[0]))/1)
+		self.count1 = int((float(struct.unpack("<i", byte_rep)[0]))/1)
 		byte_rep = packet[68:72]
-		self.count2 = int((float(struct.unpack("<I", byte_rep)[0]))/1)
+		self.count2 = int((float(struct.unpack("<i", byte_rep)[0]))/1)
 		byte_rep = packet[72:76]
-		self.count3 = int((float(struct.unpack("<I", byte_rep)[0]))/1)
+		self.count3 = int((float(struct.unpack("<i", byte_rep)[0]))/1)
 		byte_rep = packet[76:77]
 		self.STATE = int((float(struct.unpack("<B", byte_rep)[0]))/1)
 		byte_rep = packet[77:79]

@@ -71,6 +71,7 @@
 #define FIRING	 			4
 #define FULL_DURATION	 	5
 #define PRE_IGNITION	 	6
+#define FULL_DURATION_SAFE 	7
 
 
 #define MAX_COMMAND_ARGS 	7
@@ -146,9 +147,9 @@ extern float load[6];
 extern float thrust_load;
 extern float thermocouple[4];
 extern uint8_t temp;
-extern uint32_t count1;
-extern uint32_t count2;
-extern uint32_t count3;
+extern int32_t count1;
+extern int32_t count2;
+extern int32_t count3;
 extern uint32_t start_time;
 extern uint32_t end_time;
 extern uint32_t active_time;

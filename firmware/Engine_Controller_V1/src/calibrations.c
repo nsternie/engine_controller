@@ -1,5 +1,7 @@
 #include "calibrations.h"
 
+
+
 float motor_setpoint[4];
 float motor_control_gain[3] = {
 		500,
@@ -13,8 +15,8 @@ const float motor_pot_slope[4] = {
 		1
 };
 float motor_pot_offset[4] = {
-		133.0,
-		78.5,
+		137,
+		0,
 		0,
 		0
 };

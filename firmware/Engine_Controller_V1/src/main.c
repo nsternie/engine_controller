@@ -337,10 +337,10 @@ strcpy(hotfire_auto.command[i++], "command vlv10 1\r");		// Turn on water
 strcpy(hotfire_auto.command[i++], "delay 250\r");
 strcpy(hotfire_auto.command[i++], "command vlv15 1\r");		// Turn on igniter
 strcpy(hotfire_auto.command[i++], "delay 500\r");
-strcpy(hotfire_auto.command[i++], "command mtr0 90\r");		// Open Vlaves
+strcpy(hotfire_auto.command[i++], "command mtr0 90\r");		// Open Valves
 strcpy(hotfire_auto.command[i++], "command mtr1 90\r");		//
 strcpy(hotfire_auto.command[i++], "command vlv15 0\r");		// Turn off igniter
-strcpy(hotfire_auto.command[i++], "delay 1000\r");
+strcpy(hotfire_auto.command[i++], "delay 6000\r");
 strcpy(hotfire_auto.command[i++], "command mtr0 0\r");		// Close valves
 strcpy(hotfire_auto.command[i++], "command mtr1 0\r");		//
 strcpy(hotfire_auto.command[i++], "command vlv10 0\r");		// Turn off water
@@ -409,25 +409,28 @@ hotfire_auto.length = i;
 	  if(STATE == MANUAL){
 
 	  }
-
-	  if(STATE == IGNITION){
-		  uint16_t mask = 1;
-		  mask <<= 15;
-		  if(!(mask & valve_states)){
-			  STATE = FIRING;
-		  }
-	  }
-	  if(STATE == PRE_IGNITION){
+	  else if(STATE == PRE_IGNITION){
 		  uint16_t mask = 1;
 		  mask <<= 15;
 		  if(mask & valve_states){
 			  STATE = IGNITION;
 		  }
 	  }
+	  else if(STATE == IGNITION){
+		  uint16_t mask = 1;
+		  mask <<= 15;
+		  if(!(mask & valve_states)){
+			  STATE = FIRING;
+		  }
+	  }
 	  else if(STATE == FIRING){
-
-		  if(motor_setpoint[0] < 45){
+		  if(motor_setpoint[0] < 10){
 			  STATE = FULL_DURATION;
+		  }
+	  }
+	  else if(STATE == FULL_DURATION){
+		  if(hotfire_auto.running == 0){
+			  STATE = FULL_DURATION_SAFE;
 		  }
 	  }
 
@@ -1765,8 +1768,8 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 			STATE = ARMED;
 			command(mtr0, 0);
 			command(mtr1, 0);
-			motor_active[0] = 1;
-			motor_active[1] = 1;
+			serial_command("enable mtr0 \r");
+			serial_command("enable mtr1 \r");
 		}
 	} // END arm
 
@@ -1774,8 +1777,9 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 	if((strcmp(argv[0], "disarm") == 0)){
 
 		STATE = MANUAL;
-		motor_active[0] = 0;
-		motor_active[1] = 0;
+		serial_command("disable mtr0 \r");
+		serial_command("disable mtr1 \r");
+
 	}	// END disarm
 
 	// hotfire
@@ -1902,6 +1906,7 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 		for(uint8_t n = mtr0; n <= mtr3; n++){
 			if(strcmp(argv[1], device_alias[n]) == 0){
 				motor_active[n-mtr0] = 1;
+				motor_accumulated_error[n-mtr0] = 0;
 			}
 		}
 	}
@@ -2074,10 +2079,21 @@ void motor_control(){
 			// Read the pot position
 			//read_adc_single()
 
-			motor_last_position[mtrx] = motor_position[mtrx];
+
 
 			float motor_error = (motor_position[mtrx] - motor_setpoint[mtrx])*pot_polarity[mtrx];
 			motor_accumulated_error[mtrx] += motor_error;
+
+			if(motor_accumulated_error[mtrx] > I_LIMIT){
+				motor_accumulated_error[mtrx] = I_LIMIT;
+			}
+			if(motor_accumulated_error[mtrx] < -I_LIMIT){
+				motor_accumulated_error[mtrx] = -I_LIMIT;
+			}
+
+			count2 = motor_accumulated_error[mtrx];
+			count1 = motor_error;
+			count3 = ((motor_position[mtrx] - motor_last_position[mtrx]))*1000;
 
 			//count1 = motor_error;
 
@@ -2100,6 +2116,7 @@ void motor_control(){
 				command = 0;
 			}
 
+			motor_last_position[mtrx] = motor_position[mtrx];
 			writeMotor(mtrx+mtr0, command);
 
 			//count3 = __HAL_TIM_GET_COUNTER(&htim11) - count3;
@@ -2118,7 +2135,7 @@ read_thermocouples(){
 	uint8_t tx[4];
 	uint8_t rx[4];
 
-	for(uint8_t tcx = tc0; tcx < tc3; tcx++){
+	for(uint8_t tcx = tc0; tcx <= tc3; tcx++){
 
 		select_device(tcx);
 		HAL_SPI_TransmitReceive(&hspi2, tx, rx, 4, 1);
@@ -2132,13 +2149,7 @@ read_thermocouples(){
 		thermocouple[tcx-tc0] = data;
 
 	}
-
-	FIRING_DURATION = thermocouple[0];
-	POST_IGNITE_DELAY = thermocouple[1];
-
 	__enable_irq();
-
-
 }
 void run_auto(struct autosequence *a){
 	if(a->running == 1){
