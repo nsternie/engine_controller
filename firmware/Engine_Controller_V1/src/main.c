@@ -331,30 +331,31 @@ int main(void)
 
 // HOTFIRE AUTO
 uint16_t i = 0;
-strcpy(autos[0].command[i++], "command vlv5 1\r");		// Turn on light
-strcpy(autos[0].command[i++], "delay 4250\r");
-strcpy(autos[0].command[i++], "command vlv10 1\r");		// Turn on water
-strcpy(autos[0].command[i++], "delay 250\r");
-strcpy(autos[0].command[i++], "command vlv15 1\r");		// Turn on igniter
-strcpy(autos[0].command[i++], "delay 500\r");
-strcpy(autos[0].command[i++], "command mtr0 90\r");		// Open Vlaves
-strcpy(autos[0].command[i++], "command mtr1 90\r");		//
-strcpy(autos[0].command[i++], "command vlv15 0\r");		// Turn off igniter
-strcpy(autos[0].command[i++], "delay 1000\r");
-strcpy(autos[0].command[i++], "command mtr0 0\r");		// Close valves
-strcpy(autos[0].command[i++], "command mtr1 0\r");		//
-strcpy(autos[0].command[i++], "command vlv10 0\r");		// Turn off water
-strcpy(autos[0].command[i++], "delay 1000\r");
-strcpy(autos[0].command[i++], "command vlv6 1\r");		// Camera trigger
-strcpy(autos[0].command[i++], "delay 100\r");
-strcpy(autos[0].command[i++], "command vlv6 0\r");
-strcpy(autos[0].command[i++], "delay 5000\r");
-strcpy(autos[0].command[i++], "command vlv5 0\r");		// Turn off light
-strcpy(autos[0].command[i++], "stop_auto 0\r");
+strcpy(hotfire_auto.command[i++], "command vlv5 1\r");		// Turn on light
+strcpy(hotfire_auto.command[i++], "delay 4250\r");
+strcpy(hotfire_auto.command[i++], "command vlv10 1\r");		// Turn on water
+strcpy(hotfire_auto.command[i++], "delay 250\r");
+strcpy(hotfire_auto.command[i++], "command vlv15 1\r");		// Turn on igniter
+strcpy(hotfire_auto.command[i++], "delay 500\r");
+strcpy(hotfire_auto.command[i++], "command mtr0 90\r");		// Open Vlaves
+strcpy(hotfire_auto.command[i++], "command mtr1 90\r");		//
+strcpy(hotfire_auto.command[i++], "command vlv15 0\r");		// Turn off igniter
+strcpy(hotfire_auto.command[i++], "delay 1000\r");
+strcpy(hotfire_auto.command[i++], "command mtr0 0\r");		// Close valves
+strcpy(hotfire_auto.command[i++], "command mtr1 0\r");		//
+strcpy(hotfire_auto.command[i++], "command vlv10 0\r");		// Turn off water
+strcpy(hotfire_auto.command[i++], "delay 1000\r");
+strcpy(hotfire_auto.command[i++], "command vlv6 1\r");		// Camera trigger
+strcpy(hotfire_auto.command[i++], "delay 100\r");
+strcpy(hotfire_auto.command[i++], "command vlv6 0\r");
+strcpy(hotfire_auto.command[i++], "delay 5000\r");
+strcpy(hotfire_auto.command[i++], "command vlv5 0\r");		// Turn off light
+strcpy(hotfire_auto.command[i++], "delay 1000\r");
+strcpy(hotfire_auto.command[i++], "stop_auto hotfire_auto \r");
 
 
 
-autos[0].length = i;
+hotfire_auto.length = i;
 
 
   while (1)
@@ -362,6 +363,7 @@ autos[0].length = i;
 	  for(int n = 0; n < NUM_AUTOS; n++){
 		run_auto(&autos[n]);
 	  }
+	  run_auto(&hotfire_auto);
 
 	  //count2 = motor_active[0];
 	  TIME(main_cycle_time);
@@ -412,30 +414,20 @@ autos[0].length = i;
 		  uint16_t mask = 1;
 		  mask <<= 15;
 		  if(!(mask & valve_states)){
-			  command(vlv15, 1);
+			  STATE = FIRING;
 		  }
-
-		  if(micros - state_timer > IGNITION_DURATION){
-
-//			  command(mtr0, 90);
-//			  command(mtr1, 90);
-//			  //command(vlv15, 0); // Want to have igniter fire for a bit after the valve opens
-//			  STATE = FIRING;
-//			  state_timer = micros;
+	  }
+	  if(STATE == PRE_IGNITION){
+		  uint16_t mask = 1;
+		  mask <<= 15;
+		  if(mask & valve_states){
+			  STATE = IGNITION;
 		  }
-
 	  }
 	  else if(STATE == FIRING){
 
-		  if(micros - state_timer > POST_IGNITE_DELAY){
-			  command(vlv15, 0);	// Shut off the igniter now
-		  }
-		  if(micros - state_timer > FIRING_DURATION){
-			  command(mtr0, 0);
-			  command(mtr1, 0);
-			  command(vlv15, 0);
+		  if(motor_setpoint[0] < 45){
 			  STATE = FULL_DURATION;
-			  state_timer = micros;
 		  }
 	  }
 
@@ -1780,12 +1772,8 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 
 	// disarm
 	if((strcmp(argv[0], "disarm") == 0)){
-		if(STATE == ARMED){
-			STATE = MANUAL;
-		}
-		if(STATE == FULL_DURATION){
-			STATE = MANUAL;
-		}
+
+		STATE = MANUAL;
 		motor_active[0] = 0;
 		motor_active[1] = 0;
 	}	// END disarm
@@ -1793,9 +1781,9 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 	// hotfire
 	if((strcmp(argv[0], "hotfire") == 0)){
 		if(STATE == ARMED){
-			STATE = IGNITION;
+			STATE = PRE_IGNITION;
 			state_timer = micros;
-			start_auto(0);
+			start_auto(&hotfire_auto);
 		}
 	}	// END hotfire
 
@@ -1948,10 +1936,21 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 		start_auto(&autos[atoi(argv[1])]);
 	}
 	else if(strcmp(argv[0], "stop_auto") == 0){
-		stop_auto(&autos[atoi(argv[1])]);
+		if(strcmp(argv[1], "hotfire_auto") == 0){
+			count1++;
+			stop_auto(&hotfire_auto);
+		}
+		else{
+			stop_auto(&autos[atoi(argv[1])]);
+		}
 	}
 	else if(strcmp(argv[0], "kill_auto") == 0){
-		kill_auto(&autos[atoi(argv[1])]);
+		if(strcmp(argv[1], "hotfire_auto") == 0){
+			kill_auto(&hotfire_auto);
+		}
+		else{
+			kill_auto(&autos[atoi(argv[1])]);
+		}
 	}
 	else if(strcmp(argv[0], "print_auto") == 0){
 		print_auto(&autos[atoi(argv[1])]);

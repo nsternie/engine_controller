@@ -70,6 +70,8 @@
 #define IGNITION			3
 #define FIRING	 			4
 #define FULL_DURATION	 	5
+#define PRE_IGNITION	 	6
+
 
 #define MAX_COMMAND_ARGS 	7
 #define MAX_COMMAND_LENGTH 	32
@@ -182,5 +184,7 @@ struct autosequence autos[NUM_AUTOS];
 int16_t LOG_TO_AUTO;
 uint8_t AUTOSTRING[1024];
 uint16_t auto_states;
+
+struct autosequence hotfire_auto;
 
 #endif
