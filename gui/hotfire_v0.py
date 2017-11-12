@@ -66,7 +66,7 @@ try:
 	else:
 		raise Exception("STATE_N definition not found in devices.alias file")
 except Exception:
-	print(Exception)
+	print("INVALID STATE ALIAS DEFINITIONS")
 
 # Try to open the serial port
 
@@ -187,8 +187,8 @@ def parse_serial():
 				load_label[n].setText(str(n)+": "+str(parser.load[n]))
 			for n in range(0, 4):
 				tc_label[n].setText("TC-"+str(n)+": "+str(parser.thermocouple[n]))
-	except:
-		print("oops")
+	except Exception:
+		print(Exception)
 
 
 def command(device, command):
