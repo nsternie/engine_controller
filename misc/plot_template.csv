@@ -1,4 +1,6 @@
-Plot Title,Independent,Dependants,,,,
-Pressures,time,pc,pom,pfm,pot,pft
-Thrust,time,lt,,,,
-Load Sharing,time,l1,l2,l3,l4,
+Plot Title,Independent,Primary Dependants,Secondary Dependants (Not yet implemented),Time Zoom
+Pressures,time,pc|pom|pfm|pot|pft,,
+Thrust,time,lt,,
+Load Sharing,time,l1|l2|l3|l4,,
+Valve Response,time,pom|rov,,-0.1 to 0.9
+Chamber Pressure,time,pc,,
