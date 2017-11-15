@@ -1763,8 +1763,8 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 	if((strcmp(argv[0], "arm") == 0)){
 		if(STATE == MANUAL){
 			STATE = ARMED;
-			command(mtr0, 0);
-			command(mtr1, 0);
+			//command(mtr0, 0);
+			//command(mtr1, 0);
 			serial_command("enable mtr0 \r");
 			serial_command("enable mtr1 \r");
 		}

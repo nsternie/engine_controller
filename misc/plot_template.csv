@@ -1,0 +1,4 @@
+Plot Title,Independent,Dependants,,,,
+Pressures,time,pc,pom,pfm,pot,pft
+Thrust,time,lt,,,,
+Load Sharing,time,l1,l2,l3,l4,

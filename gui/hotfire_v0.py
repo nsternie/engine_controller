@@ -25,10 +25,10 @@ mtr_setpointfb = []
 
 run_name = input("Enter run name: ")
 
-serial_log = open(run_name+"_serial_log.csv", "w+")
-info_log = open(run_name+"_python_log.csv", "w+")
-command_log = open(run_name+"_command_log.csv", "w+")
-data_log = open(run_name+"_datalog.csv", "w+")
+serial_log = open('data/'+run_name+"_serial_log.csv", "w+")
+info_log = open('data/'+run_name+"_python_log.csv", "w+")
+command_log = open('data/'+run_name+"_command_log.csv", "w+")
+data_log = open('data/'+run_name+"_datalog.csv", "w+")
 
 command_log.write("Time, Command/info\n")
 data_log.write(parser.csv_header)
