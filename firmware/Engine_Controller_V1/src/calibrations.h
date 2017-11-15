@@ -6,6 +6,8 @@
 #define Ki 1
 #define Kd 2
 
+#define I_LIMIT 500
+
 #define ebatt_cal 	0.00328102		// Cal'd with meter 9/8/17
 #define ibus_cal	0.01702200
 #define evlv_cal  	0.00324707
@@ -18,7 +20,6 @@
 #define SLOPE 0
 #define OFFSET 1
 
-
 extern float motor_setpoint[4];
 extern float motor_control_gain[3];
 extern const float motor_pot_slope[4];
@@ -28,6 +29,5 @@ extern const float motor_limit_low[4];
 extern const float pot_polarity[4];
 extern float load_cal[2][6];
 extern float press_cal[2][16];
-
 
 #endif

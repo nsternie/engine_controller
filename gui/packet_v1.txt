@@ -20,8 +20,8 @@ Index	varaible	printf format	units	python type	device name	python override name	
 18	telemetry_rate[0]	%u	hz	int	telemetry_rate	telemetry_rate	load	1
 19	motor_control_gain[0]	%.3f	x	float	motor_control_gain[0]		thrust_load	1
 20	motor_control_gain[1]	%.3f	x	float	motor_control_gain[1]		thermouple	1
-21	motor_control_gain[2]	%.3f	x	float	motor_control_gain[2]			1
-22	motor_position[0]	%.2f	deg	float	motor_position[0]			1
+21	motor_control_gain[2]	%.3f	x	float	motor_control_gain[2]		AUTOSTRING	1
+22	motor_position[0]	%.2f	deg	float	motor_position[0]		auto_states	1
 23	motor_position[1]	%.2f	deg	float	motor_position[1]			1
 24	motor_pwm[0]	%d	%	int	motor_pwm[0]			
 25	motor_pwm[1]	%d	%	int	motor_pwm[1]			
@@ -38,3 +38,5 @@ Index	varaible	printf format	units	python type	device name	python override name	
 36	thermocouple[1]	%.0f	degC	int	thermocouple[1]			
 37	thermocouple[2]	%.0f	degC	int	thermocouple[2]			
 38	thermocouple[3]	%.0f	degC	int	thermocouple[3]			
+39	auto_states	%d	x	int	auto_states			
+40	AUTOSTRING	%s	x	str	AUTOSTRING			

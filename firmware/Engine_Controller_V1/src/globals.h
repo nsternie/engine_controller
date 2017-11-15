@@ -15,6 +15,8 @@
 // END TELEM DEFINITIONS //////////////////////////////////
 
 // Device definitions  ////////////////////////////////////
+#define delay 0
+
 #define vlv0 20
 #define vlv1 21
 #define vlv2 22
@@ -68,6 +70,9 @@
 #define IGNITION			3
 #define FIRING	 			4
 #define FULL_DURATION	 	5
+#define PRE_IGNITION	 	6
+#define FULL_DURATION_SAFE 	7
+
 
 #define MAX_COMMAND_ARGS 	7
 #define MAX_COMMAND_LENGTH 	32
@@ -142,9 +147,9 @@ extern float load[6];
 extern float thrust_load;
 extern float thermocouple[4];
 extern uint8_t temp;
-extern uint32_t count1;
-extern uint32_t count2;
-extern uint32_t count3;
+extern int32_t count1;
+extern int32_t count2;
+extern int32_t count3;
 extern uint32_t start_time;
 extern uint32_t end_time;
 extern uint32_t active_time;
@@ -161,6 +166,26 @@ extern uint8_t telemetry_format[3];
 extern uint16_t telemetry_rate[3];
 extern uint8_t device_alias[100][10];
 //
+#define MAX_AUTO_LENGTH 30
+#define NUM_AUTOS		5
+#define AUTO_STRING_LENGTH	30
 
+struct autosequence{
+	char		name[16];
+	uint8_t 	number;
+	uint8_t 	command[MAX_AUTO_LENGTH][AUTO_STRING_LENGTH];
+	uint16_t	current_index;
+	uint32_t	last_exec;
+	uint32_t	next_exec;
+	int16_t 	length;
+	uint8_t 	running;
+};
+
+struct autosequence autos[NUM_AUTOS];
+int16_t LOG_TO_AUTO;
+uint8_t AUTOSTRING[1024];
+uint16_t auto_states;
+
+struct autosequence hotfire_auto;
 
 #endif

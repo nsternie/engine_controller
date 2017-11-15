@@ -1,5 +1,7 @@
 #include "calibrations.h"
 
+
+
 float motor_setpoint[4];
 float motor_control_gain[3] = {
 		500,
@@ -13,8 +15,8 @@ const float motor_pot_slope[4] = {
 		1
 };
 float motor_pot_offset[4] = {
-		133.0,
-		78.5,
+		137,
+		67,
 		0,
 		0
 };
@@ -32,7 +34,7 @@ const float motor_limit_low[4] = {
 };
 const float pot_polarity[4] = {
 		1,
-		-1,
+		1,
 		1,
 		1
 };
@@ -43,13 +45,15 @@ const float pot_polarity[4] = {
 
 
 float load_cal[2][6] = {{
-		1,
-		1,
-		1,
-		1,
+		// SLOPES
+		0.5,
+		0.5,
+		0.5,
+		0.5,
 		1,
 		1,
 },{
+		// OFFSETS
 		0,
 		0,
 		0,
@@ -60,11 +64,11 @@ float load_cal[2][6] = {{
 
 float press_cal[2][16] = {{
 		// SLOPES
-		0.644531,	// 0
+		0.805664,	// 0
 		0.644531,
 		0.644531,
 		0.644531,
-		0.644531,	// 4
+		1.007079,	// 4
 		0.644531,
 		1.007079,
 		0.644531,
