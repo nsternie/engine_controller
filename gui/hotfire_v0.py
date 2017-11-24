@@ -1,4 +1,4 @@
-from PyQt5 import QtGui # (the example applies equally well to PySide)
+from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
 import pyqtgraph as pg
 import serial
@@ -19,9 +19,6 @@ mtr_pwm = []
 mtr_send = []
 mtr_setpointfb = []
 
-
-
-#
 
 run_name = input("Enter run name: ")
 
