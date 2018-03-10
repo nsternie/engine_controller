@@ -331,23 +331,13 @@ int main(void)
 
 // HOTFIRE AUTO
 uint16_t i = 0;
-strcpy(hotfire_auto.command[i++], "command vlv8 1\r");		// Turn on water
-strcpy(hotfire_auto.command[i++], "delay 500\r");
-strcpy(hotfire_auto.command[i++], "command vlv15 1\r");		// Turn on igniter
-strcpy(hotfire_auto.command[i++], "delay 500\r");
-strcpy(hotfire_auto.command[i++], "command mtr0 90\r");		// Open Valves
-strcpy(hotfire_auto.command[i++], "command mtr1 90\r");		//
-strcpy(hotfire_auto.command[i++], "command vlv15 0\r");		// Turn off igniter
-strcpy(hotfire_auto.command[i++], "delay 4500\r");
-strcpy(hotfire_auto.command[i++], "command vlv8 0\r");		// Turn off water
-strcpy(hotfire_auto.command[i++], "delay 1500\r");
-strcpy(hotfire_auto.command[i++], "command mtr0 0\r");		// Close valves
-strcpy(hotfire_auto.command[i++], "command mtr1 0\r");		//
-strcpy(hotfire_auto.command[i++], "delay 1000\r");
-strcpy(hotfire_auto.command[i++], "command vlv5 1\r");		// Camera trigger
-strcpy(hotfire_auto.command[i++], "delay 100\r");
-strcpy(hotfire_auto.command[i++], "command vlv5 0\r");
-strcpy(hotfire_auto.command[i++], "delay 1000\r");
+strcpy(hotfire_auto.command[i++], "command vlv15 1 \r");	// Igniter ON
+strcpy(hotfire_auto.command[i++], "delay 500 \r");			// Delay 0.5 seconds
+strcpy(hotfire_auto.command[i++], "command vlv15 0 \r");	// Igniter OFF
+strcpy(hotfire_auto.command[i++], "delay 3500 \r");			// Delay 3.5 seconds
+strcpy(hotfire_auto.command[i++], "command vlv5 1 \r");		// Chronos trigger
+strcpy(hotfire_auto.command[i++], "delay 100 \r");			// Delay 0.1 seconds
+strcpy(hotfire_auto.command[i++], "command vlv5 0 \r");		// Chronos trigger off
 strcpy(hotfire_auto.command[i++], "stop_auto hotfire_auto \r");
 
 

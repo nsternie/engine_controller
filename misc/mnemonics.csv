@@ -7,12 +7,43 @@ pft,pressure fuel tank,Fuel Tank Pressure,psi
 pmom,pressure mother ox manifold,Mother Ox Manifold Pressure,psi
 pmnm,pressure mother nitrogen manifold,Mother Nitrogen Manifold Pressure,psi
 prnm,pressure regulated nitrogen manifold,Regulated Nitrogen Manifold Pressure,psi
-l1,load one,Load one,lbs
-l2,load two,Load two,lbs
-l3,load three,Load three,lbs
-l4,load four,Load four,lbs
+l0,load zero,Load one,lbs
+l1,load one,Load two,lbs
+l2,load two,Load three,lbs
+l3,load three,Load four,lbs
 lt,load thrust,Thrust Load,lbs
 rov,rotation ox valve,Ox Valve Position,deg
 rfv,rotation fuel valve,Fuel Valve Position,deg
 rov_set,rotation ox valve setpoint,Ox Valve Setpoint,deg
 rfv_set,rotation fuel valve setpoint,Fuel Valve Setpoint,deg
+ivlv0,,,
+ivlv1,,,
+ivlv3,,,
+ivlv4,,,
+ivlv5,,,
+ivlv6,,,
+ivlv7,,,
+ivlv8,,,
+ivlv9,,,
+ivlv10,,,
+ivlv11,,,
+ivlv12,,,
+ivlv13,,,
+ivlv14,,,
+ivlv15,,,
+evlv0,,,
+evlv1,,,
+evlv2,,,
+evlv3,,,
+evlv4,,,
+evlv5,,,
+evlv6,,,
+evlv7,,,
+evlv8,,,
+evlv9,,,
+evlv10,,,
+evlv11,,,
+evlv12,,,
+evlv13,,,
+evlv14,,,
+evlv15,,,

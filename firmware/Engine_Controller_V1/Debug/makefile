@@ -85,12 +85,11 @@ clean:
 	-@echo ' '
 
 post-build:
-	-rm-none-eabi-objcopy -O ihex “Engine_Controller_V1.elf” “Engine_Controller_V1.hex”
+	-rm-none-eabi-objcopy -O ihex â€œEngine_Controller_V1.elfâ€ â€œEngine_Controller_V1.hexâ€
 	-@echo ' '
 
 secondary-outputs: $(SECONDARY_FLASH) $(SECONDARY_SIZE)
 
-.PHONY: all clean dependents
-.SECONDARY: post-build
+.PHONY: all clean dependents post-build
 
 -include ../makefile.targets
