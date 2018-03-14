@@ -188,4 +188,7 @@ uint16_t auto_states;
 
 struct autosequence hotfire_auto;
 
+uint32_t qd_stop_time;
+#define QD_ACTUATION_TIME 3000;
+
 #endif
