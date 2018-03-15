@@ -2051,6 +2051,7 @@ void writeMotor(uint8_t device, int16_t motor_command){
 			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
 		}
 
+
 		break;
 	case mtr2:
 		timer = htim8;
@@ -2101,11 +2102,11 @@ void motor_control(){
 
 	// Actuator things:
 	if(qd_stop_time < millis){
-		writeMotor(mtr2, 0);
-		writeMotor(mtr3, 0);
+		//writeMotor(mtr2, 0);
+		//writeMotor(mtr3, 0);
 	}
 	// Changed from 3 to 1 on 3-10 for actuator support
-	for(uint8_t mtrx = 0; mtrx < 1; mtrx++){
+	for(uint8_t mtrx = 0; mtrx < 2; mtrx++){
 		if(motor_active[mtrx]){
 
 
@@ -2147,7 +2148,7 @@ void motor_control(){
 			}
 
 			if(adc_data[2][12+mtrx] > 3900 || adc_data[2][12+mtrx] < 200){
-				command = 0;
+				//command = 0;
 			}
 
 			motor_last_position[mtrx] = motor_position[mtrx];
