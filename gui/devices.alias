@@ -15,18 +15,18 @@ vlv12	unused
 vlv13	unused
 vlv14	unused
 vlv15	IGNITER
-pressure0	CHAM_HS
-pressure1	OX_MAN
-pressure2	OX_TANK
-pressure3	FUEL_TANK
-pressure4	MOM
-pressure5	FUEL_MAN
-pressure6	N2
-pressure7	CHAM_LS
-pressure8	N/A
-pressure9	N/A
-pressure10	N/A
-pressure11	N/A
+pressure0	CHAM_HS - 0
+pressure1	OX_MAN - 1
+pressure2	OX_TANK - 2
+pressure3	FUEL_TANK - 3
+pressure4	MOM - 4
+pressure5	FUEL_MAN - 5
+pressure6	N2 - 6
+pressure7	CHAM_LS - 8
+pressure8	8
+pressure9	9
+pressure10	10
+pressure11	11
 pressure12	N/A
 pressure13	N/A
 pressure14	N/A
