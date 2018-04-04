@@ -336,26 +336,23 @@ int main(void)
 
 // HOTFIRE AUTO
 uint16_t i = 0;
-strcpy(hotfire_auto.command[i++], "command vlv8 1\r");		// Turn on water
-strcpy(hotfire_auto.command[i++], "delay 500\r");
-strcpy(hotfire_auto.command[i++], "command vlv15 1\r");		// Turn on igniter
-strcpy(hotfire_auto.command[i++], "delay 500\r");
-strcpy(hotfire_auto.command[i++], "command mtr0 90\r");		// Open Valves
-strcpy(hotfire_auto.command[i++], "command mtr1 90\r");		//
-strcpy(hotfire_auto.command[i++], "command vlv15 0\r");		// Turn off igniter
-strcpy(hotfire_auto.command[i++], "delay 4500\r");
-strcpy(hotfire_auto.command[i++], "command vlv8 0\r");		// Turn off water
-strcpy(hotfire_auto.command[i++], "delay 1500\r");
-strcpy(hotfire_auto.command[i++], "command mtr0 0\r");		// Close valves
-strcpy(hotfire_auto.command[i++], "command mtr1 0\r");		//
-strcpy(hotfire_auto.command[i++], "delay 1000\r");
-strcpy(hotfire_auto.command[i++], "command vlv5 1\r");		// Camera trigger
-strcpy(hotfire_auto.command[i++], "delay 100\r");
-strcpy(hotfire_auto.command[i++], "command vlv5 0\r");
-strcpy(hotfire_auto.command[i++], "delay 1000\r");
+strcpy(hotfire_auto.command[i++], "command vlv7 1\r");		// Turn on water
+strcpy(hotfire_auto.command[i++], "delay 3000 \r");
+strcpy(hotfire_auto.command[i++], "command vlv15 1 \r");		// Turn on igniter
+strcpy(hotfire_auto.command[i++], "delay 500 \r");
+strcpy(hotfire_auto.command[i++], "command mtr0 90 \r");		// Open Valves
+strcpy(hotfire_auto.command[i++], "command mtr1 90 \r");		//
+strcpy(hotfire_auto.command[i++], "command vlv15 0 \r");		// Turn off igniter
+strcpy(hotfire_auto.command[i++], "delay 3500 \r");
+strcpy(hotfire_auto.command[i++], "command vlv8 1 \r");		// Camera trigger
+strcpy(hotfire_auto.command[i++], "delay 500 \r");
+strcpy(hotfire_auto.command[i++], "command vlv8 0 \r");
+strcpy(hotfire_auto.command[i++], "delay 500 \r");
+strcpy(hotfire_auto.command[i++], "command mtr0 0 \r");		// Close valves
+strcpy(hotfire_auto.command[i++], "command mtr1 0 \r");		//
+strcpy(hotfire_auto.command[i++], "delay 1000 \r");
+strcpy(hotfire_auto.command[i++], "command vlv7 0 \r");		// Turn off water
 strcpy(hotfire_auto.command[i++], "stop_auto hotfire_auto \r");
-
-
 
 hotfire_auto.length = i;
 
@@ -1903,9 +1900,9 @@ uint32_t  serial_command(uint8_t* cbuf_in){
 
 	}	// End "set"
 	else if(strcmp(argv[0], "ambientize") == 0){
-		for(uint8_t n = 0; n < 16; n++){
-			press_cal[OFFSET][n] = adc_data[4][15-n];
-		}
+		//for(uint8_t n = 0; n < 16; n++){
+			press_cal[OFFSET][atoi(argv[1])] = adc_data[4][15-atoi(argv[1])];
+		//}
 	}
 	else if(strcmp(argv[0], "enable") == 0){
 		// Get the device id

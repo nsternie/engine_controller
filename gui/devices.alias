@@ -1,36 +1,36 @@
 Device	Alias
-vlv0	FILL_OX
-vlv1	VENT_OX
-vlv2	OX Drain
-vlv3	FUEL_VENT
-vlv4	MOM-VENT
-vlv5	Camera-trigger
-vlv6	Brown
-vlv7	HEAT
-vlv8	Water
-vlv9	R.I.P.
-vlv10	Orange		 
-vlv11	unused
-vlv12	unused
-vlv13	unused
-vlv14	unused
+vlv0	0 - Ox Vent
+vlv1	1 - Fuel Vent
+vlv2	2 - Ox Fill
+vlv3	3 - Ox Drain
+vlv4	4 - N2 Drain
+vlv5	5 - N2 Fill
+vlv6	6 - Ox QD
+vlv7	7 - Water
+vlv8	8 - Camera
+vlv9	9 - R.I.P.
+vlv10	__		 
+vlv11	__
+vlv12	__
+vlv13	__
+vlv14	__
 vlv15	IGNITER
-pressure0	CHAM_HS - 0
-pressure1	OX_MAN - 1
-pressure2	OX_TANK - 2
-pressure3	FUEL_TANK - 3
-pressure4	MOM - 4
-pressure5	FUEL_MAN - 5
-pressure6	N2 - 6
-pressure7	CHAM_LS - 8
-pressure8	8
-pressure9	9
-pressure10	10
-pressure11	11
-pressure12	N/A
-pressure13	N/A
-pressure14	N/A
-pressure15	N/A
+pressure0	0 - DP
+pressure1	1 - Chamber
+pressure2	2 - Ox Man
+pressure3	3 - Fuel Man
+pressure4	4 - Ox Tank
+pressure5	5 - Fuel Tank
+pressure6	6 - __
+pressure7	7 - __
+pressure8	8 - Ox Fill Hose
+pressure9	9 - MOM
+pressure10	10 - N2 Fill
+pressure11	11 - N2 Mother
+pressure12	12 - __
+pressure13	13 - __
+pressure14	14 - _s_
+pressure15	15 - __
 mtr0	OX VALVE
 mtr1	FUEL VALVE
 mtr2	unused
