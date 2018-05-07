@@ -356,83 +356,15 @@ strcpy(hotfire_auto.command[i++], "stop_auto hotfire_auto \r");
 
 hotfire_auto.length = i;
 
+hotfire_auto.running = 1;
 
-  while (1)
+  while (hotfire_auto.running)
   {
-	  for(int n = 0; n < NUM_AUTOS; n++){
-		run_auto(&autos[n]);
-	  }
 	  run_auto(&hotfire_auto);
-
-	  //count2 = motor_active[0];
-	  TIME(main_cycle_time);
-	  //count2 = adc_data[2][12];
-
-
-
-	  //  We have new rs422 data, parse it
-	  if(rs422_buf.new_data > 0){
-		  parse_buffer(&rs422_buf);
-	  }
-
-	  if(read_adc_now){
-		  read_adc_now = 0;
-		  read_adc_brute();
-		  scale_readings();
-		  TIME(adc_cycle_time);
-		  if(LOGGING_ACTIVE){
-
-		  }
-		  read_thermocouples();
-	  }
-
-	  if(send_rs422_now){
-		  send_rs422_now = 0;
-		  send_telem(rs422_com, telemetry_format[rs422]);
-		  TIME(telemetry_cycle_time);
-		  //trace_printf("ibus: %u, count3: %u\r\n", adc_data[2][1], count3);
-
-	  }
-
-	  if(send_xbee_now){
-		  send_xbee_now = 0;
-		 // send_telem(xbee_com, telemetry_format[xbee]);
-	  }
-
-	  if(update_motors_now){
-		  update_motors_now = 0;
-		  motor_control();
-		  TIME(motor_cycle_time);
-	  }
-
-	  if(STATE == MANUAL){
-
-	  }
-	  else if(STATE == PRE_IGNITION){
-		  uint16_t mask = 1;
-		  mask <<= 15;
-		  if(mask & valve_states){
-			  STATE = IGNITION;
-		  }
-	  }
-	  else if(STATE == IGNITION){
-		  uint16_t mask = 1;
-		  mask <<= 15;
-		  if(!(mask & valve_states)){
-			  STATE = FIRING;
-		  }
-	  }
-	  else if(STATE == FIRING){
-		  if(motor_setpoint[0] < 10){
-			  STATE = FULL_DURATION;
-		  }
-	  }
-	  else if(STATE == FULL_DURATION){
-		  if(hotfire_auto.running == 0){
-			  STATE = FULL_DURATION_SAFE;
-		  }
-	  }
-
+  }
+  while(1){
+	  HL_Delay(100);
+  }
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

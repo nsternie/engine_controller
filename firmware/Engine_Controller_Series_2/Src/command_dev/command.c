@@ -68,6 +68,7 @@ parser init_parser(uint16_t device_id){
 }
 void pass_byte(parser* p, uint8_t byte){
 	p->buffer[p->filled++] = byte;
+	p->filled += 1;
 }
 void add_command(parser* p, COMMAND_TYPE command_id, COMMAND_FUNCTION_POINTER){
 	command* command_ptr = malloc(sizeof(command));
@@ -86,6 +87,11 @@ void add_command(parser* p, COMMAND_TYPE command_id, COMMAND_FUNCTION_POINTER){
 	p->commands[command_id] = command_ptr;
 }
 void run_parser(parser* p){
+
+	if(!search_string(p->buffer, COMMAND_SEPERATOR, BUFFER_LENGTH)){
+		printf("Buffer empty");
+		return; // No full packet to parse
+	}	
 
 	uint16_t packet_number = p->buffer[0] | p->buffer[1];
 	uint16_t target_id = p->buffer[2] | p->buffer[3];
@@ -113,6 +119,7 @@ void run_parser(parser* p){
 		checksum_1 == expected_checksum_1){
 		// Command is valid
 		if(target_id == p->device_id){
+			printf("device %d\n", target_id);
 			p->commands[command_id]->f(num_args, args);
 			p->commands[command_id]->num_execs++;
 		}
@@ -127,4 +134,13 @@ void run_parser(parser* p){
 	}
 
 	//memcpy( (void*) p->buffer[length_of_packet], (void*) p->buffer[0], (size_t) length_of_packet);
+}
+
+int search_string(uint8_t* arr, uint8_t character, uint32_t length){
+	for(int n = 0; n < length; n++){
+		if(*(arr+n) == character){
+			return 1;
+		}
+	}
+	return 0;
 }

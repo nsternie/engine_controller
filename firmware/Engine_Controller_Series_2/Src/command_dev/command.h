@@ -17,7 +17,9 @@
 #define NUMBER_OF_ARGS		4
 #define ARG_TYPE			uint32_t
 #define BUFFER_LENGTH		256
+#define COMMAND_SEPERATOR	0
 #define COMMAND_FUNCTION_POINTER	void (*f)(uint32_t, ARG_TYPE*)
+
 
 typedef struct command_struct{
 	COMMAND_TYPE id;
@@ -48,5 +50,8 @@ void pass_byte(parser* p, uint8_t byte);
 void run_parser(parser* p);
 void add_command(parser* p, COMMAND_TYPE command_id, COMMAND_FUNCTION_POINTER);
 
+
+// Helper functions
+int search_string(uint8_t* arr, uint8_t character, uint32_t length);
 
 #endif /* COMMAND_H_ */
