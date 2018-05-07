@@ -1,6 +1,7 @@
 import time
+import sys
 
-filename = input("Template file: ")
+filename = sys.argv[1]
 
 template_file = open(filename)
 print("Reading "+filename+"...")

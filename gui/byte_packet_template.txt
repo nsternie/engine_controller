@@ -8,44 +8,27 @@ Pressure 4	pressure[4]	-100	3000	psi	float	%.1f	int16_t	1	pressure4		float	motor
 Pressure 5	pressure[5]	-100	3000	psi	float	%.1f	int16_t	1	pressure5		float	adc_cycle_time	0	|
 Pressure 6	pressure[6]	-100	3000	psi	float	%.1f	int16_t	1	pressure6		float	telemetry_cycle_time	0	|
 Pressure 7	pressure[7]	-100	3000	psi	float	%.1f	int16_t	1	pressure7		float	ebatt	0	|
-Pressure 8	pressure[8]	-100	3000	psi	float	%.1f	int16_t	1	pressure8		float	ibus	0	|
-Pressure 9	pressure[9]	-100	3000	psi	float	%.1f	int16_t	1	pressure9		float	telemetry_rate	0	|
-Pressure 10	pressure[10]	-100	3000	psi	float	%.1f	int16_t	1	pressure10		float	motor_control_gain	[0]*4	|
-Pressure 11	pressure[11]	-100	3000	psi	float	%.1f	int16_t	1	pressure11		float	motor_position	[0]*4	|
-Pressure 12	pressure[12]	-100	3000	psi	float	%.1f	int16_t	1	pressure12		float	motor_pwm	[0]*4	|
-Pressure 13	pressure[13]	-100	3000	psi	float	%.1f	int16_t	1	pressure13		float	count1	0	|
-Pressure 14	pressure[14]	-100	3000	psi	float	%.1f	int16_t	1	pressure14		float	count2	0	|
-Pressure 15	pressure[15]	-100	3000	psi	float	%.1f	int16_t	1	pressure15		float	count3	0	|
-ADC rate	samplerate	0	1000000	Hz		%d	uint32_t	1			int	STATE	0	|
-motor_setpoint[0]	motor_setpoint[0]	-500	500	degrees		%.2f	int32_t	1000			float	load	[0]*4	|
-motor_setpoint[1]	motor_setpoint[1]	-500	500	degrees		%.2f	int32_t	1000			float	thrust_load	0	|
-main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int	thermocouple	[0]*4	|
-motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int	ivlv	[0]*16	|
-adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int	evlv	[0]*16	|
-telemetry_cycle_time[0]	telemetry_cycle_time[0]	0	1000000	microseconds		%u	uint32_t	1		telemetry_cycle_time	int	LOG_TO_AUTO	0	|
-ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	auto_states	0	|
-Bus Current	ibus	-10	150	Amps		%.2f	int16_t	100			float			|
-telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	int			|
-motor_control_gain[0]	motor_control_gain[0]					%.3f	uint16_t	1			float			|
-motor_control_gain[1]	motor_control_gain[1]					%.3f	uint16_t	1			float			|
-motor_control_gain[2]	motor_control_gain[2]					%.3f	uint16_t	1			float			|
-motor_position[0]	motor_position[0]					%.2f	int32_t	1000			float			|
-motor_position[1]	motor_position[1]					%.2f	int32_t	1000			float			|
-motor_pwm[0]	motor_pwm[0]					%d	int16_t	1			int			|
+ADC rate	samplerate	0	1000000	Hz		%d	uint32_t	1			int	ibus	0	|
+motor_setpoint[0]	motor_setpoint[0]	-500	500	degrees		%.2f	int32_t	1000			float	telemetry_rate	0	|
+motor_setpoint[1]	motor_setpoint[1]	-500	500	degrees		%.2f	int32_t	1000			float	motor_control_gain	[0]*4	|
+main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int	motor_position	[0]*4	|
+motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int	motor_pwm	[0]*4	|
+adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int	count1	0	|
+telemetry_cycle_time[0]	telemetry_cycle_time[0]	0	1000000	microseconds		%u	uint32_t	1		telemetry_cycle_time	int	count2	0	|
+ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	count3	0	|
+Bus Current	ibus	-10	150	Amps		%.2f	int16_t	100			float	STATE	0	|
+telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	int	load	[0]*4	|
+motor_control_gain[0]	motor_control_gain[0]					%.3f	uint16_t	1			float	thrust_load	0	|
+motor_control_gain[1]	motor_control_gain[1]					%.3f	uint16_t	1			float	thermocouple	[0]*4	|
+motor_control_gain[2]	motor_control_gain[2]					%.3f	uint16_t	1			float	ivlv	[0]*16	|
+motor_position[0]	motor_position[0]					%.2f	int32_t	1000			float	evlv	[0]*16	|
+motor_position[1]	motor_position[1]					%.2f	int32_t	1000			float	LOG_TO_AUTO	0	|
+motor_pwm[0]	motor_pwm[0]					%d	int16_t	1			int	auto_states	0	|
 motor_pwm[1]	motor_pwm[1]					%d	int16_t	1			int			|
 count1	count1					%d	int32_t	1			int			|
 count2	count2					%d	int32_t	1			int			|
 count3	count3					%d	int32_t	1			int			|
 STATE	STATE					%u	uint8_t	1			int			|
-load[0]	load[0]	-100	1000	lbs		%.1f	int16_t	10			float			|
-load[1]	load[1]	-100	1000	lbs		%.1f	int16_t	10			float			|
-load[2]	load[2]	-100	1000	lbs		%.1f	int16_t	10			float			|
-load[3]	load[3]	-100	1000	lbs		%.1f	int16_t	10			float			|
-thrust_load	thrust_load	-200	4000	lbs		%.1f	int32_t	10			float			|
-thermocouple[0]	thermocouple[0]	-100	1500	degC		%.0f	int16_t	1			int			|
-thermocouple[1]	thermocouple[1]	-100	1500	degC		%.0f	int16_t	1			int			|
-thermocouple[2]	thermocouple[2]	-100	1500	degC		%.0f	int16_t	1			int			|
-thermocouple[3]	thermocouple[3]	-100	1500	degC		%.0f	int16_t	1			int			|
 ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	100			float			|
@@ -54,7 +37,6 @@ ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[15]	ivlv[15]	-1	20	Amps		%.1f	int16_t	100			float			|
 evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[1]	evlv[1]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[2]	evlv[2]	-5	15	Volts		%.1f	int16_t	100			float			|
@@ -63,13 +45,13 @@ evlv[4]	evlv[4]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[5]	evlv[5]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[6]	evlv[6]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[7]	evlv[7]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[8]	evlv[8]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[9]	evlv[9]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[10]	evlv[10]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[11]	evlv[11]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[12]	evlv[12]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[13]	evlv[13]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[14]	evlv[14]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[15]	evlv[15]	-5	15	Volts		%.1f	int16_t	100			float			|
 LOG_TO_AUTO	LOG_TO_AUTO					%d	int16_t	1			int			|
 auto_states	auto_states					%u	uint16_t	1			int			|
+debug[0]	debug[0]					%d	int32_t	1			int			|
+debug[1]	debug[1]					%d	int32_t	1			int			|
+debug[2]	debug[2]					%d	int32_t	1			int			|
+debug[3]	debug[3]					%d	int32_t	1			int			|
+debug[4]	debug[4]					%d	int32_t	1			int			|
+debug[5]	debug[5]					%d	int32_t	1			int			|
+debug[6]	debug[6]					%d	int32_t	1			int			|
+debug[7]	debug[7]					%d	int32_t	1			int			|
