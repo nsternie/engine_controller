@@ -52,6 +52,7 @@ uint8_t temp = 0;
 int32_t count1;
 int32_t count2;
 int32_t count3;
+int32_t debug[8];
 uint32_t start_time;
 uint32_t end_time;
 uint32_t active_time;

@@ -144,6 +144,7 @@ extern uint8_t temp;
 extern int32_t count1;
 extern int32_t count2;
 extern int32_t count3;
+extern int32_t debug[8];
 extern uint32_t start_time;
 extern uint32_t end_time;
 extern uint32_t active_time;
