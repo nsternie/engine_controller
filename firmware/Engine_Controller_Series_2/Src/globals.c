@@ -74,4 +74,6 @@ uint8_t AUTOSTRING[1024];
 uint16_t auto_states;
 struct autosequence hotfire_auto;
 
+parser p;
+
 uint32_t qd_stop_time = 0;

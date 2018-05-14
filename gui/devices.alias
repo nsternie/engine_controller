@@ -1,36 +1,36 @@
 Device	Alias
-vlv0	0 - Ox Vent
-vlv1	1 - Fuel Vent
-vlv2	2 - Ox Fill
-vlv3	3 - Ox Drain
-vlv4	4 - N2 Drain
-vlv5	5 - N2 Fill
-vlv6	6 - Ox QD
-vlv7	7 - Water
-vlv8	8 - Camera
-vlv9	9 - R.I.P.
-vlv10	__		 
-vlv11	__
+vlv0	Valve 0
+vlv1	Valve 1
+vlv2	Valve 2
+vlv3	Valve 3
+vlv4	Valve 4
+vlv5	Valve 5
+vlv6	Valve 6
+vlv7	Valve 7
+vlv8	LED 0
+vlv9	LED 1
+vlv10	LED 2		 
+vlv11	LED 3
 vlv12	__
 vlv13	__
 vlv14	__
-vlv15	IGNITER
-pressure0	0 - DP
-pressure1	1 - Chamber
-pressure2	2 - Ox Man
-pressure3	3 - Fuel Man
-pressure4	4 - Ox Tank
-pressure5	5 - Fuel Tank
-pressure6	6 - __
-pressure7	7 - __
-pressure8	8 - Ox Fill Hose
-pressure9	9 - MOM
-pressure10	10 - N2 Fill
-pressure11	11 - N2 Mother
-pressure12	12 - __
-pressure13	13 - __
-pressure14	14 - _s_
-pressure15	15 - __
+vlv15	__
+pressure0	0
+pressure1	1
+pressure2	2 
+pressure3	3 
+pressure4	4 
+pressure5	5 
+pressure6	6
+pressure7	7
+pressure8	8
+pressure9	9
+pressure10	10
+pressure11	11
+pressure12	1 
+pressure13	1 
+pressure14	1 
+pressure15	1 
 mtr0	OX VALVE
 mtr1	FUEL VALVE
 mtr2	unused
@@ -44,4 +44,4 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM13
+COM_PORT	COM12

@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "command.h"
 
 #ifndef GLOBALS_H
 #define GLOBALS_H
@@ -13,6 +14,7 @@
 #define HEADER_8 0
 
 // END TELEM DEFINITIONS //////////////////////////////////
+
 
 // Device definitions  ////////////////////////////////////
 #define delay 0
@@ -180,6 +182,8 @@ struct autosequence autos[NUM_AUTOS];
 int16_t LOG_TO_AUTO;
 uint8_t AUTOSTRING[1024];
 uint16_t auto_states;
+
+parser p;
 
 struct autosequence hotfire_auto;
 

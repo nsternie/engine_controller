@@ -1352,7 +1352,7 @@ uint8_t configure_devices(){
 
 		uint8_t line[32];
 		snprintf(line, sizeof(line), "+++");
-		while(HAL_UART_GetState(&huart1) == HAL_UART_STATE_BUSY_TX);
+		while(HAL_UART_GetState(&huart1) == HAL_UART_STATE_BSUY_TX);
 		HAL_UART_Transmit(&spirit_com, (uint8_t*)line, strlen(line), 1);
 
 		HAL_Delay(50);

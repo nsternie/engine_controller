@@ -13,7 +13,7 @@
 
 #define DESCRITION_LENGTH	16
 #define COMMAND_TYPE		uint16_t
-#define NUMBER_OF_COMMANDS	0xFFFF
+#define NUMBER_OF_COMMANDS	500
 #define NUMBER_OF_ARGS		4
 #define ARG_TYPE			uint32_t
 #define BUFFER_LENGTH		256
@@ -27,10 +27,10 @@ typedef struct command_struct{
 	COMMAND_FUNCTION_POINTER;
 	uint32_t last_exec;
 	uint32_t num_execs;
-}command;
+}command_struct;
 
 typedef struct command_parser_struct{
-	command* commands[NUMBER_OF_COMMANDS];
+	command_struct* commands[NUMBER_OF_COMMANDS];
 
 	uint8_t buffer[BUFFER_LENGTH];
 

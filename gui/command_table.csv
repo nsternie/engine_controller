@@ -1,0 +1,9 @@
+Id Number,function name,description,Num args,arg0,arg1,…
+50,digital_write,set a digital output to specified value,2,channel,state (0/1),
+51,led_write,turn general purpose LEDs on or off,2,number,state (0/1),
+60,set_kp,,1,gain,,
+61,set_ki,,1,gain,,
+62,set_kd,,1,gain,,
+52,motor_write,Update setpoint of specified motor,2,motor index,setpoint,
+53,motor_disable,,1,motor index,,
+54,motor_enable,,1,motor index,,

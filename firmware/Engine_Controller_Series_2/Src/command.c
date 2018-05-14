@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "globals.h""
 
 #define FinishBlock(X) (*code_ptr = (X), code_ptr = stuffed++, code = 0x01)
 
@@ -53,7 +54,7 @@ parser init_parser(uint16_t device_id){
 	parser p;
 
 	for(int n = 0; n < BUFFER_LENGTH; n++){
-		p.buffer[n] = 0;
+		p.buffer[n] = 255;
 	}
 
 	p.filled = 0;
@@ -68,10 +69,9 @@ parser init_parser(uint16_t device_id){
 }
 void pass_byte(parser* p, uint8_t byte){
 	p->buffer[p->filled++] = byte;
-	p->filled += 1;
 }
 void add_command(parser* p, COMMAND_TYPE command_id, COMMAND_FUNCTION_POINTER){
-	command* command_ptr = malloc(sizeof(command));
+	command_struct* command_ptr = malloc(sizeof(command_struct));
 	command_ptr->id = command_id;
 	for(int n = 0; n < NUMBER_OF_ARGS; n++){
 		command_ptr->args[n] = 0;
@@ -88,27 +88,29 @@ void add_command(parser* p, COMMAND_TYPE command_id, COMMAND_FUNCTION_POINTER){
 }
 void run_parser(parser* p){
 
-	if(!search_string(p->buffer, COMMAND_SEPERATOR, BUFFER_LENGTH)){
-		printf("Buffer empty");
-		return; // No full packet to parse
-	}	
+	uint8_t *temp = malloc(sizeof(p->buffer));
+	if(temp == NULL){
+		command(led2, 1);
+	}
+	memcpy(temp, p->buffer, sizeof(p->buffer));
+	unstuff_data(temp, p->filled, p->buffer);
 
-	uint16_t packet_number = p->buffer[0] | p->buffer[1];
-	uint16_t target_id = p->buffer[2] | p->buffer[3];
-	uint16_t command_id = p->buffer[4] | p->buffer[5];
-	uint16_t num_args = p->buffer[6] | p->buffer[7];
+	uint16_t packet_number = p->buffer[0]  << 8 | p->buffer[1];
+	uint16_t target_id = p->buffer[2]  << 8 | p->buffer[3];
+	uint16_t command_id = p->buffer[4]  << 8 | p->buffer[5];
+	uint16_t num_args = p->buffer[6]  << 8 | p->buffer[7];
 
 	int length_of_packet = 8+4*num_args+2;
-	uint32_t args[num_args];
+	uint32_t *args = malloc(num_args);
 
 	for(int n = 0; n < num_args; n++){
-		args[n] = p->buffer[8+4*n] | p->buffer[9+4*n] | p->buffer[10+4*n] | p->buffer[11+4*n]; 
+		args[n] = p->buffer[8+4*n]<<24 | p->buffer[9+4*n]<<16 | p->buffer[10+4*n]<<8 | p->buffer[11+4*n];
 	}
 
 	uint8_t checksum_0 = 0, checksum_1 = 0;
 	for(int n = 0; n < (length_of_packet - 2)/2; n++){
 		checksum_0 ^= p->buffer[2*n];
-		checksum_1 ^= p->buffer[2*n+1];	
+		checksum_1 ^= p->buffer[2*n+1];
 	}
 
 	uint8_t expected_checksum_0 = p->buffer[8+4*num_args];
@@ -119,7 +121,7 @@ void run_parser(parser* p){
 		checksum_1 == expected_checksum_1){
 		// Command is valid
 		if(target_id == p->device_id){
-			printf("device %d\n", target_id);
+			//printf("device %d\n", target_id);
 			p->commands[command_id]->f(num_args, args);
 			p->commands[command_id]->num_execs++;
 		}
@@ -131,6 +133,12 @@ void run_parser(parser* p){
 	
 	for(int n = 0; n < length_of_packet; n++){
 		p->buffer[n] = p->buffer[n + length_of_packet];
+	}
+
+	// Clear buffer
+	p->filled = 0;
+	for(int n = 0; n < BUFFER_LENGTH; n++){
+		p->buffer[n] = 255;
 	}
 
 	//memcpy( (void*) p->buffer[length_of_packet], (void*) p->buffer[0], (size_t) length_of_packet);

@@ -24,27 +24,27 @@ motor_control_gain[2]	motor_control_gain[2]					%.3f	uint16_t	1			float	ivlv	[0]
 motor_position[0]	motor_position[0]					%.2f	int32_t	1000			float	evlv	[0]*16	|
 motor_position[1]	motor_position[1]					%.2f	int32_t	1000			float	LOG_TO_AUTO	0	|
 motor_pwm[0]	motor_pwm[0]					%d	int16_t	1			int	auto_states	0	|
-motor_pwm[1]	motor_pwm[1]					%d	int16_t	1			int			|
-count1	count1					%d	int32_t	1			int			|
-count2	count2					%d	int32_t	1			int			|
+motor_pwm[1]	motor_pwm[1]					%d	int16_t	1			int	debug	[0]*8	|
+count1	count1					%d	int32_t	1			int	e5v	0	|
+count2	count2					%d	int32_t	1			int	e3v	0	|
 count3	count3					%d	int32_t	1			int			|
 STATE	STATE					%u	uint8_t	1			int			|
-ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float			|
-evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[1]	evlv[1]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[2]	evlv[2]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[3]	evlv[3]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[4]	evlv[4]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[5]	evlv[5]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[6]	evlv[6]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[7]	evlv[7]	-5	15	Volts		%.1f	int16_t	100			float			|
+ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	1			float			|
+ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	1			float			|
+ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	1			float			|
+ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	1			float			|
+ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	1			float			|
+ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	1			float			|
+ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	1			float			|
+ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	1			float			|
+evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	1			float			|
+evlv[1]	evlv[1]	-5	15	Volts		%.1f	int16_t	1			float			|
+evlv[2]	evlv[2]	-5	15	Volts		%.1f	int16_t	1			float			|
+evlv[3]	evlv[3]	-5	15	Volts		%.1f	int16_t	1			float			|
+evlv[4]	evlv[4]	-5	15	Volts		%.1f	int16_t	1			float			|
+evlv[5]	evlv[5]	-5	15	Volts		%.1f	int16_t	1			float			|
+evlv[6]	evlv[6]	-5	15	Volts		%.1f	int16_t	1			float			|
+evlv[7]	evlv[7]	-5	15	Volts		%.1f	int16_t	1			float			|
 LOG_TO_AUTO	LOG_TO_AUTO					%d	int16_t	1			int			|
 auto_states	auto_states					%u	uint16_t	1			int			|
 debug[0]	debug[0]					%d	int32_t	1			int			|
@@ -55,3 +55,5 @@ debug[4]	debug[4]					%d	int32_t	1			int			|
 debug[5]	debug[5]					%d	int32_t	1			int			|
 debug[6]	debug[6]					%d	int32_t	1			int			|
 debug[7]	debug[7]					%d	int32_t	1			int			|
+e3v	e3v					%.2f	int32_t	100			float			|
+e5v	e5v					%.2f	int32_t	100			float			|

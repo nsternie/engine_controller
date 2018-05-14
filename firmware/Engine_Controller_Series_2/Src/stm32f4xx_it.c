@@ -36,6 +36,10 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
+
+#include "command.h"
+#include "globals.h"
+
 extern UART_HandleTypeDef huart5;
 extern uint8_t spirit_in;
 extern uint8_t rs422_in;
@@ -48,12 +52,15 @@ extern volatile uint8_t send_rs422_now;
 extern volatile uint8_t send_xbee_now;
 extern volatile uint8_t update_motors_now;
 
+extern parser p;
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim6;
 extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart6;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -224,11 +231,12 @@ void TIM4_IRQHandler(void)
 */
 void USART1_IRQHandler(void)
 {
-  /* USER CODE BEGIN USART1_IRQn 0 */
-
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
+  HAL_UART_Transmit_IT(&huart6, &rs422_in, 1);
+
+	pass_byte(&p, rs422_in);
 	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
   /* USER CODE END USART1_IRQn 1 */
 }
@@ -245,6 +253,20 @@ void TIM6_DAC_IRQHandler(void)
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
   send_rs422_now = 1;
   /* USER CODE END TIM6_DAC_IRQn 1 */
+}
+
+/**
+* @brief This function handles USART6 global interrupt.
+*/
+void USART6_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART6_IRQn 0 */
+
+  /* USER CODE END USART6_IRQn 0 */
+  HAL_UART_IRQHandler(&huart6);
+  /* USER CODE BEGIN USART6_IRQn 1 */
+
+  /* USER CODE END USART6_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

@@ -4,7 +4,7 @@ import struct
 class ECParse:
 
 	def __init__(self):
-		self.csv_header = "Time (s),valve_states (),pressure[0] (psi),pressure[1] (psi),pressure[2] (psi),pressure[3] (psi),pressure[4] (psi),pressure[5] (psi),pressure[6] (psi),pressure[7] (psi),samplerate (Hz),motor_setpoint[0] (degrees),motor_setpoint[1] (degrees),main_cycle_time (microseconds),motor_cycle_time (microseconds),adc_cycle_time (microseconds),telemetry_cycle_time (microseconds),ebatt (Volts),ibus (Amps),telemetry_rate (Hz),motor_control_gain[0] (),motor_control_gain[1] (),motor_control_gain[2] (),motor_position[0] (),motor_position[1] (),motor_pwm[0] (),motor_pwm[1] (),count1 (),count2 (),count3 (),STATE (),ivlv[0] (Amps),ivlv[1] (Amps),ivlv[2] (Amps),ivlv[3] (Amps),ivlv[4] (Amps),ivlv[5] (Amps),ivlv[6] (Amps),ivlv[7] (Amps),evlv[0] (Volts),evlv[1] (Volts),evlv[2] (Volts),evlv[3] (Volts),evlv[4] (Volts),evlv[5] (Volts),evlv[6] (Volts),evlv[7] (Volts),LOG_TO_AUTO (),auto_states (),debug[0] (),debug[1] (),debug[2] (),debug[3] (),debug[4] (),debug[5] (),debug[6] (),debug[7] (),\n"
+		self.csv_header = "Time (s),valve_states (),pressure[0] (psi),pressure[1] (psi),pressure[2] (psi),pressure[3] (psi),pressure[4] (psi),pressure[5] (psi),pressure[6] (psi),pressure[7] (psi),samplerate (Hz),motor_setpoint[0] (degrees),motor_setpoint[1] (degrees),main_cycle_time (microseconds),motor_cycle_time (microseconds),adc_cycle_time (microseconds),telemetry_cycle_time (microseconds),ebatt (Volts),ibus (Amps),telemetry_rate (Hz),motor_control_gain[0] (),motor_control_gain[1] (),motor_control_gain[2] (),motor_position[0] (),motor_position[1] (),motor_pwm[0] (),motor_pwm[1] (),count1 (),count2 (),count3 (),STATE (),ivlv[0] (Amps),ivlv[1] (Amps),ivlv[2] (Amps),ivlv[3] (Amps),ivlv[4] (Amps),ivlv[5] (Amps),ivlv[6] (Amps),ivlv[7] (Amps),evlv[0] (Volts),evlv[1] (Volts),evlv[2] (Volts),evlv[3] (Volts),evlv[4] (Volts),evlv[5] (Volts),evlv[6] (Volts),evlv[7] (Volts),LOG_TO_AUTO (),auto_states (),debug[0] (),debug[1] (),debug[2] (),debug[3] (),debug[4] (),debug[5] (),debug[6] (),debug[7] (),e3v (),e5v (),\n"
 		self.valve_states = 0
 		self.pressure = [0]*16
 		self.samplerate = 0
@@ -30,6 +30,9 @@ class ECParse:
 		self.evlv = [0]*16
 		self.LOG_TO_AUTO = 0
 		self.auto_states = 0
+		self.debug = [0]*8
+		self.e5v = 0
+		self.e3v = 0
 		self.log_string = ""
 
 	def parse_packet(self, packet):
@@ -94,37 +97,37 @@ class ECParse:
 		byte_rep = packet[76:77]
 		self.STATE = int((float(struct.unpack("<B", byte_rep)[0]))/1)
 		byte_rep = packet[77:79]
-		self.ivlv[0] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.ivlv[0] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[79:81]
-		self.ivlv[1] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.ivlv[1] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[81:83]
-		self.ivlv[2] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.ivlv[2] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[83:85]
-		self.ivlv[3] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.ivlv[3] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[85:87]
-		self.ivlv[4] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.ivlv[4] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[87:89]
-		self.ivlv[5] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.ivlv[5] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[89:91]
-		self.ivlv[6] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.ivlv[6] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[91:93]
-		self.ivlv[7] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.ivlv[7] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[93:95]
-		self.evlv[0] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.evlv[0] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[95:97]
-		self.evlv[1] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.evlv[1] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[97:99]
-		self.evlv[2] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.evlv[2] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[99:101]
-		self.evlv[3] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.evlv[3] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[101:103]
-		self.evlv[4] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.evlv[4] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[103:105]
-		self.evlv[5] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.evlv[5] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[105:107]
-		self.evlv[6] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.evlv[6] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[107:109]
-		self.evlv[7] = float((float(struct.unpack("<h", byte_rep)[0]))/100)
+		self.evlv[7] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[109:111]
 		self.LOG_TO_AUTO = int((float(struct.unpack("<h", byte_rep)[0]))/1)
 		byte_rep = packet[111:113]
@@ -145,4 +148,8 @@ class ECParse:
 		self.debug[6] = int((float(struct.unpack("<i", byte_rep)[0]))/1)
 		byte_rep = packet[141:145]
 		self.debug[7] = int((float(struct.unpack("<i", byte_rep)[0]))/1)
-		self.log_string = str(time.clock())+','+str(self.valve_states)+','+str(self.pressure[0])+','+str(self.pressure[1])+','+str(self.pressure[2])+','+str(self.pressure[3])+','+str(self.pressure[4])+','+str(self.pressure[5])+','+str(self.pressure[6])+','+str(self.pressure[7])+','+str(self.samplerate)+','+str(self.motor_setpoint[0])+','+str(self.motor_setpoint[1])+','+str(self.main_cycle_time)+','+str(self.motor_cycle_time)+','+str(self.adc_cycle_time)+','+str(self.telemetry_cycle_time)+','+str(self.ebatt)+','+str(self.ibus)+','+str(self.telemetry_rate)+','+str(self.motor_control_gain[0])+','+str(self.motor_control_gain[1])+','+str(self.motor_control_gain[2])+','+str(self.motor_position[0])+','+str(self.motor_position[1])+','+str(self.motor_pwm[0])+','+str(self.motor_pwm[1])+','+str(self.count1)+','+str(self.count2)+','+str(self.count3)+','+str(self.STATE)+','+str(self.ivlv[0])+','+str(self.ivlv[1])+','+str(self.ivlv[2])+','+str(self.ivlv[3])+','+str(self.ivlv[4])+','+str(self.ivlv[5])+','+str(self.ivlv[6])+','+str(self.ivlv[7])+','+str(self.evlv[0])+','+str(self.evlv[1])+','+str(self.evlv[2])+','+str(self.evlv[3])+','+str(self.evlv[4])+','+str(self.evlv[5])+','+str(self.evlv[6])+','+str(self.evlv[7])+','+str(self.LOG_TO_AUTO)+','+str(self.auto_states)+','+str(self.debug[0])+','+str(self.debug[1])+','+str(self.debug[2])+','+str(self.debug[3])+','+str(self.debug[4])+','+str(self.debug[5])+','+str(self.debug[6])+','+str(self.debug[7])+','
+		byte_rep = packet[145:149]
+		self.e3v = float((float(struct.unpack("<i", byte_rep)[0]))/100)
+		byte_rep = packet[149:153]
+		self.e5v = float((float(struct.unpack("<i", byte_rep)[0]))/100)
+		self.log_string = str(time.clock())+','+str(self.valve_states)+','+str(self.pressure[0])+','+str(self.pressure[1])+','+str(self.pressure[2])+','+str(self.pressure[3])+','+str(self.pressure[4])+','+str(self.pressure[5])+','+str(self.pressure[6])+','+str(self.pressure[7])+','+str(self.samplerate)+','+str(self.motor_setpoint[0])+','+str(self.motor_setpoint[1])+','+str(self.main_cycle_time)+','+str(self.motor_cycle_time)+','+str(self.adc_cycle_time)+','+str(self.telemetry_cycle_time)+','+str(self.ebatt)+','+str(self.ibus)+','+str(self.telemetry_rate)+','+str(self.motor_control_gain[0])+','+str(self.motor_control_gain[1])+','+str(self.motor_control_gain[2])+','+str(self.motor_position[0])+','+str(self.motor_position[1])+','+str(self.motor_pwm[0])+','+str(self.motor_pwm[1])+','+str(self.count1)+','+str(self.count2)+','+str(self.count3)+','+str(self.STATE)+','+str(self.ivlv[0])+','+str(self.ivlv[1])+','+str(self.ivlv[2])+','+str(self.ivlv[3])+','+str(self.ivlv[4])+','+str(self.ivlv[5])+','+str(self.ivlv[6])+','+str(self.ivlv[7])+','+str(self.evlv[0])+','+str(self.evlv[1])+','+str(self.evlv[2])+','+str(self.evlv[3])+','+str(self.evlv[4])+','+str(self.evlv[5])+','+str(self.evlv[6])+','+str(self.evlv[7])+','+str(self.LOG_TO_AUTO)+','+str(self.auto_states)+','+str(self.debug[0])+','+str(self.debug[1])+','+str(self.debug[2])+','+str(self.debug[3])+','+str(self.debug[4])+','+str(self.debug[5])+','+str(self.debug[6])+','+str(self.debug[7])+','+str(self.e3v)+','+str(self.e5v)+','

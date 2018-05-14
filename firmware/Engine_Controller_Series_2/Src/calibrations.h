@@ -10,8 +10,8 @@
 
 #define ebatt_cal 	0.00651214
 #define ibus_cal	0.01702200
-#define evlv_cal  	0.001
-#define ivlv_cal  	0.00322265
+#define evlv_cal  	1
+#define ivlv_cal  	1
 #define e5v_cal		0.00161132
 #define e3v_cal		0.00161132
 #define tbrd_offset	600.000000
