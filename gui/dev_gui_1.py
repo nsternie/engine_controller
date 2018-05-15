@@ -135,6 +135,9 @@ try:
 	ser.open()
 	if(ser.is_open):
 		ser.readline()
+		ser.readline()
+		ser.readline()
+		ser.readline()
 		print("Port active on "+ser.port)
 	else:
 		print("Serial port is not open")
@@ -144,7 +147,6 @@ except:
 # Parse a line and upate GUI fields
 write_csv_header = True
 def parse_serial():
-
 	try:
 		if(ser.is_open):
 			# Read a packet
@@ -173,7 +175,10 @@ def parse_serial():
 			# except:
 			# 	print("Error")
 			# 	pass
-
+			if((parser.BOARD_ID == TARGET_ADDRESS_GROUND and ec_selector.currentIndex() == 0) or (parser.BOARD_ID == TARGET_ADDRESS_FLIGHT and ec_selector.currentIndex() == 1)):
+				pass
+			else:
+				return
 			state_label.setText("STATE = "+state_dict[parser.STATE])
 
 			log_to_auto_label.setText("Logging to auto: "+str(parser.LOG_TO_AUTO))
@@ -256,7 +261,7 @@ def parse_serial():
 			for n in range(0, 4):
 				tc_label[n].setText("TC-"+str(n)+": "+str(parser.thermocouple[n]))
 	except:
-		pass
+		print("exception")
 
 def command(device, command):
 	command_string = "command "+str(device)+" "+str(command)
@@ -358,8 +363,10 @@ layout.addWidget(qd_fuel_connect,zr+7, zc+5)
 layout.addWidget(qd_fuel_release,zr+7, zc+6)
 
 
-
-
+ec_selector =  QtGui.QComboBox()
+ec_selector.addItem("Ground")
+ec_selector.addItem("Flight")
+layout.addWidget(ec_selector,zr+16, zc+5)
 # END QD
 
 # Samplerate Set

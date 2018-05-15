@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "calibrations.h"
+#include "config.h"
 
 #define	TELEM_ITEM_0	((uint16_t) (valve_states*1)) >> 0 
 #define	TELEM_ITEM_1	((uint16_t) (valve_states*1)) >> 8 

@@ -69,6 +69,7 @@ TIM_HandleTypeDef htim10;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart6;
+DMA_HandleTypeDef hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -79,6 +80,7 @@ UART_HandleTypeDef huart6;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM2_Init(void);
@@ -133,7 +135,6 @@ void kill_auto(struct autosequence *a);
   *
   * @retval None
   */
-
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -158,6 +159,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI1_Init();
   MX_SPI4_Init();
   MX_TIM2_Init();
@@ -186,7 +188,7 @@ int main(void)
  	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);	// mtr1
 
  	for(uint8_t n = 0; n < 255; n++){
-		upstream_buffer.data[n] = 255;
+		upstream_buffer.data[n] = 0;
 	}
  	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
  	HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
@@ -231,6 +233,8 @@ int main(void)
 	  for(uint8_t n = 0; n < 255; n++){
 		  if(upstream_buffer.data[n] == (uint8_t * ) '\n'){
 			  HAL_UART_Transmit(&huart1, upstream_buffer.data, upstream_buffer.filled, 0xffff);
+			  upstream_buffer.filled = 0;
+			  break;
 		  }
 	  }
 
@@ -670,7 +674,7 @@ static void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
+  huart1.Init.BaudRate = 921600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -708,7 +712,7 @@ static void MX_USART6_UART_Init(void)
 {
 
   huart6.Instance = USART6;
-  huart6.Init.BaudRate = 115200;
+  huart6.Init.BaudRate = 921600;
   huart6.Init.WordLength = UART_WORDLENGTH_8B;
   huart6.Init.StopBits = UART_STOPBITS_1;
   huart6.Init.Parity = UART_PARITY_NONE;
@@ -719,6 +723,21 @@ static void MX_USART6_UART_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+}
+
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Stream1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
 
 }
 
