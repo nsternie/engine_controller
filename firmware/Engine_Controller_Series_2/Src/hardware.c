@@ -85,9 +85,9 @@ void command(uint8_t device, int16_t command_value){
 
 // High Level
 
-/////////////////////////////////////////////////////////////////
-// COMMAND THINGS FOR NOW ///////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////
+// COMMAND THINGS FOR NOW /////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -115,7 +115,36 @@ void motor_disable(int32_t argc, int32_t* argv){
 void motor_enable(int32_t argc, int32_t* argv){
 	motor_active[argv[0]] = 1;
 }
+void arm(int32_t argc, int32_t* argv){
 
+}
+void disarm(int32_t argc, int32_t* argv){
+
+}
+void main_auto_start(int32_t argc, int32_t* argv){
+
+}
+void qd_set(int32_t argc, int32_t* argv){
+
+}
+void telemrate_set(int32_t argc, int32_t* argv){
+
+}
+void samplerate_set(int32_t argc, int32_t* argv){
+
+}
+void tare(int32_t argc, int32_t* argv){
+
+}
+void ambientize(int32_t argc, int32_t* argv){
+
+}
+void lograte_set(int32_t argc, int32_t* argv){
+
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 void read_adc(SPI_HandleTypeDef* SPI_BUS){
 
@@ -227,13 +256,11 @@ void scale_readings(){
 
 }
 void send_telem(UART_HandleTypeDef device, uint8_t format){
-
 	switch(format){
 		case gui_byte_packet:
 			command(led0, 1);
 			pack_telem(telem_unstuffed);
 			stuff_telem(telem_unstuffed, telem_stuffed);
-			//HAL_UART_Transmit(&device, (uint8_t*)telem_stuffed, PACKET_SIZE+2, 100);
 			HAL_UART_Transmit(&device, (uint8_t*)telem_stuffed, PACKET_SIZE+2, 100);
 			command(led0, 0);
 			break;

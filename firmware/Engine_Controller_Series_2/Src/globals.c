@@ -77,5 +77,7 @@ uint16_t auto_states;
 struct autosequence hotfire_auto;
 
 parser p;
+int16_t last_packet_number = 0;
+int16_t last_command_id = 0;
 
 uint32_t qd_stop_time = 0;

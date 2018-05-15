@@ -53,6 +53,8 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+IWDG_HandleTypeDef hiwdg;
+
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi4;
 
@@ -95,6 +97,7 @@ static void MX_TIM6_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM10_Init(void);
+static void MX_IWDG_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -174,6 +177,7 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM8_Init();
   MX_TIM10_Init();
+  //MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -190,6 +194,7 @@ int main(void)
  	for(uint8_t n = 0; n < 255; n++){
 		upstream_buffer.data[n] = 0;
 	}
+
  	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
  	HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
 
@@ -201,25 +206,24 @@ int main(void)
 	  }
 
  	p = init_parser(BOARD_ID);
- 	add_command(&p, COMMAND_DIGITAL_WRITE, digital_write);
- 	add_command(&p, COMMAND_LED_WRITE, led_write);
- 	add_command(&p, COMMAND_MOTOR_WRITE, motor_write);
- 	add_command(&p, COMMAND_MOTOR_DISABLE, motor_disable);
- 	add_command(&p, COMMAND_MOTOR_ENABLE, motor_enable);
- 	add_command(&p, COMMAND_SET_KP, set_kp);
-	add_command(&p, COMMAND_SET_KI, set_ki);
-	add_command(&p, COMMAND_SET_KD, set_kd);
-
-
- 	//pass_byte(&p, 1);
-
-	// Buffer testing
-
-
-	for(uint8_t n = 0; n < 255; n++){
-		uint8_t temp = pop_buf(&upstream_buffer);
-	}
-
+ 	//load_commands(&p);
+ 	add_command(&p, COMMAND_DIGITAL_WRITE, 	digital_write);
+	add_command(&p, COMMAND_LED_WRITE, 		led_write);
+	add_command(&p, COMMAND_MOTOR_WRITE, 	motor_write);
+	add_command(&p, COMMAND_MOTOR_DISABLE, 	motor_disable);
+	add_command(&p, COMMAND_MOTOR_ENABLE, 	motor_enable);
+	add_command(&p, COMMAND_SET_KP, 		set_kp);
+	add_command(&p, COMMAND_SET_KI, 		set_ki);
+	add_command(&p, COMMAND_SET_KD, 		set_kd);
+	add_command(&p, COMMAND_TELEMRATE_SET, 	telemrate_set);
+	add_command(&p, COMMAND_SAMPLERATE_SET, samplerate_set);
+	add_command(&p, COMMAND_ARM, 			arm);
+	add_command(&p, COMMAND_DISARM, 		disarm);
+	add_command(&p, COMMAND_MAIN_AUTO_START,main_auto_start);
+	add_command(&p, COMMAND_QD_SET, 		qd_set);
+	add_command(&p, COMMAND_TARE, 			tare);
+	add_command(&p, COMMAND_AMBIENTIZE, 	ambientize);
+	add_command(&p, COMAND_LOGRATE_SET, 	lograte_set);
 
   /* USER CODE END 2 */
 
@@ -227,60 +231,40 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-
 	  // Check if packet is in from flight EC
 	  for(uint8_t n = 0; n < 255; n++){
 		  if(upstream_buffer.data[n] == (uint8_t * ) '\n'){
-			  HAL_UART_Transmit(&huart1, upstream_buffer.data, upstream_buffer.filled, 0xffff);
+			  HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
 			  upstream_buffer.filled = 0;
+			  for(int j = 0; j < 255; j++){
+				  upstream_buffer.data[j] = 0;
+			  }
 			  break;
 		  }
 	  }
 
+		if(read_adc_now){
+		  read_adc_now = 0;
+		  read_adc(&hspi1);
+		  scale_readings();
+		  TIME(adc_cycle_time);
+		  if(LOGGING_ACTIVE){
 
+		  }
 
-	  	  if(read_adc_now){
-	  		  read_adc_now = 0;
-	  		  read_adc(&hspi1);
-	  		  scale_readings();
-	  		  TIME(adc_cycle_time);
-	  		  if(LOGGING_ACTIVE){
+		}
+		if(send_rs422_now){
+		  send_rs422_now = 0;
+		  send_telem(rs422_com, gui_byte_packet);
+		  TIME(telemetry_cycle_time);
 
-	  		  }
+		  __HAL_IWDG_RELOAD_COUNTER(&hiwdg);
 
-	  	  }
+		}
 
-	  	  if(send_rs422_now){
-	  		  send_rs422_now = 0;
-	  		  send_telem(rs422_com, gui_byte_packet);
-	  		  TIME(telemetry_cycle_time);
-
-	  		  //trace_printf("ibus: %u, count3: %u\r\n", adc_data[2][1], count3);
-
-	  	  }
-
-
-
-	 // if(p.buffer[p.filled-1] == 0){
-	  if(p.buffer[p.filled - 1] == 0){
+		if(p.buffer[p.filled - 1] == 0){
 		  run_parser(&p);
-	  }
-		  HAL_Delay(100);
-	 // }
-//
-//	  for(int n = 0; n < 4; n++){
-//		  command(led0-n,1);
-//		  HAL_Delay(10);
-//		  command(led0-n, 0);
-//  	  }
-//
-//	  for(int n = 0; n < 8; n++){
-//		  command(vlv0+n, 1);
-//		  HAL_Delay(100);
-//		  command(vlv0+n, 0);
-//	  }
-
+		}
 
   /* USER CODE END WHILE */
 
@@ -309,9 +293,10 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
@@ -355,6 +340,20 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+/* IWDG init function */
+static void MX_IWDG_Init(void)
+{
+
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+  hiwdg.Init.Reload = 4095;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
 }
 
 /* SPI1 init function */
@@ -674,7 +673,7 @@ static void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 921600;
+  huart1.Init.BaudRate = 2000000;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -712,7 +711,7 @@ static void MX_USART6_UART_Init(void)
 {
 
   huart6.Instance = USART6;
-  huart6.Init.BaudRate = 921600;
+  huart6.Init.BaudRate = 2000000;
   huart6.Init.WordLength = UART_WORDLENGTH_8B;
   huart6.Init.StopBits = UART_STOPBITS_1;
   huart6.Init.Parity = UART_PARITY_NONE;

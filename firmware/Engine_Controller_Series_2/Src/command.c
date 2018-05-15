@@ -95,13 +95,26 @@ void run_parser(parser* p){
 	if(temp == NULL){
 		command(led2, 1);
 	}
+
 	memcpy(temp, p->buffer, sizeof(p->buffer));
 	unstuff_data(temp, p->filled, p->buffer);
+
 
 	uint16_t packet_number = p->buffer[0]  << 8 | p->buffer[1];
 	uint16_t target_id = p->buffer[2]  << 8 | p->buffer[3];
 	uint16_t command_id = p->buffer[4]  << 8 | p->buffer[5];
 	uint16_t num_args = p->buffer[6]  << 8 | p->buffer[7];
+
+	if(num_args > 3){
+		// Clear buffer
+		p->filled = 0;
+		for(int n = 0; n < BUFFER_LENGTH; n++){
+				p->buffer[n] = 255;
+		}
+		free(temp);
+		return;
+	}
+
 
 	int length_of_packet = 8+4*num_args+2;
 	uint32_t *args = malloc(num_args);
@@ -127,6 +140,8 @@ void run_parser(parser* p){
 			//printf("device %d\n", target_id);
 			p->commands[command_id]->f(num_args, args);
 			p->commands[command_id]->num_execs++;
+			last_command_id = command_id;
+			last_packet_number = packet_number;
 		}
 		else{
 			HAL_UART_Transmit_IT(&huart6, temp, length_of_packet+2);
@@ -146,9 +161,21 @@ void run_parser(parser* p){
 	for(int n = 0; n < BUFFER_LENGTH; n++){
 		p->buffer[n] = 255;
 	}
-
+	free(temp);
+	return;
 	//memcpy( (void*) p->buffer[length_of_packet], (void*) p->buffer[0], (size_t) length_of_packet);
 }
+
+//void load_commands(parser* p){
+//	add_command(p, COMMAND_DIGITAL_WRITE, digital_write);
+//	add_command(p, COMMAND_LED_WRITE, led_write);
+//	add_command(p, COMMAND_MOTOR_WRITE, motor_write);
+//	add_command(p, COMMAND_MOTOR_DISABLE, motor_disable);
+//	add_command(p, COMMAND_MOTOR_ENABLE, motor_enable);
+//	add_command(p, COMMAND_SET_KP, set_kp);
+//	add_command(p, COMMAND_SET_KI, set_ki);
+//	add_command(p, COMMAND_SET_KD, set_kd);
+//}
 
 int search_string(uint8_t* arr, uint8_t character, uint32_t length){
 	for(int n = 0; n < length; n++){

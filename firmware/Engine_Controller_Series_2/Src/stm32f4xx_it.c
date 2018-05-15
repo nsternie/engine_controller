@@ -52,7 +52,6 @@ extern volatile uint8_t send_rs422_now;
 extern volatile uint8_t send_xbee_now;
 extern volatile uint8_t update_motors_now;
 
-extern parser p;
 
 void push_buf(struct simple_buf *b, uint8_t data_in){
 	b->data[b->filled] = data_in;

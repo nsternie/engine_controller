@@ -12,21 +12,26 @@ import struct
 parser = ECParse()
 packet_number = 0
 
-COMMAND_DIGITAL_WRITE = 50
-COMMAND_LED_WRITE = 51
-COMMAND_MOTOR_WRITE = 52
-COMMAND_MOTOR_DISABLE = 53
-COMMAND_MOTOR_ENABLE = 54
-
-COMMAND_SET_KP = 60
-COMMAND_SET_KI = 61
-COMMAND_SET_KD = 62
-
-TARGET_ADDRESS_GROUND = 100
-TARGET_ADDRESS_FLIGHT = 101
-
-
-
+# COMMAND IDs
+COMMAND_TARE 			=	30
+COMMAND_AMBIENTIZE 		=	31
+COMMAND_DIGITAL_WRITE 	=	50
+COMMAND_LED_WRITE 		=	51
+COMMAND_MOTOR_WRITE 	=	52
+COMMAND_MOTOR_DISABLE 	=	53
+COMMAND_MOTOR_ENABLE 	=	54
+COMMAND_QD_SET 			=	55
+COMMAND_SET_KP 			=	60
+COMMAND_SET_KI 			=	61
+COMMAND_SET_KD 			=	62
+COMMAND_TELEMRATE_SET	=	63
+COMMAND_SAMPLERATE_SET	=	64
+COMAND_LOGRATE_SET		=	65
+COMMAND_ARM				=	100
+COMMAND_DISARM			=	101
+COMMAND_MAIN_AUTO_START	=	102
+TARGET_ADDRESS_GROUND 	=	100
+TARGET_ADDRESS_FLIGHT 	=	101
 
 def s2_command(target_id, command_id, argc, argv):
 	global packet_number;
@@ -50,10 +55,11 @@ def s2_command(target_id, command_id, argc, argv):
 		packet[8+4*argc] ^= packet[2*n]
 		packet[9+4*argc] ^= packet[2*n+1]
 	packet = stuff_array(packet, 0)
-	print(packet)
+	# print(packet)
 	tosend = bytes(packet)
-	print("Packet "+str(packet_number)+", target_id "+str(target_id)+", command_id "+str(command_id))
+	# print("Packet "+str(packet_number)+", target_id "+str(target_id)+", command_id "+str(command_id))
 	ser.write(tosend)
+	# TODO: Log command
 
 def stuff_array(arr, seperator):
 	arr.append(0)
@@ -75,6 +81,7 @@ def stuff_array(arr, seperator):
 			index += 1
 	arr[0] = first_sep
 	return arr
+
 # Gloabals
 mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
 mtr_enable = []
@@ -151,6 +158,7 @@ def parse_serial():
 		if(ser.is_open):
 			# Read a packet
 			packet = ser.readline()	
+			print(len(packet))
 			# Unstuff the packet
 			unstuffed = b''
 			index = int(packet[0])
@@ -248,6 +256,10 @@ def parse_serial():
 			kpfb.setText(str(parser.motor_control_gain[0]))
 			kifb.setText(str(parser.motor_control_gain[1]))
 			kdfb.setText(str(parser.motor_control_gain[2]))
+
+			last_packet_pass.setText("Last Packet #: "+str(parser.last_packet_number))
+			last_command_id.setText("Last Command id: "+str(parser.last_command_id))
+
 
 			count1_label.setText("count1: "+str(parser.count1))
 			count2_label.setText("count2: "+str(parser.count2))
@@ -408,6 +420,11 @@ layout.addWidget(kd_input, zr+11, zc+6)
 layout.addWidget(kpfb, zr+9, zc+7)
 layout.addWidget(kifb, zr+10, zc+7)
 layout.addWidget(kdfb, zr+11, zc+7)
+
+last_packet_pass = QtGui.QLabel("last packet")
+last_command_id = QtGui.QLabel("last command")
+layout.addWidget(last_packet_pass, zr+18, zc+7)
+layout.addWidget(last_command_id, zr+19, zc+7)
 
 # State Feedback
 state_label = QtGui.QLabel("STATE = N/A")

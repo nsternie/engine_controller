@@ -102,8 +102,8 @@ struct buffer{
 	uint8_t new_data;
 };
 struct simple_buf{
-	uint8_t filled;
-	uint8_t data[256];
+	volatile uint8_t filled;
+	volatile uint8_t data[256];
 };
 struct simple_buf upstream_buffer;
 extern char* states[10][15];
@@ -191,6 +191,8 @@ uint8_t AUTOSTRING[1024];
 uint16_t auto_states;
 
 parser p;
+int16_t last_packet_number;
+int16_t last_command_id;
 
 uint32_t qd_stop_time;
 #define QD_ACTUATION_TIME 3000;
