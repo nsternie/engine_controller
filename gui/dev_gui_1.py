@@ -85,23 +85,17 @@ mtr_pwm = []
 mtr_send = []
 mtr_setpointfb = []
 
-
 run_name = sys.argv[1]
-
 serial_log = open('data/'+run_name+"_serial_log.csv", "w+")
 info_log = open('data/'+run_name+"_python_log.csv", "w+")
 command_log = open('data/'+run_name+"_command_log.csv", "w+")
 data_log = open('data/'+run_name+"_datalog.csv", "w+")
-
 command_log.write("Time, Command/info\n")
 data_log.write(parser.csv_header)
 
-## Always start by initializing Qt (only once per application)
 app = QtGui.QApplication([])
-## Define a top-level widget to hold everything
 w = QtGui.QWidget()
 w.setWindowTitle('MASA Hotfire GUI - logging to '+run_name)
-## Create a grid layout to manage the widgets size and position
 layout = QtGui.QGridLayout()
 w.setLayout(layout)
 # Zero Indexes for the gui layout (row, column)
@@ -153,7 +147,7 @@ def parse_serial():
 
 	try:
 		if(ser.is_open):
-				# Read a packet
+			# Read a packet
 			packet = ser.readline()	
 			# Unstuff the packet
 			unstuffed = b''

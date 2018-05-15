@@ -33,7 +33,7 @@ class ECParse:
 		self.debug = [0]*8
 		self.e5v = 0
 		self.e3v = 0
-		self.BOARD_ID = 
+		self.BOARD_ID = 0
 		self.log_string = ""
 
 	def parse_packet(self, packet):
