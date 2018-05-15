@@ -231,10 +231,12 @@ void TIM4_IRQHandler(void)
 */
 void USART1_IRQHandler(void)
 {
+  /* USER CODE BEGIN USART1_IRQn 0 */
+
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
-  HAL_UART_Transmit_IT(&huart6, &rs422_in, 1);
+  	  //HAL_UART_Transmit_IT(&huart6, &rs422_in, 1);
 
 	pass_byte(&p, rs422_in);
 	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);

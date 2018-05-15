@@ -20,16 +20,14 @@ COMMAND_SET_KP = 60
 COMMAND_SET_KI = 61
 COMMAND_SET_KD = 62
 
-
 TARGET_ADDRESS_GROUND = 100
 TARGET_ADDRESS_FLIGHT = 101
 
 packet_number = 0
 
-def s2_command(target, command_id, argc, argv):
+def s2_command(target_id, command_id, argc, argv):
 	global packet_number;
 	packet_number += 1
-	target_id = 100;
 	command_id = command_id;
 	packet = [0]*(8+4*argc+2)
 	
@@ -56,8 +54,9 @@ def s2_command(target, command_id, argc, argv):
 		packet[9+4*argc] ^= packet[2*n+1]
 
 	packet = stuff_array(packet, 0)
+	print(packet)
 	tosend = bytes(packet)
-	print(tosend)
+	print("Packet "+str(packet_number)+", target_id "+str(target_id)+", command_id "+str(command_id))
 	ser.write(tosend)
 
 
@@ -82,11 +81,6 @@ def stuff_array(arr, seperator):
 			index += 1
 	arr[0] = first_sep
 	return arr
-
-
-
-
-
 
 # Gloabals
 mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
@@ -146,14 +140,15 @@ except Exception:
 
 # Try to open the serial port
 
-ser = serial.Serial(port=None, baudrate=115200, timeout=0.5)
+ser = serial.Serial(port=None, baudrate=int(alias["BAUDRATE"]), timeout=0.5)
 ser.port = alias["COM_PORT"]
-print("Port is "+ser.port)
+
 
 try:
 	ser.open()
 	if(ser.is_open):
 		ser.readline()
+		print("Port active on "+ser.port)
 	else:
 		print("Serial port is not open")
 except:
@@ -163,117 +158,118 @@ except:
 write_csv_header = True
 def parse_serial():
 
-	#try:
-	if(ser.is_open):
-			# Read a packet
-		packet = ser.readline()	
-		# Unstuff the packet
-		unstuffed = b''
-		index = int(packet[0])
-		for n in range(1, len(packet)):
-			temp = packet[n:n+1]
-			if(n == index):
-				index = int(packet[n])+n
-				temp = b'\n'
-			unstuffed = unstuffed + temp
-		packet = unstuffed
-		#line = str(line, 'ascii')
-		#try:
-			#split_line = line.split(',')
-		#try:
-		parser.parse_packet(packet)
-		#except:
-			#print("Parser error")
-		#	info_log.write(time.ctime()+" parser error\n")
-		data_log.write(parser.log_string+'\n')
-		serial_log.write("%.3f," % time.clock())
-		serial_log.write(str(packet)+'\n')
-		# except:
-		# 	print("Error")
-		# 	pass
+	try:
+		if(ser.is_open):
+				# Read a packet
+			packet = ser.readline()	
+			# Unstuff the packet
+			unstuffed = b''
+			index = int(packet[0])
+			for n in range(1, len(packet)):
+				temp = packet[n:n+1]
+				if(n == index):
+					index = int(packet[n])+n
+					temp = b'\n'
+				unstuffed = unstuffed + temp
+			packet = unstuffed
+			#line = str(line, 'ascii')
+			#try:
+				#split_line = line.split(',')
+			#try:
+			parser.parse_packet(packet)
+			#except:
+				#print("Parser error")
+			#	info_log.write(time.ctime()+" parser error\n")
+			data_log.write(parser.log_string+'\n')
+			serial_log.write("%.3f," % time.clock())
+			serial_log.write(str(packet)+'\n')
+			# except:
+			# 	print("Error")
+			# 	pass
 
-		state_label.setText("STATE = "+state_dict[parser.STATE])
+			state_label.setText("STATE = "+state_dict[parser.STATE])
 
-		log_to_auto_label.setText("Logging to auto: "+str(parser.LOG_TO_AUTO))
-		# if(AUTOSTRING == "0"):
-		# 	pass 	# No new string sent
-		# else:
-		# 	temp = ""
-		# 	split_auto = AUTOSTRING.split('|')
-		# 	for chunk in split_auto:
-		# 		temp = temp + chunk + "\n"
-		# 	autofeedback.setPlainText(temp)
-		# 	print("AUTOSTRING RECIEVED: "+AUTOSTRING)
+			log_to_auto_label.setText("Logging to auto: "+str(parser.LOG_TO_AUTO))
+			# if(AUTOSTRING == "0"):
+			# 	pass 	# No new string sent
+			# else:
+			# 	temp = ""
+			# 	split_auto = AUTOSTRING.split('|')
+			# 	for chunk in split_auto:
+			# 		temp = temp + chunk + "\n"
+			# 	autofeedback.setPlainText(temp)
+			# 	print("AUTOSTRING RECIEVED: "+AUTOSTRING)
 
-		mask = 1
-		running_autos_string = "Running Autos: "
-		# Update auto state feedback
-		for n in range(0, 16):
-			state = 0
-			if(mask & parser.auto_states):
-				running_autos_string += (str(n)+", ")
-			mask = mask << 1
+			mask = 1
+			running_autos_string = "Running Autos: "
+			# Update auto state feedback
+			for n in range(0, 16):
+				state = 0
+				if(mask & parser.auto_states):
+					running_autos_string += (str(n)+", ")
+				mask = mask << 1
 
-			running_autos_label.setText(running_autos_string)
-		# print("Packet parsed")
-		# print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
+				running_autos_label.setText(running_autos_string)
+			# print("Packet parsed")
+			# print("battery: "+str(ebatt)+" \t and %.2f" % time.clock())
 
-		mask = 1
-		# Update valve state feedback
-		for n in range(0, 16):
-			state = 0
-			if(mask & parser.valve_states):
-				state = 1
-			valve_buttons[n][2].setText(str(state))
-			valve_buttons[n][3].setText(str(parser.ivlv[n]))
-			valve_buttons[n][4].setText(str(parser.evlv[n]))
-			mask = mask << 1
+			mask = 1
+			# Update valve state feedback
+			for n in range(0, 16):
+				state = 0
+				if(mask & parser.valve_states):
+					state = 1
+				valve_buttons[n][2].setText(str(state))
+				valve_buttons[n][3].setText(str(parser.ivlv[n]))
+				valve_buttons[n][4].setText(str(parser.evlv[n]))
+				mask = mask << 1
 
-			pressure_labels[n][1].setText(str(parser.pressure[n])+"psi")
-		# Update loop rates
-		samplerate_setpointfb.setText(str(parser.samplerate)+"hz")
-		telemrate_setpointfb.setText(str(parser.telemetry_rate)+"hz")
-		for mtrx in range(0, 4):
+				pressure_labels[n][1].setText(str(parser.pressure[n])+"psi")
+			# Update loop rates
+			samplerate_setpointfb.setText(str(parser.samplerate)+"hz")
+			telemrate_setpointfb.setText(str(parser.telemetry_rate)+"hz")
+			for mtrx in range(0, 4):
+				try:
+					mtr_setpointfb[mtrx].setText(str(parser.motor_setpoint[mtrx]))
+					mtr_position[mtrx].setText(str(parser.motor_position[mtrx]))
+					mtr_pwm[mtrx].setText("PWM: "+str(parser.motor_pwm[mtrx]))
+				except:
+					pass
+
+			#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
 			try:
-				mtr_setpointfb[mtrx].setText(str(parser.motor_setpoint[mtrx]))
-				mtr_position[mtrx].setText(str(parser.motor_position[mtrx]))
-				mtr_pwm[mtrx].setText("PWM: "+str(parser.motor_pwm[mtrx]))
+				motor_cycle_rate.setText(str(round(1000000/parser.motor_cycle_time, 3)))
+				adc_cycle_rate.setText(str(round(1000000/parser.adc_cycle_time, 3)))
+				telemetry_cycle_rate.setText(str(round(1000000/parser.telemetry_cycle_time, 3)))
 			except:
+				#print("divZero error, probably fine.")
 				pass
 
-		#main_cycle_rate.setText(str(round(1000000/main_cycle_time, 3)))
-		try:
-			motor_cycle_rate.setText(str(round(1000000/parser.motor_cycle_time, 3)))
-			adc_cycle_rate.setText(str(round(1000000/parser.adc_cycle_time, 3)))
-			telemetry_cycle_rate.setText(str(round(1000000/parser.telemetry_cycle_time, 3)))
-		except:
-			#print("divZero error, probably fine.")
-			pass
-
-		# Board health
-		ebatt_value.setText(str(parser.ebatt))
-		ibus_value.setText(str(parser.ibus))
-		e5v_value.setText(str(parser.e5v))
-		e3v_value.setText(str(parser.e3v))
+			# Board health
+			ebatt_value.setText(str(parser.ebatt))
+			ibus_value.setText(str(parser.ibus))
+			e5v_value.setText(str(parser.e5v))
+			e3v_value.setText(str(parser.e3v))
 
 
-		# motor gain feedback
-		kpfb.setText(str(parser.motor_control_gain[0]))
-		kifb.setText(str(parser.motor_control_gain[1]))
-		kdfb.setText(str(parser.motor_control_gain[2]))
+			# motor gain feedback
+			kpfb.setText(str(parser.motor_control_gain[0]))
+			kifb.setText(str(parser.motor_control_gain[1]))
+			kdfb.setText(str(parser.motor_control_gain[2]))
 
-		count1_label.setText("count1: "+str(parser.count1))
-		count2_label.setText("count2: "+str(parser.count2))
-		count3_label.setText("count3: "+str(parser.count3))
+			count1_label.setText("count1: "+str(parser.count1))
+			count2_label.setText("count2: "+str(parser.count2))
+			count3_label.setText("count3: "+str(parser.count3))
 
-		state_label.setText("STATE = "+state_dict[parser.STATE])
+			state_label.setText("STATE = "+state_dict[parser.STATE])
 
-		thrust_load_label.setText("Thrust = "+str(parser.thrust_load))
-		for n in range(0, 4):
-			load_label[n].setText(str(n)+": "+str(parser.load[n]))
-		for n in range(0, 4):
-			tc_label[n].setText("TC-"+str(n)+": "+str(parser.thermocouple[n]))
-
+			thrust_load_label.setText("Thrust = "+str(parser.thrust_load))
+			for n in range(0, 4):
+				load_label[n].setText(str(n)+": "+str(parser.load[n]))
+			for n in range(0, 4):
+				tc_label[n].setText("TC-"+str(n)+": "+str(parser.thermocouple[n]))
+	except:
+		pass
 
 def command(device, command):
 	command_string = "command "+str(device)+" "+str(command)
@@ -301,7 +297,7 @@ def send(command_string):
 
 valve_buttons = []
 pressure_labels = []
-for n in range(0, 16):
+for n in range(0, 24):
 
 	# Valve wdgets init
 	temp = []
@@ -557,7 +553,7 @@ KILL.clicked.connect(death)
 layout.addWidget(KILL, zr+0, zc+10)
 
 # Valve buttons and labels
-for n in range(0, 16):
+for n in range(0, 24):
 
 	layout.addWidget(valve_buttons[n][0], zr+n+1, zc+0-2)
 	layout.addWidget(valve_buttons[n][1], zr+n+1, zc+1-2)
@@ -585,7 +581,7 @@ if(0):
 ### FUNCTIONAL CONNECTIONS ###
 ### @functional
 
-### VALVE CHANNELS
+# GROUND VALVES
 valve_buttons[0][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [0,0]))
 valve_buttons[1][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [1,0]))
 valve_buttons[2][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [2,0]))
@@ -602,14 +598,41 @@ valve_buttons[4][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, CO
 valve_buttons[5][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [5,1]))
 valve_buttons[6][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [6,1]))
 valve_buttons[7][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [7,1]))
-valve_buttons[8][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [0,1]))
-valve_buttons[9][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [1,1]))
-valve_buttons[10][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [2,1]))
-valve_buttons[11][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [3,1]))
-valve_buttons[8][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [0,0]))
-valve_buttons[9][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [1,0]))
-valve_buttons[10][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [2,0]))
-valve_buttons[11][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [3,0])) 
+# FLIGHT VALVES 
+valve_buttons[8][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [0,0]))
+valve_buttons[9][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [1,0]))
+valve_buttons[10][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[2,0]))
+valve_buttons[11][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[3,0]))
+valve_buttons[12][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[4,0]))
+valve_buttons[13][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[5,0]))
+valve_buttons[14][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[6,0]))
+valve_buttons[15][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[7,0]))
+valve_buttons[8][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [0,1]))
+valve_buttons[9][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [1,1]))
+valve_buttons[10][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[2,1]))
+valve_buttons[11][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[3,1]))
+valve_buttons[12][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[4,1]))
+valve_buttons[13][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[5,1]))
+valve_buttons[14][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[6,1]))
+valve_buttons[15][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[7,1]))
+# GROUND LEDS
+valve_buttons[16][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [0,1]))
+valve_buttons[17][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [1,1]))
+valve_buttons[18][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [2,1]))
+valve_buttons[19][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [3,1]))
+valve_buttons[16][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [0,0]))
+valve_buttons[17][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [1,0]))
+valve_buttons[18][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [2,0]))
+valve_buttons[19][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [3,0])) 
+# FLIGHT LEDS
+valve_buttons[20][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [0,1]))
+valve_buttons[21][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [1,1]))
+valve_buttons[22][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,1]))
+valve_buttons[23][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [3,1]))
+valve_buttons[20][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [0,0]))
+valve_buttons[21][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [1,0]))
+valve_buttons[22][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,0]))
+valve_buttons[23][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [3,0])) 
 
 ### CONTROL GAINS
 kp_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_SET_KP, 1, [int(kp_input.text())]))

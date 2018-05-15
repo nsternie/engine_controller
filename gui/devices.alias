@@ -1,20 +1,28 @@
 Device	Alias
-vlv0	Valve 0
-vlv1	Valve 1
-vlv2	Valve 2
-vlv3	Valve 3
-vlv4	Valve 4
-vlv5	Valve 5
-vlv6	Valve 6
-vlv7	Valve 7
-vlv8	LED 0
-vlv9	LED 1
-vlv10	LED 2		 
-vlv11	LED 3
-vlv12	__
-vlv13	__
-vlv14	__
-vlv15	__
+vlv0	GND 0
+vlv1	GND 1
+vlv2	GND 2
+vlv3	GND 3
+vlv4	GND 4
+vlv5	GND 5
+vlv6	GND 6
+vlv7	GND 7
+vlv8	FLIGHT 0
+vlv9	FLIGHT 1
+vlv10	FLIGHT 2		 
+vlv11	FLIGHT 3
+vlv12	FLIGHT 4
+vlv13	FLIGHT 5
+vlv14	FLIGHT 6
+vlv15	FLIGHT 7
+vlv16	GND LED 0
+vlv17	GND LED 1
+vlv18	GND LED 2
+vlv19	GND LED 3
+vlv20	FLIGHT LED 0
+vlv21	FLIGHT LED 1
+vlv22	FLIGHT LED 2
+vlv23	FLIGHT LED 3
 pressure0	0
 pressure1	1
 pressure2	2 
@@ -44,4 +52,5 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM12
+COM_PORT	COM13
+BAUDRATE	115200

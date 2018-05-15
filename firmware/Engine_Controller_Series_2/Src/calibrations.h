@@ -8,10 +8,10 @@
 
 #define I_LIMIT 500
 
-#define ebatt_cal 	0.00651214
-#define ibus_cal	0.01702200
-#define evlv_cal  	1
-#define ivlv_cal  	1
+#define ebatt_cal 	0.00324707
+#define ibus_cal	0.01418500
+#define evlv_cal  	0.00324707
+#define ivlv_cal  	0.00322265
 #define e5v_cal		0.00161132
 #define e3v_cal		0.00161132
 #define tbrd_offset	600.000000

@@ -6,10 +6,13 @@
  */
 
 #include "command.h"
+#include "stm32f4xx_hal.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "globals.h""
+#include "globals.h"
+
+extern UART_HandleTypeDef huart6;
 
 #define FinishBlock(X) (*code_ptr = (X), code_ptr = stuffed++, code = 0x01)
 
@@ -124,6 +127,9 @@ void run_parser(parser* p){
 			//printf("device %d\n", target_id);
 			p->commands[command_id]->f(num_args, args);
 			p->commands[command_id]->num_execs++;
+		}
+		else{
+			HAL_UART_Transmit_IT(&huart6, temp, length_of_packet+2);
 		}
 	}
 	else{
