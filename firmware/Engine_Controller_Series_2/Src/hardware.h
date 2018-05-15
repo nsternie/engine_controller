@@ -20,7 +20,6 @@
 #include "pack_telem_defines.h"
 #include "command.h"
 
-
 #define COMMAND_DIGITAL_WRITE 50
 #define COMMAND_LED_WRITE 51
 #define COMMAND_MOTOR_WRITE 52
@@ -35,12 +34,6 @@
 #define TARGET_ADDRESS_GROUND 100
 #define TARGET_ADDRESS_FLIGHT 101
 
-#endif /* HARDWARE_H_ */
-
-
-
-
-
 void led_write(int32_t argc, int32_t* argv);
 void digital_write(int32_t argc, int32_t* argv);
 void set_kp(int32_t argc, int32_t* argv);
@@ -50,9 +43,10 @@ void motor_write(int32_t argc, int32_t* argv);
 void motor_disable(int32_t argc, int32_t* argv);
 void motor_enable(int32_t argc, int32_t* argv);
 
-
 void read_adc(SPI_HandleTypeDef* SPI_BUS);
 void set_device(uint8_t device, GPIO_PinState state);
 void select_device(uint8_t device);
 void release_device(uint8_t device);
 void send_telem(UART_HandleTypeDef device, uint8_t format);
+
+#endif /* HARDWARE_H_ */

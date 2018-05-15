@@ -101,6 +101,11 @@ struct buffer{
 	uint8_t id;
 	uint8_t new_data;
 };
+struct simple_buf{
+	uint8_t filled;
+	uint8_t data[256];
+};
+struct simple_buf upstream_buffer;
 extern char* states[10][15];
 extern volatile uint8_t read_adc_now;
 extern volatile uint8_t send_rs422_now;
@@ -125,6 +130,7 @@ extern struct buffer rs422_buf;
 extern struct buffer xbee_buf;
 extern uint8_t spirit_in;							// Temp single byte buffer for rx
 extern uint8_t rs422_in;							// Temp single byte buffer for rx
+extern uint8_t uart6_in;							// Temp single byte buffer for rx
 extern uint8_t xbee_in;							// Temp single byte buffer for rx
 extern uint8_t command_buffer[COMMAND_HISTORY][COMMAND_BUFFER_LENGTH];
 extern uint8_t command_index;
@@ -179,13 +185,12 @@ struct autosequence{
 };
 
 struct autosequence autos[NUM_AUTOS];
+struct autosequence hotfire_auto;
 int16_t LOG_TO_AUTO;
 uint8_t AUTOSTRING[1024];
 uint16_t auto_states;
 
 parser p;
-
-struct autosequence hotfire_auto;
 
 uint32_t qd_stop_time;
 #define QD_ACTUATION_TIME 3000;

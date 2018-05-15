@@ -8,6 +8,7 @@ char* states[10][15] = {
 		"FIRING",
 		"FULL_DURATION"
 };
+struct simple_buf upstream_buffer;
 volatile uint8_t read_adc_now;
 volatile uint8_t send_rs422_now;
 volatile uint8_t send_xbee_now;
@@ -31,6 +32,7 @@ struct buffer rs422_buf;
 struct buffer xbee_buf;
 uint8_t spirit_in;							// Temp single byte buffer for rx
 uint8_t rs422_in;							// Temp single byte buffer for rx
+uint8_t uart6_in;
 uint8_t xbee_in;							// Temp single byte buffer for rx
 uint8_t command_buffer[COMMAND_HISTORY][COMMAND_BUFFER_LENGTH];
 uint8_t command_index = 0;

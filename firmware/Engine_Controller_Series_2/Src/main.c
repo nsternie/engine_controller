@@ -49,6 +49,7 @@
 #include "pack_telem_defines.h"
 #include "command.h"
 #include "hardware.h"
+#include "config.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -121,22 +122,10 @@ void kill_auto(struct autosequence *a);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-void print_adc_raw(UART_HandleTypeDef device){
-
-	uint8_t line[255];
-
-	snprintf(line, sizeof(line), "\f\r\nChannel\tADC0\tADC1\tADC2\t\r\n", adc_data);
-	while(HAL_UART_GetState(&device) == HAL_UART_STATE_BUSY_TX);
-	HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
-
-	for(uint8_t channel = 0; channel <= 15; channel++){
-		snprintf(line, sizeof(line), "%d:\t%d\t%d\t%d\t\r\n", channel, adc_data[0][channel], adc_data[1][channel], adc_data[2][channel]);
-		while(HAL_UART_GetState(&huart1) == HAL_UART_STATE_BUSY_TX);
-		HAL_UART_Transmit(&device, (uint8_t*)line, strlen(line), 1);
-	}
 
 
-}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -144,6 +133,7 @@ void print_adc_raw(UART_HandleTypeDef device){
   *
   * @retval None
   */
+
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -195,10 +185,12 @@ int main(void)
  	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1); 	// mtr0
  	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);	// mtr1
 
-
- 	// Release all SPI devices
-
+ 	for(uint8_t n = 0; n < 255; n++){
+		upstream_buffer.data[n] = 255;
+	}
  	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
+ 	HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
+
 
  	for(int n = 0; n < 4; n++){
 		  command(led0-n,1);
@@ -206,7 +198,7 @@ int main(void)
 		  command(led0-n, 0);
 	  }
 
- 	p = init_parser(TARGET_ADDRESS_GROUND);
+ 	p = init_parser(BOARD_ID);
  	add_command(&p, COMMAND_DIGITAL_WRITE, digital_write);
  	add_command(&p, COMMAND_LED_WRITE, led_write);
  	add_command(&p, COMMAND_MOTOR_WRITE, motor_write);
@@ -219,6 +211,14 @@ int main(void)
 
  	//pass_byte(&p, 1);
 
+	// Buffer testing
+
+
+	for(uint8_t n = 0; n < 255; n++){
+		uint8_t temp = pop_buf(&upstream_buffer);
+	}
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -227,6 +227,12 @@ int main(void)
   {
 
 
+	  // Check if packet is in from flight EC
+	  for(uint8_t n = 0; n < 255; n++){
+		  if(upstream_buffer.data[n] == (uint8_t * ) '\n'){
+			  HAL_UART_Transmit(&huart1, upstream_buffer.data, upstream_buffer.filled, 0xffff);
+		  }
+	  }
 
 
 
@@ -245,6 +251,7 @@ int main(void)
 	  		  send_rs422_now = 0;
 	  		  send_telem(rs422_com, gui_byte_packet);
 	  		  TIME(telemetry_cycle_time);
+
 	  		  //trace_printf("ibus: %u, count3: %u\r\n", adc_data[2][1], count3);
 
 	  	  }

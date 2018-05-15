@@ -54,6 +54,16 @@ extern volatile uint8_t update_motors_now;
 
 extern parser p;
 
+void push_buf(struct simple_buf *b, uint8_t data_in){
+	b->data[b->filled] = data_in;
+	b->filled++;
+}
+uint8_t pop_buf(struct simple_buf *b){
+	uint8_t temp = b->data[(b->filled - 1)];
+	b->filled--;
+	return temp;
+}
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -263,11 +273,17 @@ void TIM6_DAC_IRQHandler(void)
 void USART6_IRQHandler(void)
 {
   /* USER CODE BEGIN USART6_IRQn 0 */
-
+//	uint8_t temp = 0;
+//	if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
+//	{
+//	  temp = 1; //was rx_IT not tx_IT
+//	}
   /* USER CODE END USART6_IRQn 0 */
   HAL_UART_IRQHandler(&huart6);
   /* USER CODE BEGIN USART6_IRQn 1 */
 
+  upstream_buffer.data[upstream_buffer.filled++] = uart6_in;
+  HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
   /* USER CODE END USART6_IRQn 1 */
 }
 

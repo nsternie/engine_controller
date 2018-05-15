@@ -27,7 +27,7 @@ motor_pwm[0]	motor_pwm[0]					%d	int16_t	1			int	auto_states	0	|
 motor_pwm[1]	motor_pwm[1]					%d	int16_t	1			int	debug	[0]*8	|
 count1	count1					%d	int32_t	1			int	e5v	0	|
 count2	count2					%d	int32_t	1			int	e3v	0	|
-count3	count3					%d	int32_t	1			int			|
+count3	count3					%d	int32_t	1			int	BOARD_ID		|
 STATE	STATE					%u	uint8_t	1			int			|
 ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float			|
@@ -57,3 +57,4 @@ debug[6]	debug[6]					%d	int32_t	1			int			|
 debug[7]	debug[7]					%d	int32_t	1			int			|
 e3v	e3v					%.2f	int32_t	100			float			|
 e5v	e5v					%.2f	int32_t	100			float			|
+BOARD_ID	BOARD_ID					%d	uint16_t	1			int			|

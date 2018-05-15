@@ -7,8 +7,10 @@ import os
 import sys
 from hotfire_packet import ECParse
 import struct
+# from sternieserial import s2_command
 
 parser = ECParse()
+packet_number = 0
 
 COMMAND_DIGITAL_WRITE = 50
 COMMAND_LED_WRITE = 51
@@ -23,43 +25,35 @@ COMMAND_SET_KD = 62
 TARGET_ADDRESS_GROUND = 100
 TARGET_ADDRESS_FLIGHT = 101
 
-packet_number = 0
+
+
 
 def s2_command(target_id, command_id, argc, argv):
 	global packet_number;
 	packet_number += 1
 	command_id = command_id;
 	packet = [0]*(8+4*argc+2)
-	
 	packet[0] = packet_number >> 8
 	packet[1] = packet_number & 0xff
-
 	packet[2] = target_id >> 8
 	packet[3] = target_id & 0xff
-
 	packet[4] = command_id >> 8
 	packet[5] = command_id & 0xff
-
 	packet[6] = argc >> 8
 	packet[7] = argc & 0xff
-
 	for n in range(argc):
 		packet[8+4*n] = (argv[n] >> 24) & 0xff
 		packet[9+4*n] = (argv[n] >> 16) & 0xff
 		packet[10+4*n] = (argv[n] >> 8) & 0xff
 		packet[11+4*n] = argv[n] & 0xff
-
 	for n in range(4+2*argc):
 		packet[8+4*argc] ^= packet[2*n]
 		packet[9+4*argc] ^= packet[2*n+1]
-
 	packet = stuff_array(packet, 0)
 	print(packet)
 	tosend = bytes(packet)
 	print("Packet "+str(packet_number)+", target_id "+str(target_id)+", command_id "+str(command_id))
 	ser.write(tosend)
-
-
 
 def stuff_array(arr, seperator):
 	arr.append(0)
@@ -81,7 +75,6 @@ def stuff_array(arr, seperator):
 			index += 1
 	arr[0] = first_sep
 	return arr
-
 # Gloabals
 mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
 mtr_enable = []
