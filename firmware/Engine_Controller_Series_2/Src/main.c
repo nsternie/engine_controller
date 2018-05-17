@@ -220,6 +220,7 @@ int main(void)
 	add_command(&p, COMMAND_ARM, 			arm);
 	add_command(&p, COMMAND_DISARM, 		disarm);
 	add_command(&p, COMMAND_MAIN_AUTO_START,main_auto_start);
+	add_command(&p, COMMAND_PWM_SET, 		pwm_set);
 	add_command(&p, COMMAND_QD_SET, 		qd_set);
 	add_command(&p, COMMAND_TARE, 			tare);
 	add_command(&p, COMMAND_AMBIENTIZE, 	ambientize);
@@ -235,40 +236,40 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  // Check if packet is in from flight EC
-	  for(uint8_t n = 0; n < 255; n++){
-		  if(upstream_buffer.data[n] == (uint8_t * ) '\n'){
-			  HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
-			  upstream_buffer.filled = 0;
-			  for(int j = 0; j < 255; j++){
-				  upstream_buffer.data[j] = 0;
-			  }
-			  break;
-		  }
-	  }
 
-		if(read_adc_now){
-		  read_adc_now = 0;
-		  read_adc(&hspi1);
-		  scale_readings();
-		  TIME(adc_cycle_time);
-		  if(LOGGING_ACTIVE){
+// Check if packet is in from downstream engine controller
+    for(uint8_t n = 0; n < 255; n++){
+        if(upstream_buffer.data[n] == (uint8_t) '\n'){
+            HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
+            upstream_buffer.filled = 0;
+            for(int j = 0; j < 255; j++){
+                upstream_buffer.data[j] = 0;
+            }
+            break;
+        }
+    }
 
-		  }
+    if(read_adc_now){
+        read_adc_now = 0;
+        read_adc(&hspi1);
+        scale_readings();
+        TIME(adc_cycle_time);
+        if(LOGGING_ACTIVE){
+        	// Log
+        }
+    }
+if(send_rs422_now){
+send_rs422_now = 0;
+send_telem(rs422_com, gui_byte_packet);
+TIME(telemetry_cycle_time);
 
-		}
-		if(send_rs422_now){
-		  send_rs422_now = 0;
-		  send_telem(rs422_com, gui_byte_packet);
-		  TIME(telemetry_cycle_time);
+//__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
 
-		  __HAL_IWDG_RELOAD_COUNTER(&hiwdg);
+}
 
-		}
-
-		if(p.buffer[p.filled - 1] == 0){
-		  run_parser(&p);
-		}
+if(p.buffer[p.filled - 1] == 0){
+run_parser(&p);
+}
 
   /* USER CODE END WHILE */
 

@@ -38,7 +38,7 @@ void stuff_data(uint8_t *unstuffed, uint8_t *stuffed, char seperator, uint32_t s
 }
 void unstuff_data(uint8_t *ptr, uint32_t length, uint8_t *dst)
 {
-	const uint8_t *start = dst, *end = ptr + length;
+	const uint8_t /**start = dst,*/ *end = ptr + length;
 	uint8_t code = 0xFF, copy = 0;
 
 	for (; ptr < end; copy--) {
@@ -93,7 +93,7 @@ void run_parser(parser* p){
 
 	uint8_t *temp = malloc(sizeof(p->buffer));
 	if(temp == NULL){
-		command(led2, 1);
+		// Uh oh
 	}
 
 	memcpy(temp, p->buffer, sizeof(p->buffer));
@@ -117,7 +117,7 @@ void run_parser(parser* p){
 
 
 	int length_of_packet = 8+4*num_args+2;
-	uint32_t *args = malloc(num_args);
+	int32_t *args = malloc(num_args);
 
 	for(int n = 0; n < num_args; n++){
 		args[n] = p->buffer[8+4*n]<<24 | p->buffer[9+4*n]<<16 | p->buffer[10+4*n]<<8 | p->buffer[11+4*n];

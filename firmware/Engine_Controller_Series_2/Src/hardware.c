@@ -7,145 +7,12 @@
 
 
 #include "hardware.h"
+#include "stm32f4xx_hal.h"
 
-void command(uint8_t device, int16_t command_value){
+extern TIM_HandleTypeDef htim5;
+extern TIM_HandleTypeDef htim9;
 
-	// VALVE CHANNELS ///////////////////////////////////////////////////////////////////
-	if((device < 40) && (device >= 20)){ // It is a valve channel (or led)
-
-		// If else will default to a de-energized state if a bad command is sent.
-		GPIO_PinState GPIO_COMMAND;
-
-		uint16_t mask = 1;
-		mask = mask << (device - vlv0);
-
-		if(command_value == 1){
-			GPIO_COMMAND = GPIO_PIN_SET;
-			valve_states |= mask;
-		}
-		else{
-			GPIO_COMMAND = GPIO_PIN_RESET;
-			mask ^= 0xFFFF;
-			valve_states &= mask;
-		}
-		switch(device){
-			case vlv0:
-				HAL_GPIO_WritePin(vlv0_GPIO_Port, vlv0_Pin, GPIO_COMMAND);
-				break;
-			case vlv1:
-				HAL_GPIO_WritePin(vlv1_GPIO_Port, vlv1_Pin, GPIO_COMMAND);
-				break;
-			case vlv2:
-				HAL_GPIO_WritePin(vlv2_GPIO_Port, vlv2_Pin, GPIO_COMMAND);
-				break;
-			case vlv3:
-				HAL_GPIO_WritePin(vlv3_GPIO_Port, vlv3_Pin, GPIO_COMMAND);
-				break;
-			case vlv4:
-				HAL_GPIO_WritePin(vlv4_GPIO_Port, vlv4_Pin, GPIO_COMMAND);
-				break;
-			case vlv5:
-				HAL_GPIO_WritePin(vlv5_GPIO_Port, vlv5_Pin, GPIO_COMMAND);
-				break;
-			case vlv6:
-				HAL_GPIO_WritePin(vlv6_GPIO_Port, vlv6_Pin, GPIO_COMMAND);
-				break;
-			case vlv7:
-				HAL_GPIO_WritePin(vlv7_GPIO_Port, vlv7_Pin, GPIO_COMMAND);
-				break;
-
-			case led0:
-				HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, GPIO_COMMAND);
-				break;
-			case led1:
-				HAL_GPIO_WritePin(led1_GPIO_Port, led1_Pin, GPIO_COMMAND);
-				break;
-			case led2:
-				HAL_GPIO_WritePin(led2_GPIO_Port, led2_Pin, GPIO_COMMAND);
-				break;
-			case led3:
-				HAL_GPIO_WritePin(led3_GPIO_Port, led3_Pin, GPIO_COMMAND);
-				break;
-
-		}
-
-
-	} // END VALVES
-
-	// BEGIN MOTORS
-	else if( (device >= mtr0) && (device <= mtr1) ){
-
-		motor_setpoint[device-mtr0] = command_value;
-		//writeMotor(device, command_value); 		// DEBUGGING ONLY - DELETE EVENTUALLY
-
-	}	// END MOTORS
-
-}
-
-
-// High Level
-
-///////////////////////////////////////////////////////////////////////////////
-// COMMAND THINGS FOR NOW /////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-
-
-void led_write(int32_t argc, int32_t* argv){
-	command(led0 - argv[0], argv[1]);
-}
-void digital_write(int32_t argc, int32_t* argv){
-	command(vlv0 + argv[0], argv[1]);
-}
-void set_kp(int32_t argc, int32_t* argv){
-	motor_control_gain[0] = argv[0];
-}
-void set_ki(int32_t argc, int32_t* argv){
-	motor_control_gain[1] = argv[0];
-}
-void set_kd(int32_t argc, int32_t* argv){
-	motor_control_gain[2] = argv[0];
-}
-void motor_write(int32_t argc, int32_t* argv){
-	motor_setpoint[argv[0]] = argv[1];
-}
-void motor_disable(int32_t argc, int32_t* argv){
-	motor_active[argv[0]] = 0;
-}
-void motor_enable(int32_t argc, int32_t* argv){
-	motor_active[argv[0]] = 1;
-}
-void arm(int32_t argc, int32_t* argv){
-
-}
-void disarm(int32_t argc, int32_t* argv){
-
-}
-void main_auto_start(int32_t argc, int32_t* argv){
-
-}
-void qd_set(int32_t argc, int32_t* argv){
-
-}
-void telemrate_set(int32_t argc, int32_t* argv){
-
-}
-void samplerate_set(int32_t argc, int32_t* argv){
-
-}
-void tare(int32_t argc, int32_t* argv){
-
-}
-void ambientize(int32_t argc, int32_t* argv){
-
-}
-void lograte_set(int32_t argc, int32_t* argv){
-
-}
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
+// Hardware wrappers
 void read_adc(SPI_HandleTypeDef* SPI_BUS){
 
 	// Temp Buffers
@@ -181,7 +48,6 @@ void read_adc(SPI_HandleTypeDef* SPI_BUS){
 	}
 	 __enable_irq();
 }
-
 void set_device(uint8_t device, GPIO_PinState state){
 	switch(device){
 		case adc0:
@@ -287,3 +153,271 @@ void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t
 
  HAL_TIM_PWM_Start(&timer, channel); // start pwm generation
 }
+void command(uint8_t device, int16_t command_value){
+
+	// VALVE CHANNELS ///////////////////////////////////////////////////////////////////
+	if((device < 40) && (device >= 20)){ // It is a valve channel (or led)
+
+		// If else will default to a de-energized state if a bad command is sent.
+		GPIO_PinState GPIO_COMMAND;
+
+		uint16_t mask = 1;
+		mask = mask << (device - vlv0);
+
+		if(command_value == 1){
+			GPIO_COMMAND = GPIO_PIN_SET;
+			valve_states |= mask;
+		}
+		else{
+			GPIO_COMMAND = GPIO_PIN_RESET;
+			mask ^= 0xFFFF;
+			valve_states &= mask;
+		}
+		switch(device){
+			case vlv0:
+				HAL_GPIO_WritePin(vlv0_GPIO_Port, vlv0_Pin, GPIO_COMMAND);
+				break;
+			case vlv1:
+				HAL_GPIO_WritePin(vlv1_GPIO_Port, vlv1_Pin, GPIO_COMMAND);
+				break;
+			case vlv2:
+				HAL_GPIO_WritePin(vlv2_GPIO_Port, vlv2_Pin, GPIO_COMMAND);
+				break;
+			case vlv3:
+				HAL_GPIO_WritePin(vlv3_GPIO_Port, vlv3_Pin, GPIO_COMMAND);
+				break;
+			case vlv4:
+				HAL_GPIO_WritePin(vlv4_GPIO_Port, vlv4_Pin, GPIO_COMMAND);
+				break;
+			case vlv5:
+				HAL_GPIO_WritePin(vlv5_GPIO_Port, vlv5_Pin, GPIO_COMMAND);
+				break;
+			case vlv6:
+				HAL_GPIO_WritePin(vlv6_GPIO_Port, vlv6_Pin, GPIO_COMMAND);
+				break;
+			case vlv7:
+				HAL_GPIO_WritePin(vlv7_GPIO_Port, vlv7_Pin, GPIO_COMMAND);
+				break;
+
+			case led0:
+				HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, GPIO_COMMAND);
+				break;
+			case led1:
+				HAL_GPIO_WritePin(led1_GPIO_Port, led1_Pin, GPIO_COMMAND);
+				break;
+			case led2:
+				HAL_GPIO_WritePin(led2_GPIO_Port, led2_Pin, GPIO_COMMAND);
+				break;
+			case led3:
+				HAL_GPIO_WritePin(led3_GPIO_Port, led3_Pin, GPIO_COMMAND);
+				break;
+
+		}
+
+
+	} // END VALVES
+
+	// BEGIN MOTORS
+	else if( (device >= mtr0) && (device <= mtr1) ){
+
+		motor_setpoint[device-mtr0] = command_value;
+		//writeMotor(device, command_value); 		// DEBUGGING ONLY - DELETE EVENTUALLY
+
+	}	// END MOTORS
+
+}
+void writeMotor(uint8_t device, int16_t motor_command){
+
+	TIM_HandleTypeDef timer;
+
+	uint8_t dir = (motor_command >=0) ? 1 : 0;
+
+	switch(device){
+	case mtr0:
+		timer = htim9;
+
+		if(dir){
+			HAL_GPIO_WritePin(ina_mtr0_GPIO_Port, ina_mtr0_Pin, GPIO_PIN_SET);		// ina
+			HAL_GPIO_WritePin(inb_mtr0_GPIO_Port, inb_mtr0_Pin, GPIO_PIN_RESET);	// inb
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);		// sel
+		}
+		else{
+			HAL_GPIO_WritePin(ina_mtr0_GPIO_Port, ina_mtr0_Pin, GPIO_PIN_RESET); 	// ^^
+			HAL_GPIO_WritePin(inb_mtr0_GPIO_Port, inb_mtr0_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+		}
+
+		break;
+	case mtr1:
+		timer = htim5;
+
+		if(dir){
+			HAL_GPIO_WritePin(ina_mtr1_GPIO_Port, ina_mtr1_Pin, GPIO_PIN_SET);		// ina
+			HAL_GPIO_WritePin(inb_mtr1_GPIO_Port, inb_mtr1_Pin, GPIO_PIN_RESET);	// inb
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);		// sel
+		}
+		else{
+			HAL_GPIO_WritePin(ina_mtr1_GPIO_Port, ina_mtr1_Pin, GPIO_PIN_RESET);	// ^^
+			HAL_GPIO_WritePin(inb_mtr1_GPIO_Port, inb_mtr1_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+		}
+
+
+		break;
+	default:
+		// Oops
+		break;
+	}
+
+	// Config Direction
+
+	// Set PWM value
+	setpwm(timer, TIM_CHANNEL_1, 32768, abs(motor_command));
+	motor_pwm[device-mtr0] = motor_command;
+
+}
+void motor_control(){
+
+	float command_sum;
+
+	for(uint8_t mtrx = 0; mtrx < 2; mtrx++){
+		if(motor_active[mtrx]){
+
+			float motor_error = (motor_position[mtrx] - motor_setpoint[mtrx])*pot_polarity[mtrx];
+			motor_accumulated_error[mtrx] += motor_error;
+
+			if(motor_accumulated_error[mtrx] > I_LIMIT){
+				motor_accumulated_error[mtrx] = I_LIMIT;
+			}
+			if(motor_accumulated_error[mtrx] < -I_LIMIT){
+				motor_accumulated_error[mtrx] = -I_LIMIT;
+			}
+
+			count2 = motor_accumulated_error[mtrx];
+			count1 = motor_error;
+			count3 = ((motor_position[mtrx] - motor_last_position[mtrx]))*1000;
+
+			command_sum = motor_control_gain[Kp] * motor_error;
+			command_sum += (motor_control_gain[Ki] * motor_accumulated_error[mtrx]);
+			command_sum += (motor_control_gain[Kd] * (motor_position[mtrx] - motor_last_position[mtrx]));
+
+			int16_t command = 0;
+			if(command_sum > 32768){
+				command = 32736;
+			}
+			else if(command_sum < -32767){
+				command = -32767;
+			}
+			else{
+				command = command_sum;
+			}
+
+			// Softstop
+			if(adc_data[2][12+mtrx] > 3900 || adc_data[2][12+mtrx] < 200){
+				//command = 0;
+			}
+
+			motor_last_position[mtrx] = motor_position[mtrx];
+			writeMotor(mtrx+mtr0, command);
+
+		}
+		else{
+			// Motor is disabled
+			writeMotor(mtrx+mtr0, 0);
+		}
+	}
+}
+
+// S2 commands
+void led_write(int32_t argc, int32_t* argv){
+	command(led0 - argv[0], argv[1]);
+}
+void digital_write(int32_t argc, int32_t* argv){
+	command(vlv0 + argv[0], argv[1]);
+}
+void set_kp(int32_t argc, int32_t* argv){
+	motor_control_gain[0] = argv[0];
+}
+void set_ki(int32_t argc, int32_t* argv){
+	motor_control_gain[1] = argv[0];
+}
+void set_kd(int32_t argc, int32_t* argv){
+	motor_control_gain[2] = argv[0];
+}
+void motor_write(int32_t argc, int32_t* argv){
+	motor_setpoint[argv[0]] = argv[1];
+}
+void motor_disable(int32_t argc, int32_t* argv){
+	motor_active[argv[0]] = 0;
+}
+void motor_enable(int32_t argc, int32_t* argv){
+	motor_active[argv[0]] = 1;
+}
+void arm(int32_t argc, int32_t* argv){
+
+}
+void disarm(int32_t argc, int32_t* argv){
+
+}
+void main_auto_start(int32_t argc, int32_t* argv){
+
+}
+void pwm_set(int32_t argc, int32_t* argv){
+	if(argc != 3) return;
+
+	TIM_HandleTypeDef timer;
+	uint32_t channel;
+
+	switch(argv[0]){
+	case 5:
+		timer = htim5;
+		break;
+	case 9:
+		timer = htim9;
+		break;
+	default:
+		break;
+		return;
+	}
+
+	switch(argv[1]){
+	case 1:
+		channel = TIM_CHANNEL_1;
+		break;
+	case 2:
+		channel = TIM_CHANNEL_2;
+		break;
+	default:
+		return;
+		break;
+	}
+
+	uint32_t pulse = argv[2] * 32768;
+	pulse /= 100;
+	uint16_t pulse_cast = (uint16_t) pulse;
+
+	setpwm(timer, channel, 32768, pulse_cast);
+
+}
+void qd_set(int32_t argc, int32_t* argv){
+
+}
+void telemrate_set(int32_t argc, int32_t* argv){
+
+}
+void samplerate_set(int32_t argc, int32_t* argv){
+
+}
+void tare(int32_t argc, int32_t* argv){
+
+}
+void ambientize(int32_t argc, int32_t* argv){
+
+}
+void lograte_set(int32_t argc, int32_t* argv){
+
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+

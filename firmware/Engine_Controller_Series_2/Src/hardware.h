@@ -32,6 +32,7 @@
 #define COMMAND_MOTOR_DISABLE 	53
 #define COMMAND_MOTOR_ENABLE 	54
 #define COMMAND_QD_SET 			55
+#define COMMAND_PWM_SET			56
 
 #define COMMAND_SET_KP 			60
 #define COMMAND_SET_KI 			61
@@ -47,6 +48,18 @@
 #define TARGET_ADDRESS_GROUND 100
 #define TARGET_ADDRESS_FLIGHT 101
 
+// Hardware Specific functions
+void read_adc(SPI_HandleTypeDef* SPI_BUS);
+void set_device(uint8_t device, GPIO_PinState state);
+void select_device(uint8_t device);
+void release_device(uint8_t device);
+void send_telem(UART_HandleTypeDef device, uint8_t format);
+void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse);
+void command(uint8_t device, int16_t command_value);
+void writeMotor(uint8_t device, int16_t motor_command);
+void motor_control();
+
+// S2 Command wrappers
 void led_write(int32_t argc, int32_t* argv);
 void digital_write(int32_t argc, int32_t* argv);
 void set_kp(int32_t argc, int32_t* argv);
@@ -59,17 +72,11 @@ void arm(int32_t argc, int32_t* argv);
 void disarm(int32_t argc, int32_t* argv);
 void main_auto_start(int32_t argc, int32_t* argv);
 void qd_set(int32_t argc, int32_t* argv);
+void pwm_set(int32_t argc, int32_t* argv);
 void telemrate_set(int32_t argc, int32_t* argv);
 void samplerate_set(int32_t argc, int32_t* argv);
 void tare(int32_t argc, int32_t* argv);
 void ambientize(int32_t argc, int32_t* argv);
 void lograte_set(int32_t argc, int32_t* argv);
-
-void read_adc(SPI_HandleTypeDef* SPI_BUS);
-void set_device(uint8_t device, GPIO_PinState state);
-void select_device(uint8_t device);
-void release_device(uint8_t device);
-void send_telem(UART_HandleTypeDef device, uint8_t format);
-void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse);
 
 #endif /* HARDWARE_H_ */

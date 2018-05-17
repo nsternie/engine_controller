@@ -102,8 +102,8 @@ struct buffer{
 	uint8_t new_data;
 };
 struct simple_buf{
-	volatile uint8_t filled;
-	volatile uint8_t data[256];
+	uint8_t filled;
+	uint8_t data[256];
 };
 struct simple_buf upstream_buffer;
 extern char* states[10][15];
