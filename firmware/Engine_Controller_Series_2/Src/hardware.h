@@ -70,5 +70,6 @@ void set_device(uint8_t device, GPIO_PinState state);
 void select_device(uint8_t device);
 void release_device(uint8_t device);
 void send_telem(UART_HandleTypeDef device, uint8_t format);
+void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse);
 
 #endif /* HARDWARE_H_ */

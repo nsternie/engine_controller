@@ -30,7 +30,7 @@ count2	count2					%d	int32_t	1			int	e3v	0	|
 count3	count3					%d	int32_t	1			int	BOARD_ID	0	|
 STATE	STATE					%u	uint8_t	1			int	last_packet_number	-1	|
 ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float	last_command_id	-1	|
-ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float			|
+ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float	imtr	[0]*2	|
 ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float			|
@@ -60,3 +60,5 @@ e5v	e5v					%.2f	int32_t	100			float			|
 BOARD_ID	BOARD_ID					%d	uint16_t	1			int			|
 last_packet_number	last_packet_number					%d	uint16_t	1			int			|
 last_command_id	last_command_id					%d	uint16_t	1			int			|
+imtr[0]	imtr[0]			Amps		%.2f	uint16_t	1000			float			|
+imtr[1]	imtr[1]			Amps		%.2f	uint16_t	1000			float			|

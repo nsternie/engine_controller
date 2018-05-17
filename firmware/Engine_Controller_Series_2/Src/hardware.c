@@ -220,6 +220,10 @@ void scale_readings(){
 		}
 	}
 
+	imtr[0] = adc_data[2][8] * imtr_cal;
+	imtr[1] = adc_data[2][9] * imtr_cal;
+
+
 	ebatt = (adc_data[2][0])*ebatt_cal;
 	ibus = (adc_data[2][1])*ibus_cal;
 	e5v = (adc_data[2][2])*e5v_cal;
@@ -242,16 +246,15 @@ void scale_readings(){
 
 
 
-	load[0] = adc_data[3][15];
-	load[1] = adc_data[3][14];
-	load[2] = adc_data[3][13];
-	load[3] = adc_data[3][12];
-	for(uint8_t n = 0; n < 6; n++){
-		load[n] -= load_cal[OFFSET][n];
-		load[n] *= load_cal[SLOPE][n];
-	}
-
-	thrust_load = load[0]+load[1]+load[2]+load[3];
+//	load[0] = adc_data[3][15];
+//	load[1] = adc_data[3][14];
+//	load[2] = adc_data[3][13];
+//	load[3] = adc_data[3][12];
+//	for(uint8_t n = 0; n < 6; n++){
+//		load[n] -= load_cal[OFFSET][n];
+//		load[n] *= load_cal[SLOPE][n];
+//	}
+//	thrust_load = load[0]+load[1]+load[2]+load[3];
 
 
 }
@@ -268,4 +271,19 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			break;
 	}
 
+}
+void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse)
+{
+ HAL_TIM_PWM_Stop(&timer, channel); // stop generation of pwm
+ TIM_OC_InitTypeDef sConfigOC;
+ timer.Init.Period = period; // set the period duration
+ HAL_TIM_PWM_Init(&timer); // reinititialise with new period value
+
+ sConfigOC.OCMode = TIM_OCMODE_PWM1;
+ sConfigOC.Pulse = pulse; // set the pulse duration
+ sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+ sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+ HAL_TIM_PWM_ConfigChannel(&timer, &sConfigOC, channel);
+
+ HAL_TIM_PWM_Start(&timer, channel); // start pwm generation
 }

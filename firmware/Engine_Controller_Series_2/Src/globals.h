@@ -139,6 +139,7 @@ extern uint8_t telem_stuffed[256];
 extern uint8_t unstuffed_packet_length;
 extern float evlv[16];
 extern float ivlv[16];
+float imtr[2];
 extern float ebatt;
 extern float ibus;
 extern float e5v;

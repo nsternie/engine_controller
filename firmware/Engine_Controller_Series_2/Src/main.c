@@ -225,6 +225,10 @@ int main(void)
 	add_command(&p, COMMAND_AMBIENTIZE, 	ambientize);
 	add_command(&p, COMAND_LOGRATE_SET, 	lograte_set);
 
+//	setpwm(htim5, TIM_CHANNEL_1, 32768, 0);
+//	setpwm(htim9, TIM_CHANNEL_1, 32768, 16535);
+//
+//	HAL_GPIO_WritePin(inb_mtr0_GPIO_Port, inb_mtr0_Pin, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */

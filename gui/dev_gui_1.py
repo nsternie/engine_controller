@@ -260,6 +260,10 @@ def parse_serial():
 			last_packet_pass.setText("Last Packet #: "+str(parser.last_packet_number))
 			last_command_id.setText("Last Command id: "+str(parser.last_command_id))
 
+			imtr0.setText("Motor 0 Current: "+str(parser.imtr[0]))
+			imtr1.setText("Motor 1 Current: "+str(parser.imtr[1]))
+
+
 
 			count1_label.setText("count1: "+str(parser.count1))
 			count2_label.setText("count2: "+str(parser.count2))
@@ -425,6 +429,11 @@ last_packet_pass = QtGui.QLabel("last packet")
 last_command_id = QtGui.QLabel("last command")
 layout.addWidget(last_packet_pass, zr+18, zc+7)
 layout.addWidget(last_command_id, zr+19, zc+7)
+
+imtr0 = QtGui.QLabel("imtr0")
+imtr1 = QtGui.QLabel("imtr1")
+layout.addWidget(imtr0, zr+20, zc+7)
+layout.addWidget(imtr1, zr+21, zc+7)
 
 # State Feedback
 state_label = QtGui.QLabel("STATE = N/A")

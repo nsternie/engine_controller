@@ -41,6 +41,7 @@ uint8_t telem_stuffed[256];
 uint8_t unstuffed_packet_length = 0;
 float evlv[16];
 float ivlv[16];
+float imtr[2];
 float ebatt;
 float ibus;
 float e5v;

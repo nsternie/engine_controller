@@ -12,6 +12,7 @@
 #define ibus_cal	0.01418500
 #define evlv_cal  	0.00324707
 #define ivlv_cal  	0.00322265
+#define imtr_cal	0.00322265
 #define e5v_cal		0.00161132
 #define e3v_cal		0.00161132
 #define tbrd_offset	600.000000
