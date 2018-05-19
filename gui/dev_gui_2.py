@@ -223,7 +223,7 @@ ground_x = [[0]*BUFFER_SIZE]*parser.num_items
 
 
 ground_curves = [None]*parser.num_items
-    
+
 
 
 ##################### END PLOT DEV ########################
