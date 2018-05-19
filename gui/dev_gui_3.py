@@ -207,7 +207,7 @@ ground_layout.addWidget(ground_plot_1, zr+0, zc+11, 20, 7)
 
 def reset_plot():
     global ground_x, ground_y, BUFFER_SIZE, ground_curves
-    ground_plot_1.clear()
+    #ground_plot_1.clear()
     ground_y = [[]]*parser.num_items
     ground_x = [[]]*parser.num_items
     #ground_y = [[0]*BUFFER_SIZE]*parser.num_items
@@ -329,13 +329,13 @@ def parse_serial():
             ### GROUND DATA UPDATE ############################################
             ###################################################################
             if(parser.BOARD_ID == TARGET_ADDRESS_GROUND):
-                for n in range(parser.num_items):
+                for n in range(parser.num_items-1):
+                    ground_y[n].append(parser.dict[parser.items[n]])
+                    ground_x[n].append(time.clock())
+                    ground_y[n] = ground_y[n][-100:]
+                    ground_x[n] = ground_x[n][-100:]
                     if ground_active_plots[n]:
                         #ground_plot_1.addItem(ground_curves[n])
-                        ground_y[n].append(parser.dict[parser.items[n]])
-                        ground_x[n].append(time.clock())
-                        ground_y[n] = ground_y[n][-100:]
-                        ground_x[n] = ground_x[n][-100:]
                         #print(len(ground_x[n]))
                         ground_curves[n].setData(ground_x[n][:], ground_y[n][:])
                         app.processEvents()
@@ -438,7 +438,7 @@ def parse_serial():
 
     except Exception:
         pass
-        #raise Exception
+        raise Exception
 
 
 
