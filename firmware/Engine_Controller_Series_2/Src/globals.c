@@ -13,6 +13,7 @@ volatile uint8_t read_adc_now;
 volatile uint8_t send_rs422_now;
 volatile uint8_t send_xbee_now;
 volatile uint8_t update_motors_now;
+volatile uint8_t relay_packet = 0;
 uint16_t adc_data[5][16];		// 5 ADCs, 16 channels each.
 uint16_t valve_states;
 uint32_t IGNITION_DURATION = 750000;
@@ -80,5 +81,8 @@ struct autosequence hotfire_auto;
 parser p;
 int16_t last_packet_number = 0;
 int16_t last_command_id = 0;
-
+uint8_t error_code = 0;
 uint32_t qd_stop_time = 0;
+
+
+uint8_t TELEM_ACTIVE = 1;

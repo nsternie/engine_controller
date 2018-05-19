@@ -26,6 +26,14 @@
 #define COMMAND_TARE 			30
 #define COMMAND_AMBIENTIZE 		31
 
+#define COMMAND_PRINT_FILE		40
+#define COMMAND_NUMFILES        41
+#define COMMAD_LOG_START        42
+#define COMMAD_LOG_END          43
+#define COMMAD_INIT_FS          44
+#define COMMAND_TELEM_PAUSE     45
+#define COMMAND_TELEM_RESUME	46
+
 #define COMMAND_DIGITAL_WRITE 	50
 #define COMMAND_LED_WRITE 		51
 #define COMMAND_MOTOR_WRITE 	52
@@ -39,7 +47,8 @@
 #define COMMAND_SET_KD 			62
 #define COMMAND_TELEMRATE_SET	63
 #define COMMAND_SAMPLERATE_SET	64
-#define COMAND_LOGRATE_SET		65
+#define COMMAND_LOGRATE_SET		65
+
 
 #define COMMAND_ARM				100
 #define COMMAND_DISARM			101
@@ -54,6 +63,7 @@ void set_device(uint8_t device, GPIO_PinState state);
 void select_device(uint8_t device);
 void release_device(uint8_t device);
 void send_telem(UART_HandleTypeDef device, uint8_t format);
+void save_telem(file* f);
 void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse);
 void command(uint8_t device, int16_t command_value);
 void writeMotor(uint8_t device, int16_t motor_command);
@@ -78,5 +88,11 @@ void samplerate_set(int32_t argc, int32_t* argv);
 void tare(int32_t argc, int32_t* argv);
 void ambientize(int32_t argc, int32_t* argv);
 void lograte_set(int32_t argc, int32_t* argv);
-
+void print_file(int32_t argc, int32_t* argv);
+void numfiles(int32_t argc, int32_t* argv);
+void log_start(int32_t argc, int32_t* argv);
+void log_end(int32_t argc, int32_t* argv);
+void init_fs(int32_t argc, int32_t* argv);
+void telem_pause(int32_t argc, int32_t* argv);
+void telem_resume(int32_t argc, int32_t* argv);
 #endif /* HARDWARE_H_ */

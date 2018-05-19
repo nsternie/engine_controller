@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "command.h"
+#include "flash.h"
 
 #ifndef GLOBALS_H
 #define GLOBALS_H
@@ -111,6 +112,7 @@ extern volatile uint8_t read_adc_now;
 extern volatile uint8_t send_rs422_now;
 extern volatile uint8_t send_xbee_now;
 extern volatile uint8_t update_motors_now;
+volatile uint8_t relay_packet;
 extern uint16_t adc_data[5][16];		// 5 ADCs, 16 channels each.
 extern uint16_t valve_states;
 extern uint32_t IGNITION_DURATION;
@@ -197,5 +199,12 @@ int16_t last_command_id;
 
 uint32_t qd_stop_time;
 #define QD_ACTUATION_TIME 3000;
+
+uint8_t LOGGING_ACTIVE;
+uint8_t TELEM_ACTIVE;
+
+file* logfile;
+
+uint8_t error_code;
 
 #endif

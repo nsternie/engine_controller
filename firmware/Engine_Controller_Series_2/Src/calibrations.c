@@ -9,14 +9,14 @@ float motor_control_gain[3] = {
 		0.0
 };
 const float motor_pot_slope[4] = {
-		0.083,
-		0.083,
+		1,
+		1,
 		1,
 		1
 };
 float motor_pot_offset[4] = {
-		60,
-		120,
+		0,
+		0,
 		0,
 		0
 };
@@ -33,7 +33,7 @@ const float motor_limit_low[4] = {
 		0
 };
 const float pot_polarity[4] = {
-		-1,
+		1,
 		1,
 		1,
 		1

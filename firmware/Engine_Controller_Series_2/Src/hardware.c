@@ -8,9 +8,15 @@
 
 #include "hardware.h"
 #include "stm32f4xx_hal.h"
+#include "flash.h"
 
+
+extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
+extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim9;
+
+extern UART_HandleTypeDef huart1;
 
 // Hardware wrappers
 void read_adc(SPI_HandleTypeDef* SPI_BUS){
@@ -104,6 +110,15 @@ void scale_readings(){
 
 	tbrd = (adc_data[2][5])/1.24;
 	tbrd -= 600;
+	tbrd /= 10;
+	tvlv = (adc_data[2][6])/1.24;
+	tvlv -= 600;
+	tvlv /= 10;
+	tmtr = (adc_data[2][7])/1.24;
+	tmtr -= 600;
+	tmtr /= 10;
+
+
 
 	for(uint8_t n = 0; n < 16; n ++){
 		pressure[n] = adc_data[4][15-n]-press_cal[OFFSET][n];
@@ -128,8 +143,6 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 	switch(format){
 		case gui_byte_packet:
 			command(led0, 1);
-			pack_telem(telem_unstuffed);
-			stuff_telem(telem_unstuffed, telem_stuffed);
 			HAL_UART_Transmit(&device, (uint8_t*)telem_stuffed, PACKET_SIZE+2, 100);
 			command(led0, 0);
 			break;
@@ -137,6 +150,9 @@ void send_telem(UART_HandleTypeDef device, uint8_t format){
 			break;
 	}
 
+}
+void save_telem(file* f){
+	log_data(f, telem_stuffed, PACKET_SIZE+2);
 }
 void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse)
 {
@@ -354,15 +370,18 @@ void motor_enable(int32_t argc, int32_t* argv){
 	motor_active[argv[0]] = 1;
 }
 void arm(int32_t argc, int32_t* argv){
-
+	STATE = ARMED;
 }
 void disarm(int32_t argc, int32_t* argv){
-
+	STATE = MANUAL;
 }
 void main_auto_start(int32_t argc, int32_t* argv){
 
 }
 void pwm_set(int32_t argc, int32_t* argv){
+
+	return;	// Disabled
+
 	if(argc != 3) return;
 
 	TIM_HandleTypeDef timer;
@@ -403,10 +422,37 @@ void qd_set(int32_t argc, int32_t* argv){
 
 }
 void telemrate_set(int32_t argc, int32_t* argv){
+	uint16_t period = 100000/argv[0];
 
+	HAL_TIM_Base_Stop_IT(&htim6);
+
+	htim6.Instance = TIM6;
+	htim6.Init.Prescaler = 900;
+	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim6.Init.Period = period;
+	htim6.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	HAL_TIM_Base_Init(&htim6);
+
+	HAL_TIM_Base_Start_IT(&htim6);
+
+	telemetry_rate[rs422] = (100000/period);	// Actual rate
 }
 void samplerate_set(int32_t argc, int32_t* argv){
+	samplerate = argv[0];
+	uint16_t period = 100000/samplerate;
 
+	HAL_TIM_Base_Stop_IT(&htim4);
+
+	htim4.Instance = TIM4;
+	htim4.Init.Prescaler = 900;
+	htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim4.Init.Period = period;
+	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	HAL_TIM_Base_Init(&htim4);
+
+	HAL_TIM_Base_Start_IT(&htim4);
+
+	samplerate = (100000/period);	// Actual rate
 }
 void tare(int32_t argc, int32_t* argv){
 
@@ -417,6 +463,75 @@ void ambientize(int32_t argc, int32_t* argv){
 void lograte_set(int32_t argc, int32_t* argv){
 
 }
+void print_file(int32_t argc, int32_t* argv){
+	filesystem tempfs;
+	read_filesystem(&tempfs);
+	int filenum = argv[0];
+	uint16_t start = tempfs.files[filenum].start_page;
+	uint16_t stop = tempfs.files[filenum].stop_page;
+	for(int n = start; n <= stop; n++){
+		load_page(n);
+		uint8_t buffer[2048];
+		read_buffer(0, buffer, 2048);
+		HAL_UART_Transmit(&huart1, buffer, 2048, 0xffff);
+	}
+}
+void numfiles(int32_t argc, int32_t* argv){
+	filesystem tempfs;
+	read_filesystem(&tempfs);
+	uint8_t message[10];
+	snprintf(message, sizeof(message), "%d\r\n", tempfs.num_files);
+	HAL_UART_Transmit(&huart1, message, strlen(message), 0xffff);
+}
+void log_start(int32_t argc, int32_t* argv){
+	if(LOGGING_ACTIVE == 0){
+	  logfile = new_log();
+	}
+	LOGGING_ACTIVE = 1;
+	command(led3, 1);
+}
+void log_end(int32_t argc, int32_t* argv){
+	if(LOGGING_ACTIVE == 1){
+		close_log(logfile);
+	}
+	LOGGING_ACTIVE = 0;
+	command(led3, 0);
+}
+void init_fs(int32_t argc, int32_t* argv){
+
+	for(int n = 0; n < 1024; n++){
+		erase_block(64*n);
+	  }
+
+	filesystem fs;
+	fs.current_file = -1;
+	fs.next_file_page = 64;
+	fs.num_files = 0;
+	file blank_file;
+	blank_file.bytes_free = 0;
+	blank_file.current_page = 0;
+	blank_file.file_number = 0;
+	blank_file.start_page = 0;
+	blank_file.stop_page = 0;
+	for(int n = 0; n < MAX_FILES; n++){
+	  fs.files[n] = blank_file;
+	}
+	write_filesystem(&fs);
+
+
+
+	uint8_t message[100];
+	snprintf(message, sizeof(message), "init_fs complete\r\n");
+	HAL_UART_Transmit(&huart1, message, strlen(message), 0xffff);
+}
+
+void telem_pause(int32_t argc, int32_t* argv){
+	TELEM_ACTIVE = 0;
+}
+void telem_resume(int32_t argc, int32_t* argv){
+	TELEM_ACTIVE = 1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

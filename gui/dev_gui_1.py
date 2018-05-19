@@ -159,6 +159,9 @@ def parse_serial():
 			# Read a packet
 			packet = ser.readline()	
 			print(len(packet))
+
+			serial_log.write("%.3f," % time.clock())
+			serial_log.write(str(packet)+'length = '+str(len(packet))+'\n')
 			# Unstuff the packet
 			unstuffed = b''
 			index = int(packet[0])
@@ -178,8 +181,7 @@ def parse_serial():
 				#print("Parser error")
 			#	info_log.write(time.ctime()+" parser error\n")
 			data_log.write(parser.log_string+'\n')
-			serial_log.write("%.3f," % time.clock())
-			serial_log.write(str(packet)+'\n')
+			
 			# except:
 			# 	print("Error")
 			# 	pass
@@ -358,11 +360,6 @@ for mtrx in range(0, 2):
 	layout.addWidget(mtr_setpointfb[mtrx], zr+2+(2*mtrx), zc+7)
 	layout.addWidget(mtr_position[mtrx], zr+2+(2*mtrx), zc+8)
 
-
-
-
-# QD 
-
 qd_ox_release = QtGui.QPushButton("Release Ox")
 qd_ox_connect = QtGui.QPushButton("Connect Ox")
 qd_fuel_release = QtGui.QPushButton("Release Fuel")
@@ -377,6 +374,21 @@ layout.addWidget(qd_ox_connect,zr+6, zc+5)
 layout.addWidget(qd_ox_release,zr+6, zc+6)
 layout.addWidget(qd_fuel_connect,zr+7, zc+5)
 layout.addWidget(qd_fuel_release,zr+7, zc+6)
+
+
+init_fs = QtGui.QPushButton("Init Filesystem")
+log_start = QtGui.QPushButton("Log Start")
+log_end = QtGui.QPushButton("Log Stop")
+
+
+init_fs.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_INIT_FS, 2, [0,0]))
+log_start.clicked.connect(lambda: send("connect ox"))
+log_end.clicked.connect(lambda: send("release fuel"))
+
+
+layout.addWidget(init_fs,zr+9, zc+5)
+layout.addWidget(log_start,zr+9, zc+6)
+layout.addWidget(log_end,zr+10, zc+5)
 
 
 ec_selector =  QtGui.QComboBox()
@@ -472,10 +484,6 @@ layout.addWidget(tc_label[1], zr+13, zc+11)
 layout.addWidget(tc_label[2], zr+14, zc+11)
 layout.addWidget(tc_label[3], zr+15, zc+11)
 
-
-
-
-
 log_to_auto_label = QtGui.QLabel("LOG_TO_AUTO")
 autofeedback = QtGui.QPlainTextEdit("Autosequence feedback")
 running_autos_label = QtGui.QLabel("RUNNING_AUTOS")
@@ -493,7 +501,6 @@ ebatt_value =  QtGui.QLabel("EBATT")
 ibus_value =  QtGui.QLabel("IBUS")
 e5v_value =  QtGui.QLabel("e5v")
 e3v_value =  QtGui.QLabel("e3v")
-
 
 layout.addWidget(BOARD_HEALTH_LABEL, zr+9, zc+8)
 layout.addWidget(ebatt_label, zr+10, zc+8)
@@ -519,15 +526,10 @@ telemetry_cycle_rate_label = QtGui.QLabel("Telem")
 # Label place
 
 # Readout place
-
-
-
 # counts things for debugging
 count1_label = QtGui.QLabel("COUNT1")
 count2_label = QtGui.QLabel("COUNT2")
 count3_label = QtGui.QLabel("COUNT3")
-
-
 
 columns = 12
 col_label = []
@@ -546,9 +548,6 @@ col_label[8].setText("Set Values")
 col_label[9].setText("Feedback")
 col_label[10].setText("Actual")
 col_label[11].setText("Actual")
-
-
-
 
 layout.addWidget(col_label[0], zr+0, 0)
 layout.addWidget(col_label[1], zr+0, 1)

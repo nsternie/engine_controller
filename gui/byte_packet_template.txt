@@ -25,19 +25,16 @@ motor_position[0]	motor_position[0]					%.2f	int32_t	1000			float	evlv	[0]*16	|
 motor_position[1]	motor_position[1]					%.2f	int32_t	1000			float	LOG_TO_AUTO	0	|
 motor_pwm[0]	motor_pwm[0]					%d	int16_t	1			int	auto_states	0	|
 motor_pwm[1]	motor_pwm[1]					%d	int16_t	1			int	debug	[0]*8	|
-count1	count1					%d	int32_t	1			int	e5v	0	|
-count2	count2					%d	int32_t	1			int	e3v	0	|
-count3	count3					%d	int32_t	1			int	BOARD_ID	0	|
-STATE	STATE					%u	uint8_t	1			int	last_packet_number	-1	|
-ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float	last_command_id	-1	|
-ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float	imtr	[0]*2	|
-ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float			|
-evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	100			float			|
+STATE	STATE					%u	uint8_t	1			int	e5v	0	|
+ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float	e3v	0	|
+ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float	BOARD_ID	0	|
+ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	100			float	last_packet_number	-1	|
+ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	100			float	last_command_id	-1	|
+ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float	imtr	[0]*2	|
+ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	100			float	tbrd	0	|
+ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	100			float	tvlv	0	|
+ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float	tmtr	0	|
+evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	100			float	error_code	0	|
 evlv[1]	evlv[1]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[2]	evlv[2]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[3]	evlv[3]	-5	15	Volts		%.1f	int16_t	100			float			|
@@ -47,14 +44,6 @@ evlv[6]	evlv[6]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[7]	evlv[7]	-5	15	Volts		%.1f	int16_t	100			float			|
 LOG_TO_AUTO	LOG_TO_AUTO					%d	int16_t	1			int			|
 auto_states	auto_states					%u	uint16_t	1			int			|
-debug[0]	debug[0]					%d	int32_t	1			int			|
-debug[1]	debug[1]					%d	int32_t	1			int			|
-debug[2]	debug[2]					%d	int32_t	1			int			|
-debug[3]	debug[3]					%d	int32_t	1			int			|
-debug[4]	debug[4]					%d	int32_t	1			int			|
-debug[5]	debug[5]					%d	int32_t	1			int			|
-debug[6]	debug[6]					%d	int32_t	1			int			|
-debug[7]	debug[7]					%d	int32_t	1			int			|
 e3v	e3v					%.2f	int32_t	100			float			|
 e5v	e5v					%.2f	int32_t	100			float			|
 BOARD_ID	BOARD_ID					%d	uint16_t	1			int			|
@@ -62,3 +51,7 @@ last_packet_number	last_packet_number					%d	uint16_t	1			int			|
 last_command_id	last_command_id					%d	uint16_t	1			int			|
 imtr[0]	imtr[0]			Amps		%.2f	uint16_t	1000			float			|
 imtr[1]	imtr[1]			Amps		%.2f	uint16_t	1000			float			|
+tbrd	tbrd					%.2f	uint16_t	10			float			|
+tvlv	tvlv					%.2f	uint16_t	10			float			|
+tmtr	tmtr					%.2f	uint16_t	10			float			|
+error_code	error_code					%d	uint8_t	1			int			|

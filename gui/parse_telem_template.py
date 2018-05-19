@@ -74,6 +74,8 @@ type_unpack_arg = {
 	"int64_t"	:	"\"<l\"",
 }
 
+python_variables = []
+
 n = 0
 for line in template_file:
 	if(n == 0):	# First line of the file
@@ -140,6 +142,8 @@ for line in template_file:
 		if(python_variable_override):
 			python_variable = python_variable_override
 
+		python_variables.append(python_variable)
+
 		python_string += "\t\tbyte_rep = "
 		python_string += "packet["+str(packet_byte_length-byte_length)+":"+ str(packet_byte_length)+"]"
 		python_string += "\n"
@@ -149,11 +153,11 @@ for line in template_file:
 							"((float(struct.unpack("+type_unpack_arg[type_cast] + \
 							", byte_rep)[0]))/"+xmit_scale+")\n"
 
+		python_string += 	"\t\tself.dict[self.items["+str(n-1)+"]] = self."+python_variable+'\n'
+
 		csv_header += python_variable+' ('+unit+'),'
 		log_string += "+str(self."+python_variable+")+','"
 		
-
-
 		device_list.append(split_string[5])
 		for m in range(0, byte_length):
 			pack_telem_defines_h_string += "#define\tTELEM_ITEM_"+str(packet_byte_length-byte_length+m)+ \
@@ -183,6 +187,15 @@ pack_telem_defines_h_string += "#define\tPACKET_SIZE\t"+str(packet_byte_length)+
 csv_header += "\\n\"\n"
 
 self_init += "\t\tself.log_string = \"\"\n"
+self_init += "\t\tself.num_items = "+str(n)+"\n"
+self_init += "\t\t\n"
+self_init += "\t\tself.dict = {}\n"
+self_init += "\t\t\n"
+
+self_init += "\t\tself.items = [''] * self.num_items\n"
+
+for index, var in enumerate(python_variables):
+	self_init += "\t\tself.items["+str(index)+"] = \'"+var+"\' \n"
 
 parsed_printf_file = open((filename+"_sprintf-call_.c"),"w+")
 parsed_python_file = open(("hotfire_packet.py"),"w+")

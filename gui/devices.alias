@@ -1,44 +1,44 @@
 Device	Alias
-vlv0	GND 0
-vlv1	GND 1
-vlv2	GND 2
-vlv3	GND 3
-vlv4	GND 4
-vlv5	GND 5
-vlv6	GND 6
-vlv7	GND 7
-vlv8	FLIGHT 0
-vlv9	FLIGHT 1
-vlv10	FLIGHT 2		 
-vlv11	FLIGHT 3
-vlv12	FLIGHT 4
-vlv13	FLIGHT 5
-vlv14	FLIGHT 6
-vlv15	FLIGHT 7
-vlv16	GND LED 0
-vlv17	GND LED 1
-vlv18	GND LED 2
-vlv19	GND LED 3
-vlv20	FLIGHT LED 0
-vlv21	FLIGHT LED 1
-vlv22	FLIGHT LED 2
-vlv23	FLIGHT LED 3
-pressure0	0
-pressure1	1
-pressure2	2 
-pressure3	3 
-pressure4	4 
-pressure5	5 
-pressure6	6
-pressure7	7
-pressure8	8
-pressure9	9
-pressure10	10
-pressure11	11
-pressure12	1 
-pressure13	1 
-pressure14	1 
-pressure15	1 
+gvlv0	GND 0
+gvlv1	GND 1
+gvlv2	GND 2
+gvlv3	GND 3
+gvlv4	GND 4
+gvlv5	GND 5
+gvlv6	GND 6
+gvlv7	GND 7
+gvlv8	GND LED 0
+gvlv9	GND LED 1
+gvlv10	GND LED 2
+gvlv11	GND LED 3
+fvlv0	FLIGHT 0
+fvlv1	FLIGHT 1
+fvlv2	FLIGHT 2		 
+fvlv3	FLIGHT 3
+fvlv4	FLIGHT 4
+fvlv5	FLIGHT 5
+fvlv6	FLIGHT 6
+fvlv7	FLIGHT 7
+fvlv8	FLIGHT LED 0
+fvlv9	FLIGHT LED 1
+fvlv10	FLIGHT LED 2
+fvlv11	FLIGHT LED 3
+gpressure0	Ground press 0
+gpressure1	Ground press 1
+gpressure2	Ground press 2
+gpressure3	Ground press 3
+gpressure4	Ground press 4
+gpressure5	Ground press 5
+gpressure6	Ground press 6
+gpressure7	Ground press 7
+fpressure0	Flight press 0
+fpressure1	Flight press 1
+fpressure2	Flight press 2
+fpressure3	Flight press 3
+fpressure4	Flight press 4
+fpressure5	Flight press 5
+fpressure6	Flight press 6
+fpressure7	Flight press 7
 mtr0	OX VALVE
 mtr1	FUEL VALVE
 mtr2	unused
@@ -52,5 +52,5 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM13
-BAUDRATE	2000000
+COM_PORT	COM3
+BAUDRATE	921600

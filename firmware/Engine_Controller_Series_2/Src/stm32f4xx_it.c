@@ -68,7 +68,6 @@ uint8_t pop_buf(struct simple_buf *b){
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim6;
-extern DMA_HandleTypeDef hdma_usart6_rx;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart6;
 
@@ -268,34 +267,17 @@ void TIM6_DAC_IRQHandler(void)
 }
 
 /**
-* @brief This function handles DMA2 stream1 global interrupt.
-*/
-void DMA2_Stream1_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA2_Stream1_IRQn 0 */
-
-  /* USER CODE END DMA2_Stream1_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart6_rx);
-  /* USER CODE BEGIN DMA2_Stream1_IRQn 1 */
-
-  /* USER CODE END DMA2_Stream1_IRQn 1 */
-}
-
-/**
 * @brief This function handles USART6 global interrupt.
 */
 void USART6_IRQHandler(void)
 {
   /* USER CODE BEGIN USART6_IRQn 0 */
-//	uint8_t temp = 0;
-//	if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
-//	{
-//	  temp = 1; //was rx_IT not tx_IT
-//	}
+
   /* USER CODE END USART6_IRQn 0 */
   HAL_UART_IRQHandler(&huart6);
   /* USER CODE BEGIN USART6_IRQn 1 */
 
+  if(uart6_in == '\n') relay_packet = 1;
   upstream_buffer.data[upstream_buffer.filled++] = uart6_in;
   HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
   /* USER CODE END USART6_IRQn 1 */
