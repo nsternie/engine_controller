@@ -197,16 +197,17 @@ uint32_t log_data(file* f, uint8_t *data, uint32_t length){
 
 	uint32_t bytes_written = 0;
 
-  if(length > f->bytes_free - 1){
+  if(length > f->bytes_free){
       write_buffer(2048-(f->bytes_free), data, f->bytes_free);
       bytes_written = f->bytes_free;
       program_page(f->current_page);
-      load_page(++f->current_page);
+      f->current_page += 1;
+      load_page(f->current_page);
       f->bytes_free = 2048;
   }
 
   write_buffer(2048-(f->bytes_free), (data + bytes_written), length - bytes_written);
-  f->bytes_free -= length;
+  f->bytes_free -= (length - bytes_written);
 
 }
 

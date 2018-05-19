@@ -276,7 +276,7 @@ int main(void)
         scale_readings();
         TIME(adc_cycle_time);
         if(LOGGING_ACTIVE){
-        	// Log
+        	save_telem(logfile);
         }
 
         motor_control();
@@ -286,9 +286,6 @@ int main(void)
         send_rs422_now = 0;
         pack_telem(telem_unstuffed);
 		stuff_telem(telem_unstuffed, telem_stuffed);
-		if(LOGGING_ACTIVE){
-			save_telem(logfile);
-		}
         send_telem(rs422_com, gui_byte_packet);
         TIME(telemetry_cycle_time);
         //__HAL_IWDG_RELOAD_COUNTER(&hiwdg);

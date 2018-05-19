@@ -36,4 +36,5 @@ for packet in packets:
 	packet = unstuffed
 	# print(list(unstuffed))
 	parser.parse_packet(packet)
-	datalog.write(parser.log_string+'\n')
+	if not(parser.valve_states == 65535):
+		datalog.write(parser.log_string+'\n')

@@ -131,6 +131,7 @@ def get_file():
     print("All files downloaded.")
     print("Telemetry Resumed.")
     print("")  
+    os.system("ec_binary_parser.py "+filename)
 
 # Gloabals
 mtr = ['mtr0', 'mtr1', 'mtr2', 'mtr3']
@@ -175,58 +176,58 @@ zc = 2
 
 ################### PLOT DEV ########################
 
-ground_active_plots = [False]*parser.num_items
-flight_active_plots = [False]*parser.num_items
+# ground_active_plots = [False]*parser.num_items
+# flight_active_plots = [False]*parser.num_items
 
 
-def ground_plots_update(item_clicked):
-    if(not item_clicked.column() == 2): 
-        return
-    if(ground_active_plots[item_clicked.row()]):
-        temp_item = QtGui.QTableWidgetItem("off")
-        temp_item.setBackground(QtGui.QColor(250,150,150))
-        ground_table.setItem(item_clicked.row(), item_clicked.column(), temp_item)
-        ground_active_plots[item_clicked.row()] = False
-        ground_plot_1.removeItem(ground_curves[item_clicked.row()])
-    else:
-        temp_item = QtGui.QTableWidgetItem("on")
-        temp_item.setBackground(QtGui.QColor(150, 250, 150))
-        ground_table.setItem(item_clicked.row(), item_clicked.column(), temp_item)
-        ground_active_plots[item_clicked.row()] = True
-        ground_curves[item_clicked.row()] = (ground_plot_1.plot(ground_x[n], ground_y[n], pen=(0,0,255)))
+# def ground_plots_update(item_clicked):
+#     if(not item_clicked.column() == 2): 
+#         return
+#     if(ground_active_plots[item_clicked.row()]):
+#         temp_item = QtGui.QTableWidgetItem("off")
+#         temp_item.setBackground(QtGui.QColor(250,150,150))
+#         ground_table.setItem(item_clicked.row(), item_clicked.column(), temp_item)
+#         ground_active_plots[item_clicked.row()] = False
+#         ground_plot_1.removeItem(ground_curves[item_clicked.row()])
+#     else:
+#         temp_item = QtGui.QTableWidgetItem("on")
+#         temp_item.setBackground(QtGui.QColor(150, 250, 150))
+#         ground_table.setItem(item_clicked.row(), item_clicked.column(), temp_item)
+#         ground_active_plots[item_clicked.row()] = True
+#         ground_curves[item_clicked.row()] = (ground_plot_1.plot(ground_x[n], ground_y[n], pen=(0,0,255)))
 
 
-clear_plot = QtGui.QPushButton("Clear plot")
-ground_layout.addWidget(clear_plot, 8, 20)
-clear_plot.clicked.connect(lambda: reset_plot())
+# clear_plot = QtGui.QPushButton("Clear plot")
+# ground_layout.addWidget(clear_plot, 8, 20)
+# clear_plot.clicked.connect(lambda: reset_plot())
 
-pg.setConfigOption('background', 'w')
-ground_plot_1 = pg.PlotWidget(title='Dynamic Plotting with PyQtGraph')
-# ground_plot_1.enableAutoRange(axis='x')
-ground_layout.addWidget(ground_plot_1, zr+0, zc+11, 20, 7)
+# pg.setConfigOption('background', 'w')
+# ground_plot_1 = pg.PlotWidget(title='Dynamic Plotting with PyQtGraph')
+# # ground_plot_1.enableAutoRange(axis='x')
+# ground_layout.addWidget(ground_plot_1, zr+0, zc+11, 20, 7)
 
-def reset_plot():
-    global ground_x, ground_y, BUFFER_SIZE, ground_curves
-    for n in range(parser.num_items):
-        try:
-            ground_plot_1.removeItem(ground_curves[n])
-        except:
-            pass
+# def reset_plot():
+#     global ground_x, ground_y, BUFFER_SIZE, ground_curves
+#     for n in range(parser.num_items):
+#         try:
+#             ground_plot_1.removeItem(ground_curves[n])
+#         except:
+#             pass
 
-    ground_y = [[0]*BUFFER_SIZE]*parser.num_items
-    ground_x = [[0]*BUFFER_SIZE]*parser.num_items
-
-
-BUFFER_SIZE = 100
-ground_y = [[0]*BUFFER_SIZE]*parser.num_items
-ground_x = [[0]*BUFFER_SIZE]*parser.num_items
+#     ground_y = [[0]*BUFFER_SIZE]*parser.num_items
+#     ground_x = [[0]*BUFFER_SIZE]*parser.num_items
 
 
-ground_curves = [None]*parser.num_items
+# BUFFER_SIZE = 100
+# ground_y = [[0]*BUFFER_SIZE]*parser.num_items
+# ground_x = [[0]*BUFFER_SIZE]*parser.num_items
+
+
+# ground_curves = [None]*parser.num_items
     
 
 
-##################### END PLOT DEV ########################
+# ##################### END PLOT DEV ########################
 
 # Full telemetry table
 ground_table = QtGui.QTableWidget()
@@ -234,19 +235,19 @@ ground_table.setRowCount(parser.num_items)
 ground_table.setColumnCount(3)
 for n in range(parser.num_items):
     ground_table.setItem(n,0, QtGui.QTableWidgetItem(parser.items[n]))
-    temp_item = QtGui.QTableWidgetItem("off")
-    temp_item.setBackground(QtGui.QColor(250,150,150))
-    ground_table.setItem(n, 2, temp_item)
+    # temp_item = QtGui.QTableWidgetItem("off")
+    # temp_item.setBackground(QtGui.QColor(250,150,150))
+    # ground_table.setItem(n, 2, temp_item)
 ground_layout.addWidget(ground_table, zr+0, zc+8, 20, 3)
-ground_table.clicked.connect(ground_plots_update)
+# ground_table.clicked.connect(ground_plots_update)
 
-# Full telemetry table
-flight_table = QtGui.QTableWidget()
-flight_table.setRowCount(parser.num_items)
-flight_table.setColumnCount(2)
-for n in range(parser.num_items):
-    flight_table.setItem(n,0, QtGui.QTableWidgetItem(parser.items[n]))
-    flight_layout.addWidget(flight_table, zr+9, zc+1, 10, 3)
+# # Full telemetry table
+# flight_table = QtGui.QTableWidget()
+# flight_table.setRowCount(parser.num_items)
+# flight_table.setColumnCount(2)
+# for n in range(parser.num_items):
+#     flight_table.setItem(n,0, QtGui.QTableWidgetItem(parser.items[n]))
+#     flight_layout.addWidget(flight_table, zr+9, zc+1, 10, 3)
     
 
 
@@ -330,16 +331,16 @@ def parse_serial():
             ### GROUND DATA UPDATE ############################################
             ###################################################################
             if(parser.BOARD_ID == TARGET_ADDRESS_GROUND):
-                for n in range(parser.num_items):
-                    if ground_active_plots[n]:
-                        ground_plot_1.addItem(ground_curves[n])
-                        ground_y[n].append(parser.dict[parser.items[n]])
-                        ground_x[n].append(time.clock())
-                        ground_y[n] = ground_y[n][1:]
-                        ground_x[n] = ground_x[n][1:]
-                        print(ground_x[n])
-                        ground_curves[n].setData(ground_x[n][:], ground_y[n][:])
-                        app.processEvents()
+                # for n in range(parser.num_items):
+                #     if ground_active_plots[n]:
+                #         ground_plot_1.addItem(ground_curves[n])
+                #         ground_y[n].append(parser.dict[parser.items[n]])
+                #         ground_x[n].append(time.clock())
+                #         ground_y[n] = ground_y[n][1:]
+                #         ground_x[n] = ground_x[n][1:]
+                #         print(ground_x[n])
+                #         ground_curves[n].setData(ground_x[n][:], ground_y[n][:])
+                #         app.processEvents()
 
                 mask = 1
                 # Update valve state feedback
