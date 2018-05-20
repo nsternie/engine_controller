@@ -241,13 +241,13 @@ for n in range(parser.num_items):
 ground_layout.addWidget(ground_table, zr+0, zc+8, 20, 3)
 # ground_table.clicked.connect(ground_plots_update)
 
-# # Full telemetry table
-# flight_table = QtGui.QTableWidget()
-# flight_table.setRowCount(parser.num_items)
-# flight_table.setColumnCount(2)
-# for n in range(parser.num_items):
-#     flight_table.setItem(n,0, QtGui.QTableWidgetItem(parser.items[n]))
-#     flight_layout.addWidget(flight_table, zr+9, zc+1, 10, 3)
+# Full telemetry table
+flight_table = QtGui.QTableWidget()
+flight_table.setRowCount(parser.num_items)
+flight_table.setColumnCount(2)
+for n in range(parser.num_items):
+    flight_table.setItem(n,0, QtGui.QTableWidgetItem(parser.items[n]))
+    flight_layout.addWidget(flight_table, zr+9, zc+1, 10, 3)
     
 
 
@@ -440,7 +440,7 @@ def parse_serial():
 
     except Exception:
         pass
-        #raise Exception
+        # raise Exception
             
 
 

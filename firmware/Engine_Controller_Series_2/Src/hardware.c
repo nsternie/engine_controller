@@ -16,6 +16,8 @@ extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim9;
 
+extern IWDG_HandleTypeDef hiwdg;
+
 extern UART_HandleTypeDef huart1;
 
 // Hardware wrappers
@@ -474,6 +476,7 @@ void print_file(int32_t argc, int32_t* argv){
 		uint8_t buffer[2048];
 		read_buffer(0, buffer, 2048);
 		HAL_UART_Transmit(&huart1, buffer, 2048, 0xffff);
+		__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
 	}
 }
 void numfiles(int32_t argc, int32_t* argv){
