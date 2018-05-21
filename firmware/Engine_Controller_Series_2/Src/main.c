@@ -51,6 +51,7 @@
 #include "hardware.h"
 #include "flash.h"
 #include "config.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -72,16 +73,25 @@ TIM_HandleTypeDef htim10;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart6;
+DMA_HandleTypeDef hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 #define millis	((__HAL_TIM_GET_COUNTER(&htim2))/1000)
+
+#define DMA_RX_BUFFER_SIZE          (PACKET_SIZE + 2)
+uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];
+//
+#define UART_BUFFER_SIZE            256
+uint8_t UART_Buffer[UART_BUFFER_SIZE];
+
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM2_Init(void);
@@ -123,15 +133,13 @@ void start_auto(struct autosequence *a);
 void stop_auto(struct autosequence *a);
 void kill_auto(struct autosequence *a);
 
+
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-{
-	HAL_UART_DeInit(huart);
-	HAL_UART_Init(huart);
-}
+
 
 void system_init(){
 	// Start the timers
@@ -150,6 +158,7 @@ void system_init(){
 
 	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
 	HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
+	//HAL_UART_Receive_DMA(&huart6, &uart6_in, PACKET_SIZE+2);
 
 
 	for(int n = 0; n < 4; n++){
@@ -224,6 +233,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI1_Init();
   MX_SPI4_Init();
   MX_TIM2_Init();
@@ -253,26 +263,42 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
- 	uint32_t last_time = 0;
   while (1)
   {
 
-// Check if packet is in from downstream engine controller
+ //Check if packet is in from downstream engine controller
     for(uint8_t n = 0; n < 255; n++){
         if(upstream_buffer.data[n] == (uint8_t) '\n'){
         	command(led1, 1);
-        	__disable_irq();
+        	//__disable_irq();
+        	HAL_Delay(1);
+//        	while(millis - xmit_counter < xmit_delay);
             HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
+//            xmit_counter = millis;
             command(led1, 0);
+//            send_rs422_now = 1;
+//            pack_telem(telem_unstuffed);
+//			stuff_telem(telem_unstuffed, telem_stuffed);
+//			send_telem(rs422_com, gui_byte_packet);
+//			TIME(telemetry_cycle_time);
+//			__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
 
             upstream_buffer.filled = 0;
             for(int j = 0; j < 255; j++){
                 upstream_buffer.data[j] = 0;
             }
-            __enable_irq();
+            //__enable_irq();
             break;
         }
     }
+
+//	  if(relay_packet == 1){
+//		  command(led1, 1);
+////		  memcpy(uart6_in, upstream_buffer.data, PACKET_SIZE+2);  // swap src and dst???
+//		  HAL_UART_Transmit(&huart1, uart6_in, PACKET_SIZE+2, 0xffff);
+//		  relay_packet = 0;
+//		  command(led1, 0);
+//	  }
 
 
     if(read_adc_now){
@@ -291,7 +317,18 @@ int main(void)
         send_rs422_now = 0;
         pack_telem(telem_unstuffed);
 		stuff_telem(telem_unstuffed, telem_stuffed);
-        send_telem(rs422_com, gui_byte_packet);
+
+
+//		for(int n = 0; n < PACKET_SIZE; n++){
+//			if(telem_stuffed[n] == '\n'){
+//				command(led2, 1);
+//			}
+//		}
+
+		//while(millis - xmit_counter < xmit_delay);
+       send_telem(rs422_com, gui_byte_packet);
+        //xmit_counter = millis;
+
         TIME(telemetry_cycle_time);
         __HAL_IWDG_RELOAD_COUNTER(&hiwdg);
     }
@@ -373,7 +410,7 @@ void SystemClock_Config(void)
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, 1, 0);
 }
 
 /* IWDG init function */
@@ -381,7 +418,7 @@ static void MX_IWDG_Init(void)
 {
 
   hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_16;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_8;
   hiwdg.Init.Reload = 4095;
   if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
   {
@@ -756,6 +793,21 @@ static void MX_USART6_UART_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+}
+
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Stream1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
 
 }
 

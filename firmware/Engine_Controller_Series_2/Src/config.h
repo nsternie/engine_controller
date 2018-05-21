@@ -10,7 +10,7 @@
 
 #include "hardware.h"
 
-#define BOARD_ID TARGET_ADDRESS_GROUND
-//#define BOARD_ID TARGET_ADDRESS_FLIGHT
+//#define BOARD_ID TARGET_ADDRESS_GROUND
+#define BOARD_ID TARGET_ADDRESS_FLIGHT
 
 #endif /* CONFIG_H_ */

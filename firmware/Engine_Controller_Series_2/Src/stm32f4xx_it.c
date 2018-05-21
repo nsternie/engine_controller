@@ -39,6 +39,9 @@
 
 #include "command.h"
 #include "globals.h"
+#include "pack_telem_defines.h"
+#include "string.h"
+#include "stm32f4xx_hal_tim.h"
 
 extern UART_HandleTypeDef huart5;
 extern uint8_t spirit_in;
@@ -52,6 +55,7 @@ extern volatile uint8_t send_rs422_now;
 extern volatile uint8_t send_xbee_now;
 extern volatile uint8_t update_motors_now;
 
+extern TIM_HandleTypeDef htim2;
 
 void push_buf(struct simple_buf *b, uint8_t data_in){
 	b->data[b->filled] = data_in;
@@ -63,11 +67,14 @@ uint8_t pop_buf(struct simple_buf *b){
 	return temp;
 }
 
+
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim6;
+extern DMA_HandleTypeDef hdma_usart6_rx;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart6;
 
@@ -267,19 +274,44 @@ void TIM6_DAC_IRQHandler(void)
 }
 
 /**
+* @brief This function handles DMA2 stream1 global interrupt.
+*/
+void DMA2_Stream1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream1_IRQn 0 */
+#if 0
+  /* USER CODE END DMA2_Stream1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart6_rx);
+  /* USER CODE BEGIN DMA2_Stream1_IRQn 1 */
+#endif
+  DMA_IrqHandler(&hdma_usart6_rx);
+  /* USER CODE END DMA2_Stream1_IRQn 1 */
+}
+
+/**
 * @brief This function handles USART6 global interrupt.
 */
 void USART6_IRQHandler(void)
 {
   /* USER CODE BEGIN USART6_IRQn 0 */
-
+#if 1
   /* USER CODE END USART6_IRQn 0 */
   HAL_UART_IRQHandler(&huart6);
   /* USER CODE BEGIN USART6_IRQn 1 */
-
-  if(uart6_in == '\n') relay_packet = 1;
+#endif
   upstream_buffer.data[upstream_buffer.filled++] = uart6_in;
+//  if(upstream_buffer.filled > 254){
+//	  upstream_buffer.filled = 0;
+//	  for(int j = 0; j < 255; j++){
+//		  upstream_buffer.data[j] = 0;
+//	  }
+//  }
+  //xmit_counter = __HAL_TIM_GET_COUNTER(&htim2); // millis
   HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
+//  relay_packet = 1;
+//  memcpy(uart6_in, upstream_buffer.data, PACKET_SIZE+2);
+//  HAL_UART_Receive_IT(&huart6, uart6_in, PACKET_SIZE+2);
+  //USART_IrqHandler(&huart6, &hdma_usart6_rx);
   /* USER CODE END USART6_IRQn 1 */
 }
 

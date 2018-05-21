@@ -196,32 +196,64 @@ def ground_plots_update(item_clicked):
         ground_curves[item_clicked.row()] = (ground_plot_1.plot(ground_x[n], ground_y[n], pen=(0,0,255)))
 
 
-clear_plot = QtGui.QPushButton("Clear plot")
-ground_layout.addWidget(clear_plot, 8, 20)
-clear_plot.clicked.connect(lambda: reset_plot())
+ground_clear_plot = QtGui.QPushButton("Clear plot")
+ground_layout.addWidget(ground_clear_plot, 8, 20)
+ground_clear_plot.clicked.connect(lambda: ground_reset_plot())
 
 pg.setConfigOption('background', 'w')
 ground_plot_1 = pg.PlotWidget(title='Dynamic Plotting with PyQtGraph')
-# ground_plot_1.enableAutoRange(axis='x')
-ground_layout.addWidget(ground_plot_1, zr+0, zc+11, 20, 7)
+ground_layout.addWidget(ground_plot_1, zr+0, zc+11, 25, 7)
 
 def reset_plot():
     global ground_x, ground_y, BUFFER_SIZE, ground_curves
-    #ground_plot_1.clear()
     ground_y = [[]]*parser.num_items
     ground_x = [[]]*parser.num_items
-    #ground_y = [[0]*BUFFER_SIZE]*parser.num_items
-    #ground_x = [[0]*BUFFER_SIZE]*parser.num_items
-
 
 BUFFER_SIZE = 100
-#ground_y = [[0]*BUFFER_SIZE]*parser.num_items
-#ground_x = [[0]*BUFFER_SIZE]*parser.num_items
 ground_y = [[]]*parser.num_items
 ground_x = [[]]*parser.num_items
-
-
 ground_curves = [None]*parser.num_items
+
+
+def flight_plots_update(item_clicked):
+    if(not item_clicked.column() == 2):
+        return
+    if(flight_active_plots[item_clicked.row()]):
+        temp_item = QtGui.QTableWidgetItem("off")
+        temp_item.setBackground(QtGui.QColor(250,150,150))
+        flight_table.setItem(item_clicked.row(), item_clicked.column(), temp_item)
+        flight_active_plots[item_clicked.row()] = False
+        flight_plot_1.removeItem(flight_curves[item_clicked.row()])
+    else:
+        temp_item = QtGui.QTableWidgetItem("on")
+        temp_item.setBackground(QtGui.QColor(150, 250, 150))
+        flight_table.setItem(item_clicked.row(), item_clicked.column(), temp_item)
+        flight_active_plots[item_clicked.row()] = True
+        flight_curves[item_clicked.row()] = (flight_plot_1.plot(flight_x[n], flight_y[n], pen=(0,0,255)))
+
+
+flight_clear_plot = QtGui.QPushButton("Clear plot")
+flight_layout.addWidget(flight_clear_plot, 8, 21)
+flight_clear_plot.clicked.connect(lambda: flight_reset_plot())
+
+pg.setConfigOption('background', 'w')
+flight_plot_1 = pg.PlotWidget(title='Dynamic Plotting with PyQtGraph')
+flight_layout.addWidget(flight_plot_1, zr+0, zc+12, 25, 7)
+
+def ground_reset_plot():
+    global flight_x, flight_y, BUFFER_SIZE, ground_curves
+    ground_y = [[]]*parser.num_items
+    ground_x = [[]]*parser.num_items
+
+def flight_reset_plot():
+    global flight_x, flight_y, BUFFER_SIZE, flight_curves
+    flight_y = [[]]*parser.num_items
+    flight_x = [[]]*parser.num_items
+
+BUFFER_SIZE = 100
+flight_y = [[]]*parser.num_items
+flight_x = [[]]*parser.num_items
+flight_curves = [None]*parser.num_items
 
 
 
@@ -236,17 +268,20 @@ for n in range(parser.num_items):
     temp_item = QtGui.QTableWidgetItem("off")
     temp_item.setBackground(QtGui.QColor(250,150,150))
     ground_table.setItem(n, 2, temp_item)
-ground_layout.addWidget(ground_table, zr+0, zc+8, 20, 3)
+ground_layout.addWidget(ground_table, zr+0, zc+8, 25, 3)
 ground_table.clicked.connect(ground_plots_update)
 
 # Full telemetry table
 flight_table = QtGui.QTableWidget()
 flight_table.setRowCount(parser.num_items)
-flight_table.setColumnCount(2)
+flight_table.setColumnCount(3)
 for n in range(parser.num_items):
     flight_table.setItem(n,0, QtGui.QTableWidgetItem(parser.items[n]))
-    flight_layout.addWidget(flight_table, zr+9, zc+1, 10, 3)
-
+    temp_item = QtGui.QTableWidgetItem("off")
+    temp_item.setBackground(QtGui.QColor(250,150,150))
+    flight_table.setItem(n, 2, temp_item)
+flight_layout.addWidget(flight_table,  zr+0, zc+9, 25, 3)
+flight_table.clicked.connect(flight_plots_update)
 
 
 # Populate the alias dictionary
@@ -298,11 +333,16 @@ def parse_serial():
         if(ser.is_open):
             # Read a packet
             packet = ser.readline()
+            # print(packet)
+            print(len(packet))
+            # if not(len(packet) == 139):
+            #      os.system("python G:\\Code\\python\\alert_bot.py \"Ivalid packet detected at"+time.ctime()+"\"")
+            #     # death()
+            #     # exit()
             if(len(packet) == 0):
-                # os.system("python G:\\Code\\python\\alert_bot.py \"Zero packet detected at"+time.ctime()+"\"")
-                # death()
-                # exit()
-                pass
+                os.system("python G:\\Code\\python\\alert_bot.py \"Zero packet detected. Exiting... at"+time.ctime()+"\"")
+                death()
+                exit()
             serial_log.write("%.3f," % time.clock())
             serial_log.write(str(packet)+'length = '+str(len(packet))+'\n')
             # Unstuff the packet
@@ -315,14 +355,8 @@ def parse_serial():
                     temp = b'\n'
                 unstuffed = unstuffed + temp
             packet = unstuffed
-            #line = str(line, 'ascii')
-            #try:
-                #split_line = line.split(',')
-            #try:
+
             parser.parse_packet(packet)
-            #except:
-                #print("Parser error")
-            #    info_log.write(time.ctime()+" parser error\n")
             data_log.write(parser.log_string+'\n')
 
             ###################################################################
@@ -335,8 +369,6 @@ def parse_serial():
                     ground_y[n] = ground_y[n][-100:]
                     ground_x[n] = ground_x[n][-100:]
                     if ground_active_plots[n]:
-                        #ground_plot_1.addItem(ground_curves[n])
-                        #print(len(ground_x[n]))
                         ground_curves[n].setData(ground_x[n][:], ground_y[n][:])
                         app.processEvents()
 
@@ -361,8 +393,8 @@ def parse_serial():
                 ground_tvlv_value.setText(str(parser.tvlv))
                 ground_tmtr_value.setText(str(parser.tmtr))
 
-                last_packet_ground.setText("Last Packet #: "+str(parser.last_packet_number))
-                last_command_ground.setText("Last Command id: "+str(parser.last_command_id))
+                last_packet_ground.setText(str(parser.last_packet_number))
+                last_command_ground.setText(str(parser.last_command_id))
 
                 ground_ibridge0.setText("Motor 0 Current: "+str(parser.imtr[0]))
                 ground_ibridge1.setText("Motor 1 Current: "+str(parser.imtr[1]))
@@ -381,6 +413,17 @@ def parse_serial():
             ### FLIGHT DATA UPDATE ############################################
             ###################################################################
             if(parser.BOARD_ID == TARGET_ADDRESS_FLIGHT):
+
+                for n in range(parser.num_items-1):
+                    flight_y[n].append(parser.dict[parser.items[n]])
+                    flight_x[n].append(time.clock())
+                    flight_y[n] = flight_y[n][-BUFFER_SIZE:]
+                    flight_x[n] = flight_x[n][-BUFFER_SIZE:]
+                    if flight_active_plots[n]:
+                        flight_curves[n].setData(flight_x[n][:], flight_y[n][:])
+                        app.processEvents()
+
+
                 mask = 1
                 # Update valve state feedback
                 for n in range(0, 8):
@@ -403,8 +446,8 @@ def parse_serial():
                 flight_tvlv_value.setText(str(parser.tvlv))
                 flight_tmtr_value.setText(str(parser.tmtr))
 
-                last_packet_flight.setText("Last Packet #: "+str(parser.last_packet_number))
-                last_command_flight.setText("Last Command id: "+str(parser.last_command_id))
+                last_packet_flight.setText(str(parser.last_packet_number))
+                last_command_flight.setText(str(parser.last_command_id))
 
                 flight_ibridge0.setText("Motor 0 Current: "+str(parser.imtr[0]))
                 flight_ibridge1.setText("Motor 1 Current: "+str(parser.imtr[1]))
@@ -417,6 +460,10 @@ def parse_serial():
                 kpfb.setText(str(parser.motor_control_gain[0]))
                 kifb.setText(str(parser.motor_control_gain[1]))
                 kdfb.setText(str(parser.motor_control_gain[2]))
+
+                for n in range(parser.num_items - 1):
+                    flight_table.setItem(n, 1, QtGui.QTableWidgetItem(str(parser.dict[parser.items[n]])))
+
 
                 for mtrx in range(0, 2):
                     try:
@@ -438,7 +485,7 @@ def parse_serial():
 
     except Exception:
         pass
-        raise Exception
+        # raise Exception
 
 
 
@@ -535,48 +582,113 @@ flight_tmtr_label = QtGui.QLabel("MOTOR TEMP:")
 flight_tbrd_value = QtGui.QLabel("tbrd")
 flight_tvlv_value = QtGui.QLabel("tvlv")
 flight_tmtr_value = QtGui.QLabel("tmtr")
-flight_layout.addWidget(flight_BOARD_HEALTH_LABEL, zr+9, zc+1-1)
-flight_layout.addWidget(flight_ebatt_label, zr+10, zc+1-1)
-flight_layout.addWidget(flight_ibus_label, zr+11, zc+1-1)
-flight_layout.addWidget(flight_ebatt_value, zr+10, zc+2-1)
-flight_layout.addWidget(flight_ibus_value, zr+11, zc+2-1)
-flight_layout.addWidget(flight_e5v_label, zr+12, zc+1-1)
-flight_layout.addWidget(flight_e3v_label, zr+13, zc+1-1)
-flight_layout.addWidget(flight_e5v_value, zr+12, zc+2-1)
-flight_layout.addWidget(flight_e3v_value, zr+13, zc+2-1)
-flight_layout.addWidget(flight_tbrd_label, zr+14, zc+1-1)
-flight_layout.addWidget(flight_tvlv_label, zr+15, zc+1-1)
-flight_layout.addWidget(flight_tmtr_label, zr+16, zc+1-1)
-flight_layout.addWidget(flight_tbrd_value, zr+14, zc+2-1)
-flight_layout.addWidget(flight_tvlv_value, zr+15, zc+2-1)
-flight_layout.addWidget(flight_tmtr_value, zr+16, zc+2-1)
+flight_layout.addWidget(flight_BOARD_HEALTH_LABEL, zr+9+5, zc+1-1-2)
+flight_layout.addWidget(flight_ebatt_label, zr+10+5, zc+1-1-2)
+flight_layout.addWidget(flight_ibus_label, zr+11+5, zc+1-1-2)
+flight_layout.addWidget(flight_ebatt_value, zr+10+5, zc+2-1-2)
+flight_layout.addWidget(flight_ibus_value, zr+11+5, zc+2-1-2)
+flight_layout.addWidget(flight_e5v_label, zr+12+5, zc+1-1-2)
+flight_layout.addWidget(flight_e3v_label, zr+13+5, zc+1-1-2)
+flight_layout.addWidget(flight_e5v_value, zr+12+5, zc+2-1-2)
+flight_layout.addWidget(flight_e3v_value, zr+13+5, zc+2-1-2)
+flight_layout.addWidget(flight_tbrd_label, zr+14+5, zc+1-1-2)
+flight_layout.addWidget(flight_tvlv_label, zr+15+5, zc+1-1-2)
+flight_layout.addWidget(flight_tmtr_label, zr+16+5, zc+1-1-2)
+flight_layout.addWidget(flight_tbrd_value, zr+14+5, zc+2-1-2)
+flight_layout.addWidget(flight_tvlv_value, zr+15+5, zc+2-1-2)
+flight_layout.addWidget(flight_tmtr_value, zr+16+5, zc+2-1-2)
+
+# Last packet
+last_packet_ground_label = QtGui.QLabel("Packet # TX/RX")
+last_command_ground_label = QtGui.QLabel("Last Command id")
+ground_layout.addWidget(last_packet_ground_label, zr+16+5+1, zc-2)
+ground_layout.addWidget(last_command_ground_label, zr+16+5+2, zc-2)
+last_packet_flight_label = QtGui.QLabel("Packet # TX/RX")
+last_command_flight_label = QtGui.QLabel("Last Command id")
+flight_layout.addWidget(last_packet_flight_label, zr+16+5+1, zc-2)
+flight_layout.addWidget(last_command_flight_label, zr+16+5+2, zc-2)
+
+last_packet_ground = QtGui.QLabel("last packet")
+last_command_ground = QtGui.QLabel("last command")
+ground_layout.addWidget(last_packet_ground, zr+16+5+1, zc-1)
+ground_layout.addWidget(last_command_ground, zr+16+5+2, zc-1)
+last_packet_flight = QtGui.QLabel("last packet")
+last_command_flight = QtGui.QLabel("last command")
+flight_layout.addWidget(last_packet_flight, zr+16+5+1, zc-1)
+flight_layout.addWidget(last_command_flight, zr+16+5+2, zc-1)
+
+font_list = []
+font_list.append(ground_BOARD_HEALTH_LABEL)
+font_list.append(flight_BOARD_HEALTH_LABEL)
+font_list.append(ground_ebatt_label)
+font_list.append(ground_ibus_label)
+font_list.append(ground_e5v_label )
+font_list.append(ground_e3v_label )
+font_list.append(ground_ebatt_value)
+font_list.append(ground_ibus_value)
+font_list.append(ground_e5v_value )
+font_list.append(ground_e3v_value )
+font_list.append(ground_tbrd_label)
+font_list.append(ground_tvlv_label)
+font_list.append(ground_tmtr_label)
+font_list.append(ground_tbrd_value)
+font_list.append(ground_tvlv_value)
+font_list.append(ground_tmtr_value)
+font_list.append(flight_ebatt_label)
+font_list.append(flight_ibus_label)
+font_list.append(flight_e5v_label )
+font_list.append(flight_e3v_label )
+font_list.append(flight_ebatt_value)
+font_list.append(flight_ibus_value)
+font_list.append(flight_e5v_value )
+font_list.append(flight_e3v_value )
+font_list.append(flight_tbrd_label)
+font_list.append(flight_tvlv_label)
+font_list.append(flight_tmtr_label)
+font_list.append(flight_tbrd_value)
+font_list.append(flight_tvlv_value)
+font_list.append(flight_tmtr_value)
+font_list.append(last_packet_ground)
+font_list.append(last_command_ground)
+font_list.append(last_packet_flight)
+font_list.append(last_command_flight)
+font_list.append(last_packet_ground_label)
+font_list.append(last_command_ground_label)
+font_list.append(last_packet_flight_label)
+font_list.append(last_command_flight_label)
+
+for thing in font_list:
+    thing.setFont(QtGui.QFont('SansSerif', 14))
 
 
-for n in range(20):
-    ground_layout.setRowStretch(zr+n, 10)
-############ COLUMN WIDTH FORMATTING
-ground_layout.setColumnStretch(0, 10)
-ground_layout.setColumnStretch(1, 10)
-ground_layout.setColumnStretch(2, 10)
-ground_layout.setColumnStretch(3, 10)
-ground_layout.setColumnStretch(4, 10)
-ground_layout.setColumnStretch(5, 10)
-ground_layout.setColumnStretch(6, 10)
-ground_layout.setColumnStretch(7, 10)
-ground_layout.setColumnStretch(8, 10)
-ground_layout.setColumnStretch(9, 10)
-ground_layout.setColumnStretch(10, 90)
-ground_layout.setColumnStretch(11, 90)
-ground_layout.setColumnStretch(12, 90)
-ground_layout.setColumnStretch(13, 90)
-ground_layout.setColumnStretch(14, 90)
-ground_layout.setColumnStretch(15, 90)
-ground_layout.setColumnStretch(16, 90)
-# ground_layout.setColumnStretch(zc+17, 10)
-# ground_layout.setColumnStretch(zc+18, 10)
-# ground_layout.setColumnStretch(zc+19, 10)
-# ground_layout.setColumnStretch(zc+20, 10)
-# ground_layout.setColumnStretch(zc+21, 10)
+
+
+for layout in (ground_layout, flight_layout):
+    for n in range(30):
+        layout.setRowStretch(zr+n, 10)
+    ############ COLUMN WIDTH FORMATTING
+    layout.setColumnStretch(0, 10)
+    layout.setColumnStretch(1, 10)
+    layout.setColumnStretch(2, 10)
+    layout.setColumnStretch(3, 10)
+    layout.setColumnStretch(4, 10)
+    layout.setColumnStretch(5, 10)
+    layout.setColumnStretch(6, 10)
+    layout.setColumnStretch(7, 10)
+    layout.setColumnStretch(8, 10)
+    layout.setColumnStretch(9, 10)
+    layout.setColumnStretch(10, 90)
+    layout.setColumnStretch(11, 90)
+    layout.setColumnStretch(12, 90)
+    layout.setColumnStretch(13, 90)
+    layout.setColumnStretch(14, 90)
+    layout.setColumnStretch(15, 90)
+    layout.setColumnStretch(16, 90)
+    # layout.setColumnStretch(zc+17, 10)
+    # layout.setColumnStretch(zc+18, 10)
+    # layout.setColumnStretch(zc+19, 10)
+    # layout.setColumnStretch(zc+20, 10)
+    # layout.setColumnStretch(zc+21, 10)
 
 def layout_common_widgets(layout, vlv_buttons, p_labels):
     for n in range(0, 8):
@@ -710,15 +822,7 @@ flight_layout.addWidget(kpfb, zr+9-2, zc+7)
 flight_layout.addWidget(kifb, zr+10-2, zc+7)
 flight_layout.addWidget(kdfb, zr+11-2, zc+7)
 
-# Last packet
-last_packet_ground = QtGui.QLabel("last packet")
-last_command_ground = QtGui.QLabel("last command")
-ground_layout.addWidget(last_packet_ground, zr+9, zc+4)
-ground_layout.addWidget(last_command_ground, zr+10, zc+4)
-last_packet_flight = QtGui.QLabel("last packet")
-last_command_flight = QtGui.QLabel("last command")
-flight_layout.addWidget(last_packet_flight, zr+10, zc+7)
-flight_layout.addWidget(last_command_flight, zr+11, zc+7)
+
 
 # Bridge current
 ground_ibridge0 = QtGui.QLabel("ground_ibridge0")
@@ -751,32 +855,6 @@ main_cycle_rate_label = QtGui.QLabel("Main:")
 adc_cycle_rate_label = QtGui.QLabel("ADC")
 telemetry_cycle_rate_label = QtGui.QLabel("Telem")
 
-columns = 12
-col_label = []
-for n in range(0, columns+1):
-    col_label.append(QtGui.QLabel())
-
-col_label[0].setText("Valve OFF")
-col_label[1].setText("Valve ON")
-col_label[2].setText("State")
-col_label[3].setText("Current")
-col_label[4].setText("Voltage")
-col_label[5].setText("Pressure")
-col_label[7].setText("Value")
-col_label[8].setText("Set Values")
-col_label[9].setText("Feedback")
-col_label[10].setText("Actual")
-col_label[11].setText("Actual")
-
-flight_layout.addWidget(col_label[0], zr+0, 0)
-flight_layout.addWidget(col_label[1], zr+0, 1)
-flight_layout.addWidget(col_label[2], zr+0, 2)
-flight_layout.addWidget(col_label[3], zr+0, 3)
-flight_layout.addWidget(col_label[4], zr+0, 4)
-flight_layout.addWidget(col_label[5], zr+0, 5)
-flight_layout.addWidget(col_label[6], zr+0, 6)
-flight_layout.addWidget(col_label[7], zr+0, 7)
-flight_layout.addWidget(col_label[8], zr+0, 8)
 
 def death():
     command_log.close()
@@ -785,11 +863,12 @@ def death():
     data_log.close()
     app.quit()
 
-KILL = QtGui.QPushButton("End Run")
-ground_layout.addWidget(KILL, zr+0, zc+5)
-
-
-
+KILL1 = QtGui.QPushButton("End Run")
+ground_layout.addWidget(KILL1, zr+0, zc+5)
+KILL2 = QtGui.QPushButton("End Run")
+flight_layout.addWidget(KILL2, zr+0, zc+5)
+KILL1.clicked.connect(death)
+KILL2.clicked.connect(death)
 
 if(1):
     # Add image
@@ -816,10 +895,10 @@ ground_telemrate_send.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, 
 flight_samplerate_send.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_SAMPLERATE_SET, 1, [int(flight_samplerate_setpoint.text())]))
 flight_telemrate_send.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEMRATE_SET, 1, [int(flight_telemrate_setpoint.text())]))
 
-arm_button.clicked.connect(lambda: send("arm"))
-disarm_button.clicked.connect(lambda: send("disarm"))
-hotfire_button.clicked.connect(lambda: send("hotfire"))
-KILL.clicked.connect(death)
+arm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_ARM, 0, []))
+disarm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DISARM, 0, []))
+hotfire_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_MAIN_AUTO_START, 0, []))
+
  # GROUND VALVES
 ground_valve_buttons[0][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [0,0]))
 ground_valve_buttons[1][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [1,0]))
@@ -897,8 +976,7 @@ qd_fuel_connect.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAN
 ##############################################################################
 
 # Start
-flight_window.show()
-ground_window.show()
+flight_window.showMaximized()
 ground_window.showMaximized()
 # plot_window.show()
 

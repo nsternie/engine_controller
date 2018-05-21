@@ -113,6 +113,7 @@ void scale_readings(){
 	tbrd = (adc_data[2][5])/1.24;
 	tbrd -= 600;
 	tbrd /= 10;
+	tbrd = 1;
 	tvlv = (adc_data[2][6])/1.24;
 	tvlv -= 600;
 	tvlv /= 10;

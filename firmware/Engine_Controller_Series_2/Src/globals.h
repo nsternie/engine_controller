@@ -75,7 +75,7 @@
 #define MAX_COMMAND_LENGTH 	32
 #define COMMAND_HISTORY 5
 
-#define UART_BUFFER_SIZE 	1024
+//#define UART_BUFFER_SIZE 	1024
 #define COMMAND_BUFFER_LENGTH 64
 #define COMMAND_SOURCE 0
 
@@ -124,9 +124,9 @@ extern float motor_accumulated_error[4];
 extern int16_t motor_pwm[4];
 extern uint8_t motor_active[4];
 extern uint8_t LOGGING_ACTIVE;
-extern uint8_t spirit_data_buf[UART_BUFFER_SIZE];
-extern uint8_t rs422_data_buf[UART_BUFFER_SIZE];
-extern uint8_t xbee_data_buf[UART_BUFFER_SIZE];
+//extern uint8_t spirit_data_buf[UART_BUFFER_SIZE];
+//extern uint8_t rs422_data_buf[UART_BUFFER_SIZE];
+//extern uint8_t xbee_data_buf[UART_BUFFER_SIZE];
 extern struct buffer spirit_buf;
 extern struct buffer rs422_buf;
 extern struct buffer xbee_buf;
@@ -196,6 +196,11 @@ uint16_t auto_states;
 parser p;
 int16_t last_packet_number;
 int16_t last_command_id;
+
+volatile uint32_t xmit_counter;
+uint32_t xmit_delay;
+uint8_t buffer_of_shame[12];
+
 
 uint32_t qd_stop_time;
 #define QD_ACTUATION_TIME 3000;

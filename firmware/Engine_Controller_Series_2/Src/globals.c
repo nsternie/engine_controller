@@ -25,9 +25,9 @@ float motor_accumulated_error[4];
 int16_t motor_pwm[4];
 uint8_t motor_active[4];
 uint8_t LOGGING_ACTIVE = 0;
-uint8_t spirit_data_buf[UART_BUFFER_SIZE];
-uint8_t rs422_data_buf[UART_BUFFER_SIZE];
-uint8_t xbee_data_buf[UART_BUFFER_SIZE];
+//uint8_t spirit_data_buf[UART_BUFFER_SIZE];
+//uint8_t rs422_data_buf[UART_BUFFER_SIZE];
+//uint8_t xbee_data_buf[UART_BUFFER_SIZE];
 struct buffer spirit_buf;
 struct buffer rs422_buf;
 struct buffer xbee_buf;
@@ -83,6 +83,9 @@ int16_t last_packet_number = 0;
 int16_t last_command_id = 0;
 uint8_t error_code = 0;
 uint32_t qd_stop_time = 0;
+
+volatile uint32_t xmit_counter = 0;
+uint32_t xmit_delay = 20;
 
 
 uint8_t TELEM_ACTIVE = 1;

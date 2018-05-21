@@ -37,7 +37,7 @@ ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float	tmtr	0	|
 evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	100			float	error_code	0	|
 evlv[1]	evlv[1]	-5	15	Volts		%.1f	int16_t	100			float	LOGGING_ACTIVE	0	|
 evlv[2]	evlv[2]	-5	15	Volts		%.1f	int16_t	100			float	current_page	-1	|
-evlv[3]	evlv[3]	-5	15	Volts		%.1f	int16_t	100			float			|
+evlv[3]	evlv[3]	-5	15	Volts		%.1f	int16_t	100			float	zero	0	|
 evlv[4]	evlv[4]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[5]	evlv[5]	-5	15	Volts		%.1f	int16_t	100			float			|
 evlv[6]	evlv[6]	-5	15	Volts		%.1f	int16_t	100			float			|
@@ -55,3 +55,15 @@ tmtr	tmtr					%.2f	uint16_t	10			float			|
 error_code	error_code					%d	uint8_t	1			int			|
 LOGGING_ACTIVE	LOGGING_ACTIVE					%d	uint8_t	1			int			|
 logfile->current_page	logfile->current_page					%d	uint16_t	1		current_page	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
+0	0					%d	uint8_t	1		zero	int			|
