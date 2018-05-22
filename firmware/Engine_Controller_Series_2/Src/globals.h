@@ -212,4 +212,10 @@ file* logfile;
 
 uint8_t error_code;
 
+
+// New auto stuff
+
+
+// end new auto
+
 #endif

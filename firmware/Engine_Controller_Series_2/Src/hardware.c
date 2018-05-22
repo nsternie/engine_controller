@@ -9,12 +9,16 @@
 #include "hardware.h"
 #include "stm32f4xx_hal.h"
 #include "flash.h"
+#include "main_auto.h"
 
 
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim9;
+
+extern TIM_HandleTypeDef htim2;
+#define millis	((__HAL_TIM_GET_COUNTER(&htim2))/1000)
 
 extern IWDG_HandleTypeDef hiwdg;
 
@@ -36,7 +40,6 @@ void read_adc(SPI_HandleTypeDef* SPI_BUS){
 		tx[1] = 0b0000100;
 		select_device(adcn);
 		if(HAL_SPI_TransmitReceive(SPI_BUS, tx, rx, 2, 1) ==  HAL_TIMEOUT){
-			//count3++;
 		}
 		release_device(adcn);
 
@@ -72,7 +75,7 @@ void set_device(uint8_t device, GPIO_PinState state){
 			//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_RESET);
 			break;
 		case flash:
-			//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, GPIO_PIN_RESET);
 			break;
 
 		default:
@@ -104,11 +107,28 @@ void scale_readings(){
 	e3v = (adc_data[2][3])*e3v_cal;
 	float e3v_correction_factor = 3.300/e3v;
 
+#define num_avg 3
+	static float last_position[4];
+	static int index = 0;
 	for(uint8_t n = 0; n <= 3; n++){
+		last_position[n] = motor_position[n];
 		motor_position[n] = adc_data[2][12+n]*motor_pot_slope[n];
 		motor_position[n] *= e3v_correction_factor;
 		motor_position[n] -= motor_pot_offset[n];
+
+		if(n == 0){
+			if(motor_position[n] > 320 || motor_position < 50){
+				motor_position[n] = last_position[n];
+			}
+		}
+//		last_position[n][index] = motor_position[n];
+//		float sum = 0;
+//		for(int m = 0; m < num_avg; m++){
+//			sum += last_position[n][m];
+//		}
+//		motor_position[n] = (sum)/num_avg;
 	}
+
 
 	tbrd = (adc_data[2][5])/1.24;
 	tbrd -= 600;
@@ -124,7 +144,7 @@ void scale_readings(){
 
 
 	for(uint8_t n = 0; n < 16; n ++){
-		pressure[n] = adc_data[4][15-n]-press_cal[OFFSET][n];
+		pressure[n] = adc_data[1][15-n]-press_cal[OFFSET][n];
 		pressure[n] *= press_cal[SLOPE][n];
 	}
 
@@ -159,6 +179,9 @@ void save_telem(file* f){
 }
 void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t pulse)
 {
+
+	//pulse = pulse / 2;
+
  HAL_TIM_PWM_Stop(&timer, channel); // stop generation of pwm
  TIM_OC_InitTypeDef sConfigOC;
  timer.Init.Period = period; // set the period duration
@@ -267,7 +290,9 @@ void writeMotor(uint8_t device, int16_t motor_command){
 		}
 
 		break;
+
 	case mtr1:
+
 		timer = htim5;
 
 		if(dir){
@@ -316,9 +341,23 @@ void motor_control(){
 			count1 = motor_error;
 			count3 = ((motor_position[mtrx] - motor_last_position[mtrx]))*1000;
 
-			command_sum = motor_control_gain[Kp] * motor_error;
-			command_sum += (motor_control_gain[Ki] * motor_accumulated_error[mtrx]);
-			command_sum += (motor_control_gain[Kd] * (motor_position[mtrx] - motor_last_position[mtrx]));
+			float kp, ki, kd;
+			if(mtrx == 1){
+				kp = 1000;
+				ki = 100;
+				kd = 200;
+			}
+			else if(mtrx == 0){
+				kp = 1500;
+				ki = 70;
+				kd = 300;
+			}
+			else{
+				kp = 0; ki = 0; kd = 0;
+			}
+			command_sum = kp * motor_error;
+			command_sum += (ki * motor_accumulated_error[mtrx]);
+			command_sum += (kd * (motor_position[mtrx] - motor_last_position[mtrx]));
 
 			int16_t command = 0;
 			if(command_sum > 32768){
@@ -374,12 +413,20 @@ void motor_enable(int32_t argc, int32_t* argv){
 }
 void arm(int32_t argc, int32_t* argv){
 	STATE = ARMED;
+	motor_active[0] = 1;
+	motor_active[1] = 1;
+
 }
 void disarm(int32_t argc, int32_t* argv){
 	STATE = MANUAL;
+	motor_active[0] = 0;
+	motor_active[1] = 0;
 }
 void main_auto_start(int32_t argc, int32_t* argv){
-
+	if(STATE == ARMED){
+		main_auto_start_time = millis;
+		STATE = FIRING;
+	}
 }
 void pwm_set(int32_t argc, int32_t* argv){
 

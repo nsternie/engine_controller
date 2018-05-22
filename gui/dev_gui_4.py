@@ -11,7 +11,6 @@ import os
 from hotfire_packet import ECParse
 from PlotDefinition import PlotDefinition
 
-
 parser = ECParse()
 packet_number = 0
 
@@ -98,8 +97,8 @@ def stuff_array(arr, seperator):
     return arr
 
 
-def get_file():
-    s2_command(TARGET_ADDRESS_GROUND, COMMAND_TELEM_PAUSE, 0, []);
+def get_file(target_id):
+    s2_command(target_id, COMMAND_TELEM_PAUSE, 0, []);
     print("Telemetry paused.")
     time.sleep(0.1)
 
@@ -112,7 +111,7 @@ def get_file():
         filelist.append(filename)
         binfile = open(filename, "wb")              # Open the binary
         readfile = True
-        s2_command(TARGET_ADDRESS_GROUND, COMMAND_PRINT_FILE, 1, [0]);
+        s2_command(target_id, COMMAND_PRINT_FILE, 1, [0]);
         while(readfile):
            try:
              page = ser.read(2048)                  # Read a page
@@ -127,7 +126,7 @@ def get_file():
         binfile.close()                             # Close bin file
 
 
-    s2_command(TARGET_ADDRESS_GROUND, COMMAND_TELEM_RESUME, 0, []);
+    s2_command(target_id, COMMAND_TELEM_RESUME, 0, []);
     print("All files downloaded.")
     print("Telemetry Resumed.")
     print("")
@@ -164,11 +163,6 @@ flight_window.setWindowTitle("Flight")
 flight_layout = QtGui.QGridLayout()
 flight_window.setLayout(flight_layout)
 
-# plot_window = QtGui.QWidget();
-# plot_window.setWindowTitle("Plots")
-# plot_layout = QtGui.QGridLayout()
-# plot_window.setLayout(plot_layout)
-
 zr = 2
 zc = 2
 
@@ -197,19 +191,19 @@ def ground_plots_update(item_clicked):
 
 
 ground_clear_plot = QtGui.QPushButton("Clear plot")
-ground_layout.addWidget(ground_clear_plot, 8, 20)
+ground_layout.addWidget(ground_clear_plot, zr+0, zc-1)
 ground_clear_plot.clicked.connect(lambda: ground_reset_plot())
 
 pg.setConfigOption('background', 'w')
 ground_plot_1 = pg.PlotWidget(title='Dynamic Plotting with PyQtGraph')
-ground_layout.addWidget(ground_plot_1, zr+0, zc+11, 25, 7)
+ground_layout.addWidget(ground_plot_1, zr+0, zc+10, 25, 7)
 
 def reset_plot():
     global ground_x, ground_y, BUFFER_SIZE, ground_curves
     ground_y = [[]]*parser.num_items
     ground_x = [[]]*parser.num_items
 
-BUFFER_SIZE = 100
+BUFFER_SIZE = 300
 ground_y = [[]]*parser.num_items
 ground_x = [[]]*parser.num_items
 ground_curves = [None]*parser.num_items
@@ -233,7 +227,7 @@ def flight_plots_update(item_clicked):
 
 
 flight_clear_plot = QtGui.QPushButton("Clear plot")
-flight_layout.addWidget(flight_clear_plot, 8, 21)
+flight_layout.addWidget(flight_clear_plot, zr+0, zc-1)
 flight_clear_plot.clicked.connect(lambda: flight_reset_plot())
 
 pg.setConfigOption('background', 'w')
@@ -250,7 +244,6 @@ def flight_reset_plot():
     flight_y = [[]]*parser.num_items
     flight_x = [[]]*parser.num_items
 
-BUFFER_SIZE = 100
 flight_y = [[]]*parser.num_items
 flight_x = [[]]*parser.num_items
 flight_curves = [None]*parser.num_items
@@ -268,7 +261,7 @@ for n in range(parser.num_items):
     temp_item = QtGui.QTableWidgetItem("off")
     temp_item.setBackground(QtGui.QColor(250,150,150))
     ground_table.setItem(n, 2, temp_item)
-ground_layout.addWidget(ground_table, zr+0, zc+8, 25, 3)
+ground_layout.addWidget(ground_table, zr+0, zc+2, 25, 8)
 ground_table.clicked.connect(ground_plots_update)
 
 # Full telemetry table
@@ -334,15 +327,15 @@ def parse_serial():
             # Read a packet
             packet = ser.readline()
             # print(packet)
-            print(len(packet))
+            # print(len(packet))
             # if not(len(packet) == 139):
             #      os.system("python G:\\Code\\python\\alert_bot.py \"Ivalid packet detected at"+time.ctime()+"\"")
             #     # death()
             #     # exit()
-            if(len(packet) == 0):
-                os.system("python G:\\Code\\python\\alert_bot.py \"Zero packet detected. Exiting... at"+time.ctime()+"\"")
-                death()
-                exit()
+            # if(len(packet) == 0):
+            #     os.system("python G:\\Code\\python\\alert_bot.py \"Zero packet detected. Exiting... at"+time.ctime()+"\"")
+            #     death()
+            #     exit()
             serial_log.write("%.3f," % time.clock())
             serial_log.write(str(packet)+'length = '+str(len(packet))+'\n')
             # Unstuff the packet
@@ -366,8 +359,8 @@ def parse_serial():
                 for n in range(parser.num_items-1):
                     ground_y[n].append(parser.dict[parser.items[n]])
                     ground_x[n].append(time.clock())
-                    ground_y[n] = ground_y[n][-100:]
-                    ground_x[n] = ground_x[n][-100:]
+                    ground_y[n] = ground_y[n][-BUFFER_SIZE:]
+                    ground_x[n] = ground_x[n][-BUFFER_SIZE:]
                     if ground_active_plots[n]:
                         ground_curves[n].setData(ground_x[n][:], ground_y[n][:])
                         app.processEvents()
@@ -378,9 +371,14 @@ def parse_serial():
                     state = 0
                     if(mask & parser.valve_states):
                         state = 1
-                    ground_valve_buttons[n][2].setText(str(state))
-                    ground_valve_buttons[n][3].setText(str(parser.ivlv[n]))
-                    ground_valve_buttons[n][4].setText(str(parser.evlv[n]))
+
+                    vlv_id = 'g'+'vlv'+str(n)
+                    if vlv_id in alias.keys():
+                        vlv_id = alias[vlv_id]
+
+                    ground_valve_buttons[n][0].setText(vlv_id+" is "+str(state))
+                    ground_valve_buttons[n][3].setText(str(parser.ivlv[n])+"A / "+str(parser.evlv[n])+"V")
+                    
                     mask = mask << 1
 
                     ground_pressure_labels[n][1].setText(str(parser.pressure[n])+"psi")
@@ -399,8 +397,8 @@ def parse_serial():
                 ground_ibridge0.setText("Motor 0 Current: "+str(parser.imtr[0]))
                 ground_ibridge1.setText("Motor 1 Current: "+str(parser.imtr[1]))
 
-                ground_samplerate_setpointfb.setText(str(parser.samplerate)+"hz")
-                ground_telemrate_setpointfb.setText(str(parser.telemetry_rate)+"hz")
+                ground_samplerate_send.setText("Samplerate: "+str(parser.samplerate)+"hz")
+                ground_telemrate_send.setText("Telemrate: "+str(parser.telemetry_rate)+"hz")
 
                 for n in range(parser.num_items - 1):
                     ground_table.setItem(n, 1, QtGui.QTableWidgetItem(str(parser.dict[parser.items[n]])))
@@ -430,9 +428,13 @@ def parse_serial():
                     state = 0
                     if(mask & parser.valve_states):
                         state = 1
-                    flight_valve_buttons[n][2].setText(str(state))
-                    flight_valve_buttons[n][3].setText(str(parser.ivlv[n]))
-                    flight_valve_buttons[n][4].setText(str(parser.evlv[n]))
+
+                    vlv_id = 'f'+'vlv'+str(n)
+                    if vlv_id in alias.keys():
+                        vlv_id = alias[vlv_id]
+
+                    flight_valve_buttons[n][0].setText(vlv_id+" is "+str(state))
+                    flight_valve_buttons[n][3].setText(str(parser.ivlv[n])+"A / "+str(parser.evlv[n])+"V")
                     mask = mask << 1
 
                     flight_pressure_labels[n][1].setText(str(parser.pressure[n])+"psi")
@@ -452,8 +454,8 @@ def parse_serial():
                 flight_ibridge0.setText("Motor 0 Current: "+str(parser.imtr[0]))
                 flight_ibridge1.setText("Motor 1 Current: "+str(parser.imtr[1]))
 
-                flight_samplerate_setpointfb.setText(str(parser.samplerate)+"hz")
-                flight_telemrate_setpointfb.setText(str(parser.telemetry_rate)+"hz")
+                flight_samplerate_send.setText("Samplerate: "+str(parser.samplerate)+"hz")
+                flight_telemrate_send.setText("Telemrate: "+str(parser.telemetry_rate)+"hz")
 
                 state_label.setText("STATE = "+state_dict[parser.STATE])
 
@@ -617,6 +619,250 @@ last_command_flight = QtGui.QLabel("last command")
 flight_layout.addWidget(last_packet_flight, zr+16+5+1, zc-1)
 flight_layout.addWidget(last_command_flight, zr+16+5+2, zc-1)
 
+
+
+
+for layout in (ground_layout, flight_layout):
+    for n in range(30):
+        layout.setRowStretch(zr+n, 10)
+    ############ COLUMN WIDTH FORMATTING
+    layout.setColumnStretch(0, 10)
+    layout.setColumnStretch(1, 10)
+    layout.setColumnStretch(2, 10)
+    layout.setColumnStretch(3, 10)
+    layout.setColumnStretch(4, 10)
+    layout.setColumnStretch(5, 10)
+    layout.setColumnStretch(6, 10)
+    layout.setColumnStretch(7, 10)
+    layout.setColumnStretch(8, 10)
+    layout.setColumnStretch(9, 10)
+    layout.setColumnStretch(10, 90)
+    layout.setColumnStretch(11, 90)
+    layout.setColumnStretch(12, 90)
+    layout.setColumnStretch(13, 90)
+    layout.setColumnStretch(14, 90)
+    layout.setColumnStretch(15, 90)
+    layout.setColumnStretch(16, 90)
+    # layout.setColumnStretch(zc+17, 10)
+    # layout.setColumnStretch(zc+18, 10)
+    # layout.setColumnStretch(zc+19, 10)
+    # layout.setColumnStretch(zc+20, 10)
+    # layout.setColumnStretch(zc+21, 10)
+
+def layout_common_widgets(layout, vlv_buttons, p_labels):
+    for n in range(0, 8):
+        layout.addWidget(vlv_buttons[n][0], zr+n+1, zc+0-2)
+        # layout.addWidget(vlv_buttons[n][1], zr+n+1, zc+1-2)
+        # layout.addWidget(vlv_buttons[n][2], zr+n+1, zc+2-2)
+        layout.addWidget(vlv_buttons[n][3], zr+n+1, zc-1)
+        # layout.addWidget(vlv_buttons[n][4], zr+n+1, zc+0)
+        layout.addWidget(p_labels[n][0], zr+n+1, zc+0)
+        layout.addWidget(p_labels[n][1], zr+n+1, zc+1)
+    for n in range(0, 4):
+        layout.addWidget(vlv_buttons[n+8][0], zr+n+1+8, zc+0-2)
+        layout.addWidget(vlv_buttons[n+8][1], zr+n+1+8, zc+1-2)
+        layout.addWidget(vlv_buttons[n+8][2], zr+n+1+8, zc+2-2)
+        layout.addWidget(vlv_buttons[n+8][3], zr+n+1+8, zc+3-2)
+        layout.addWidget(vlv_buttons[n+8][4], zr+n+1+8, zc+4-2)
+
+
+layout_common_widgets(ground_layout, ground_valve_buttons, ground_pressure_labels)
+layout_common_widgets(flight_layout, flight_valve_buttons, flight_pressure_labels)
+
+qd_ox_release = QtGui.QPushButton("Release Ox")
+qd_ox_connect = QtGui.QPushButton("Connect Ox")
+qd_fuel_release = QtGui.QPushButton("Release Fuel")
+qd_fuel_connect = QtGui.QPushButton("Connect Fuel")
+ground_layout.addWidget(qd_ox_connect,zr+9, zc+0)
+ground_layout.addWidget(qd_ox_release,zr+9, zc+1)
+ground_layout.addWidget(qd_fuel_connect,zr+10, zc+0)
+ground_layout.addWidget(qd_fuel_release,zr+10, zc+1)
+
+
+
+
+### GROUND ###
+init_fs = QtGui.QPushButton("Init Filesystem")
+log_start = QtGui.QPushButton("Log Start")
+log_end = QtGui.QPushButton("Log Stop")
+telem_pause = QtGui.QPushButton("Pause Telemetry")
+telem_resume = QtGui.QPushButton("Resume Telemetry")
+file_download = QtGui.QPushButton("Download file")
+
+ground_layout.addWidget(init_fs,zr+13, zc+0)
+ground_layout.addWidget(log_start,zr+14, zc+0)
+ground_layout.addWidget(log_end,zr+15, zc+0)
+ground_layout.addWidget(telem_pause,zr+16, zc+0)
+ground_layout.addWidget(telem_resume,zr+17, zc+0)
+ground_layout.addWidget(file_download,zr+18, zc+0)
+
+init_fs.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_INIT_FS, 0, []))
+log_start.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LOG_START, 0, []))
+log_end.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LOG_END, 0, []))
+telem_pause.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_TELEM_PAUSE, 0, []))
+telem_resume.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_TELEM_RESUME, 0, []))
+file_download.clicked.connect(lambda: get_file(TARGET_ADDRESS_GROUND));
+
+### Flight ###
+init_fs = QtGui.QPushButton("Init Filesystem")
+log_start = QtGui.QPushButton("Log Start")
+log_end = QtGui.QPushButton("Log Stop")
+telem_pause = QtGui.QPushButton("Pause Telemetry")
+telem_resume = QtGui.QPushButton("Resume Telemetry")
+file_download = QtGui.QPushButton("Download file")
+
+flight_layout.addWidget(init_fs,zr+13, zc+0)
+flight_layout.addWidget(log_start,zr+14, zc+0)
+flight_layout.addWidget(log_end,zr+15, zc+0)
+flight_layout.addWidget(telem_pause,zr+16, zc+0)
+flight_layout.addWidget(telem_resume,zr+17, zc+0)
+flight_layout.addWidget(file_download,zr+18, zc+0)
+
+init_fs.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_INIT_FS, 0, []))
+log_start.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LOG_START, 0, []))
+log_end.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LOG_END, 0, []))
+telem_pause.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEM_PAUSE, 0, []))
+telem_resume.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEM_RESUME, 0, []))
+file_download.clicked.connect(lambda: get_file(TARGET_ADDRESS_FLIGHT));
+
+
+# motor control
+for mtrx in range(0, 2):
+    mtr_enable.append(QtGui.QPushButton(mtr[mtrx]+" ENABLE"))
+    mtr_disable.append(QtGui.QPushButton(mtr[mtrx]+" DISABLE"))
+    mtr_setpoint.append(QtGui.QLineEdit())
+    mtr_position.append(QtGui.QLabel("POSITION FB"))
+    mtr_pwm.append(QtGui.QLabel("pwm FB"))
+    mtr_send.append(QtGui.QPushButton("Command Setpoint"))
+    mtr_setpointfb.append(QtGui.QLabel("SETPOINT FB"))
+
+    if mtr[mtrx] in alias.keys():
+        mtr_enable[mtrx].setText(alias[mtr[mtrx]]+" ENABLE")
+        mtr_disable[mtrx].setText(alias[mtr[mtrx]]+" DISABLE")
+
+    flight_layout.addWidget(mtr_disable[mtrx], zr+1+(2*mtrx), zc+5)
+    flight_layout.addWidget(mtr_enable[mtrx], zr+1+(2*mtrx), zc+6)
+    flight_layout.addWidget(mtr_send[mtrx],zr+2+(2*mtrx), zc+5)
+    flight_layout.addWidget(mtr_pwm[mtrx], zr+1+(2*mtrx), zc+8)
+    flight_layout.addWidget(mtr_setpoint[mtrx], zr+2+(2*mtrx), zc+6)
+    flight_layout.addWidget(mtr_setpointfb[mtrx], zr+2+(2*mtrx), zc+7)
+    flight_layout.addWidget(mtr_position[mtrx], zr+2+(2*mtrx), zc+8)
+
+# spacer = QtGui.QSpacerItem(1, 1)
+# ground_layout.addItem(spacer, zr+6, zc+6)
+# Samplerate Set
+ground_samplerate_setpoint = QtGui.QLineEdit('50')
+# ground_samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
+ground_samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
+ground_layout.addWidget(ground_samplerate_send, zr+11, zc+0)
+ground_layout.addWidget(ground_samplerate_setpoint, zr+11, zc+1)
+# ground_layout.addWidget(ground_samplerate_setpointfb, zr+11, zc+2)
+flight_samplerate_setpoint = QtGui.QLineEdit('50')
+# flight_samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
+flight_samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
+flight_layout.addWidget(flight_samplerate_send, zr+11, zc+0)
+flight_layout.addWidget(flight_samplerate_setpoint, zr+11, zc+1)
+# flight_layout.addWidget(flight_samplerate_setpointfb, zr+11, zc+2)
+
+# Telemrate set
+ground_telemrate_setpoint = QtGui.QLineEdit('10')
+# ground_telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
+ground_telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
+ground_layout.addWidget(ground_telemrate_send, zr+12, zc+0)
+ground_layout.addWidget(ground_telemrate_setpoint, zr+12, zc+1)
+# ground_layout.addWidget(ground_telemrate_setpointfb, zr+12, zc+2)
+flight_telemrate_setpoint = QtGui.QLineEdit('10')
+# flight_telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
+flight_telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
+flight_layout.addWidget(flight_telemrate_send, zr+12, zc+0)
+flight_layout.addWidget(flight_telemrate_setpoint, zr+12, zc+1)
+# flight_layout.addWidget(flight_telemrate_setpointfb, zr+12, zc+2)
+
+# Motor gains set
+MOTOR_GAINS_LABEL = QtGui.QLabel("Motor Gains")
+kp_set = QtGui.QPushButton("Update Kp")
+ki_set = QtGui.QPushButton("Update Ki")
+kd_set = QtGui.QPushButton("Update Kd")
+kp_input = QtGui.QLineEdit()
+ki_input = QtGui.QLineEdit()
+kd_input = QtGui.QLineEdit()
+kpfb = QtGui.QLabel("kpfb")
+kifb = QtGui.QLabel("kifb")
+kdfb = QtGui.QLabel("kdfb")
+flight_layout.addWidget(kp_set, zr+9-2, zc+5)
+flight_layout.addWidget(ki_set, zr+10-2, zc+5)
+flight_layout.addWidget(kd_set, zr+11-2, zc+5)
+flight_layout.addWidget(kp_input, zr+9-2, zc+6)
+flight_layout.addWidget(ki_input, zr+10-2, zc+6)
+flight_layout.addWidget(kd_input, zr+11-2, zc+6)
+flight_layout.addWidget(kpfb, zr+9-2, zc+7)
+flight_layout.addWidget(kifb, zr+10-2, zc+7)
+flight_layout.addWidget(kdfb, zr+11-2, zc+7)
+
+
+
+# Bridge current
+ground_ibridge0 = QtGui.QLabel("ground_ibridge0")
+ground_ibridge1 = QtGui.QLabel("ground_ibridge1")
+ground_layout.addWidget(ground_ibridge0, zr+24, zc-2, 1, 2)
+ground_layout.addWidget(ground_ibridge1, zr+25, zc-2, 1, 2)
+flight_ibridge0 = QtGui.QLabel("flight_ibridge0")
+flight_ibridge1 = QtGui.QLabel("flight_ibridge1")
+flight_layout.addWidget(flight_ibridge0, zr+24, zc-2, 1, 2)
+flight_layout.addWidget(flight_ibridge1, zr+25, zc-2, 1, 2)
+
+# State Feedback
+state_label = QtGui.QLabel("STATE = N/A")
+arm_button = QtGui.QPushButton("ARM")
+disarm_button = QtGui.QPushButton("DISARM")
+hotfire_button = QtGui.QPushButton("HOTFIRE")
+flight_layout.addWidget(state_label, zr+12, zc+5)
+flight_layout.addWidget(arm_button, zr+13, zc+5)
+flight_layout.addWidget(disarm_button, zr+14, zc+5)
+flight_layout.addWidget(hotfire_button, zr+15, zc+5)
+
+# Loop times
+LOOP_RATE_LABEL = QtGui.QLabel("Loop rates (hz)")
+motor_cycle_rate = QtGui.QLabel("MCR")
+main_cycle_rate = QtGui.QLabel("MCR")
+adc_cycle_rate = QtGui.QLabel("ACR")
+telemetry_cycle_rate = QtGui.QLabel("TCR")
+motor_cycle_rate_label = QtGui.QLabel("Motor:")
+main_cycle_rate_label = QtGui.QLabel("Main:")
+adc_cycle_rate_label = QtGui.QLabel("ADC")
+telemetry_cycle_rate_label = QtGui.QLabel("Telem")
+
+
+def death():
+    command_log.close()
+    info_log.close()
+    serial_log.close()
+    data_log.close()
+    app.quit()
+
+KILL1 = QtGui.QPushButton("End Run")
+ground_layout.addWidget(KILL1, zr+0, zc-2)
+KILL2 = QtGui.QPushButton("End Run")
+flight_layout.addWidget(KILL2, zr+0, zc-2)
+KILL1.clicked.connect(death)
+KILL2.clicked.connect(death)
+
+if(1):
+    # Add image
+
+    #logo = QtGui.QLabel(w)
+    #logo.setGeometry(1000, 250, 800, 250)
+    #use full ABSOLUTE path to the image, not relative
+
+    #logo.setPixmap(QtGui.QPixmap(os.getcwd() + "/masa2.png"))
+    pass
+
+if(0):
+    p = w.palette()
+    p.setColor(w.backgroundRole(), Qt.black)
+    w.setPalette(p)
+
+
 font_list = []
 font_list.append(ground_BOARD_HEALTH_LABEL)
 font_list.append(flight_BOARD_HEALTH_LABEL)
@@ -656,234 +902,14 @@ font_list.append(last_packet_ground_label)
 font_list.append(last_command_ground_label)
 font_list.append(last_packet_flight_label)
 font_list.append(last_command_flight_label)
+font_list.append(ground_ibridge0)
+font_list.append(ground_ibridge1)
+font_list.append(flight_ibridge0)
+font_list.append(flight_ibridge1)
 
 for thing in font_list:
     thing.setFont(QtGui.QFont('SansSerif', 14))
 
-
-
-
-for layout in (ground_layout, flight_layout):
-    for n in range(30):
-        layout.setRowStretch(zr+n, 10)
-    ############ COLUMN WIDTH FORMATTING
-    layout.setColumnStretch(0, 10)
-    layout.setColumnStretch(1, 10)
-    layout.setColumnStretch(2, 10)
-    layout.setColumnStretch(3, 10)
-    layout.setColumnStretch(4, 10)
-    layout.setColumnStretch(5, 10)
-    layout.setColumnStretch(6, 10)
-    layout.setColumnStretch(7, 10)
-    layout.setColumnStretch(8, 10)
-    layout.setColumnStretch(9, 10)
-    layout.setColumnStretch(10, 90)
-    layout.setColumnStretch(11, 90)
-    layout.setColumnStretch(12, 90)
-    layout.setColumnStretch(13, 90)
-    layout.setColumnStretch(14, 90)
-    layout.setColumnStretch(15, 90)
-    layout.setColumnStretch(16, 90)
-    # layout.setColumnStretch(zc+17, 10)
-    # layout.setColumnStretch(zc+18, 10)
-    # layout.setColumnStretch(zc+19, 10)
-    # layout.setColumnStretch(zc+20, 10)
-    # layout.setColumnStretch(zc+21, 10)
-
-def layout_common_widgets(layout, vlv_buttons, p_labels):
-    for n in range(0, 8):
-        layout.addWidget(vlv_buttons[n][0], zr+n+1, zc+0-2)
-        layout.addWidget(vlv_buttons[n][1], zr+n+1, zc+1-2)
-        layout.addWidget(vlv_buttons[n][2], zr+n+1, zc+2-2)
-        layout.addWidget(vlv_buttons[n][3], zr+n+1, zc+3-2)
-        layout.addWidget(vlv_buttons[n][4], zr+n+1, zc+4-2)
-        layout.addWidget(p_labels[n][0], zr+n+1, zc+3)
-        layout.addWidget(p_labels[n][1], zr+n+1, zc+4)
-    for n in range(0, 4):
-        layout.addWidget(vlv_buttons[n+8][0], zr+n+1+8, zc+0-2)
-        layout.addWidget(vlv_buttons[n+8][1], zr+n+1+8, zc+1-2)
-        layout.addWidget(vlv_buttons[n+8][2], zr+n+1+8, zc+2-2)
-        layout.addWidget(vlv_buttons[n+8][3], zr+n+1+8, zc+3-2)
-        layout.addWidget(vlv_buttons[n+8][4], zr+n+1+8, zc+4-2)
-
-
-layout_common_widgets(ground_layout, ground_valve_buttons, ground_pressure_labels)
-layout_common_widgets(flight_layout, flight_valve_buttons, flight_pressure_labels)
-
-qd_ox_release = QtGui.QPushButton("Release Ox")
-qd_ox_connect = QtGui.QPushButton("Connect Ox")
-qd_fuel_release = QtGui.QPushButton("Release Fuel")
-qd_fuel_connect = QtGui.QPushButton("Connect Fuel")
-ground_layout.addWidget(qd_ox_connect,zr+6, zc+5)
-ground_layout.addWidget(qd_ox_release,zr+6, zc+6)
-ground_layout.addWidget(qd_fuel_connect,zr+7, zc+5)
-ground_layout.addWidget(qd_fuel_release,zr+7, zc+6)
-
-
-
-
-
-init_fs = QtGui.QPushButton("Init Filesystem")
-log_start = QtGui.QPushButton("Log Start")
-log_end = QtGui.QPushButton("Log Stop")
-telem_pause = QtGui.QPushButton("Pause Telemetry")
-telem_resume = QtGui.QPushButton("Resume Telemetry")
-file_download = QtGui.QPushButton("Download file")
-
-
-
-ground_layout.addWidget(init_fs,zr+10, zc+5)
-ground_layout.addWidget(log_start,zr+11, zc+5)
-ground_layout.addWidget(log_end,zr+12, zc+5)
-ground_layout.addWidget(telem_pause,zr+13, zc+5)
-ground_layout.addWidget(telem_resume,zr+14, zc+5)
-ground_layout.addWidget(file_download,zr+15, zc+5)
-
-
-
-init_fs.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_INIT_FS, 0, []))
-log_start.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LOG_START, 0, []))
-log_end.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LOG_END, 0, []))
-telem_pause.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_TELEM_PAUSE, 0, []))
-telem_resume.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_TELEM_RESUME, 0, []))
-file_download.clicked.connect(lambda: get_file());
-
-
-# motor control
-for mtrx in range(0, 2):
-    mtr_enable.append(QtGui.QPushButton(mtr[mtrx]+" ENABLE"))
-    mtr_disable.append(QtGui.QPushButton(mtr[mtrx]+" DISABLE"))
-    mtr_setpoint.append(QtGui.QLineEdit())
-    mtr_position.append(QtGui.QLabel("POSITION FB"))
-    mtr_pwm.append(QtGui.QLabel("pwm FB"))
-    mtr_send.append(QtGui.QPushButton("Command Setpoint"))
-    mtr_setpointfb.append(QtGui.QLabel("SETPOINT FB"))
-
-    if mtr[mtrx] in alias.keys():
-        mtr_enable[mtrx].setText(alias[mtr[mtrx]]+" ENABLE")
-        mtr_disable[mtrx].setText(alias[mtr[mtrx]]+" DISABLE")
-
-    flight_layout.addWidget(mtr_disable[mtrx], zr+1+(2*mtrx), zc+5)
-    flight_layout.addWidget(mtr_enable[mtrx], zr+1+(2*mtrx), zc+6)
-    flight_layout.addWidget(mtr_send[mtrx],zr+2+(2*mtrx), zc+5)
-    flight_layout.addWidget(mtr_pwm[mtrx], zr+1+(2*mtrx), zc+8)
-    flight_layout.addWidget(mtr_setpoint[mtrx], zr+2+(2*mtrx), zc+6)
-    flight_layout.addWidget(mtr_setpointfb[mtrx], zr+2+(2*mtrx), zc+7)
-    flight_layout.addWidget(mtr_position[mtrx], zr+2+(2*mtrx), zc+8)
-
-# spacer = QtGui.QSpacerItem(1, 1)
-# ground_layout.addItem(spacer, zr+6, zc+6)
-# Samplerate Set
-ground_samplerate_setpoint = QtGui.QLineEdit('50')
-ground_samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
-ground_samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
-ground_layout.addWidget(ground_samplerate_send, zr+8, zc+5)
-ground_layout.addWidget(ground_samplerate_setpoint, zr+8, zc+6)
-ground_layout.addWidget(ground_samplerate_setpointfb, zr+8, zc+7)
-flight_samplerate_setpoint = QtGui.QLineEdit('50')
-flight_samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
-flight_samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
-flight_layout.addWidget(flight_samplerate_send, zr+7-2, zc+5)
-flight_layout.addWidget(flight_samplerate_setpoint, zr+7-2, zc+6)
-flight_layout.addWidget(flight_samplerate_setpointfb, zr+7-2, zc+7)
-
-# Telemrate set
-ground_telemrate_setpoint = QtGui.QLineEdit('10')
-ground_telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
-ground_telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
-ground_layout.addWidget(ground_telemrate_send, zr+9, zc+5)
-ground_layout.addWidget(ground_telemrate_setpoint, zr+9, zc+6)
-ground_layout.addWidget(ground_telemrate_setpointfb, zr+9, zc+7)
-flight_telemrate_setpoint = QtGui.QLineEdit('10')
-flight_telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
-flight_telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
-flight_layout.addWidget(flight_telemrate_send, zr+8-2, zc+5)
-flight_layout.addWidget(flight_telemrate_setpoint, zr+8-2, zc+6)
-flight_layout.addWidget(flight_telemrate_setpointfb, zr+8-2, zc+7)
-
-# Motor gains set
-MOTOR_GAINS_LABEL = QtGui.QLabel("Motor Gains")
-kp_set = QtGui.QPushButton("Update Kp")
-ki_set = QtGui.QPushButton("Update Ki")
-kd_set = QtGui.QPushButton("Update Kd")
-kp_input = QtGui.QLineEdit()
-ki_input = QtGui.QLineEdit()
-kd_input = QtGui.QLineEdit()
-kpfb = QtGui.QLabel("kpfb")
-kifb = QtGui.QLabel("kifb")
-kdfb = QtGui.QLabel("kdfb")
-flight_layout.addWidget(kp_set, zr+9-2, zc+5)
-flight_layout.addWidget(ki_set, zr+10-2, zc+5)
-flight_layout.addWidget(kd_set, zr+11-2, zc+5)
-flight_layout.addWidget(kp_input, zr+9-2, zc+6)
-flight_layout.addWidget(ki_input, zr+10-2, zc+6)
-flight_layout.addWidget(kd_input, zr+11-2, zc+6)
-flight_layout.addWidget(kpfb, zr+9-2, zc+7)
-flight_layout.addWidget(kifb, zr+10-2, zc+7)
-flight_layout.addWidget(kdfb, zr+11-2, zc+7)
-
-
-
-# Bridge current
-ground_ibridge0 = QtGui.QLabel("ground_ibridge0")
-ground_ibridge1 = QtGui.QLabel("ground_ibridge1")
-ground_layout.addWidget(ground_ibridge0, zr+11, zc+4)
-ground_layout.addWidget(ground_ibridge1, zr+12, zc+4)
-flight_ibridge0 = QtGui.QLabel("flight_ibridge0")
-flight_ibridge1 = QtGui.QLabel("flight_ibridge1")
-flight_layout.addWidget(flight_ibridge0, zr+12, zc+7)
-flight_layout.addWidget(flight_ibridge1, zr+13, zc+7)
-
-# State Feedback
-state_label = QtGui.QLabel("STATE = N/A")
-arm_button = QtGui.QPushButton("ARM")
-disarm_button = QtGui.QPushButton("DISARM")
-hotfire_button = QtGui.QPushButton("HOTFIRE")
-flight_layout.addWidget(state_label, zr+12, zc+5)
-flight_layout.addWidget(arm_button, zr+13, zc+5)
-flight_layout.addWidget(disarm_button, zr+14, zc+5)
-flight_layout.addWidget(hotfire_button, zr+15, zc+5)
-
-# Loop times
-LOOP_RATE_LABEL = QtGui.QLabel("Loop rates (hz)")
-motor_cycle_rate = QtGui.QLabel("MCR")
-main_cycle_rate = QtGui.QLabel("MCR")
-adc_cycle_rate = QtGui.QLabel("ACR")
-telemetry_cycle_rate = QtGui.QLabel("TCR")
-motor_cycle_rate_label = QtGui.QLabel("Motor:")
-main_cycle_rate_label = QtGui.QLabel("Main:")
-adc_cycle_rate_label = QtGui.QLabel("ADC")
-telemetry_cycle_rate_label = QtGui.QLabel("Telem")
-
-
-def death():
-    command_log.close()
-    info_log.close()
-    serial_log.close()
-    data_log.close()
-    app.quit()
-
-KILL1 = QtGui.QPushButton("End Run")
-ground_layout.addWidget(KILL1, zr+0, zc+5)
-KILL2 = QtGui.QPushButton("End Run")
-flight_layout.addWidget(KILL2, zr+0, zc+5)
-KILL1.clicked.connect(death)
-KILL2.clicked.connect(death)
-
-if(1):
-    # Add image
-
-    #logo = QtGui.QLabel(w)
-    #logo.setGeometry(1000, 250, 800, 250)
-    #use full ABSOLUTE path to the image, not relative
-
-    #logo.setPixmap(QtGui.QPixmap(os.getcwd() + "/masa2.png"))
-    pass
-
-if(0):
-    p = w.palette()
-    p.setColor(w.backgroundRole(), Qt.black)
-    w.setPalette(p)
 
 ###############################################################################
 ### FUNCTIONAL CONNECTIONS ####################################################
@@ -899,40 +925,50 @@ arm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_ARM
 disarm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DISARM, 0, []))
 hotfire_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_MAIN_AUTO_START, 0, []))
 
+def toggle_valve(board, vlv_id):
+    if board is 'ground':
+        state = int(ground_valve_buttons[vlv_id][0].text()[-1])
+        state = int(not state)
+        s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [vlv_id, state])
+    if board is 'flight':
+        state = int(flight_valve_buttons[vlv_id][0].text()[-1])
+        state = int(not state)
+        s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [vlv_id, state])
+
  # GROUND VALVES
-ground_valve_buttons[0][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [0,0]))
-ground_valve_buttons[1][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [1,0]))
-ground_valve_buttons[2][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [2,0]))
-ground_valve_buttons[3][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [3,0]))
-ground_valve_buttons[4][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [4,0]))
-ground_valve_buttons[5][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [5,0]))
-ground_valve_buttons[6][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [6,0]))
-ground_valve_buttons[7][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [7,0]))
-ground_valve_buttons[0][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [0,1]))
-ground_valve_buttons[1][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [1,1]))
-ground_valve_buttons[2][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [2,1]))
-ground_valve_buttons[3][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [3,1]))
-ground_valve_buttons[4][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [4,1]))
-ground_valve_buttons[5][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [5,1]))
-ground_valve_buttons[6][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [6,1]))
-ground_valve_buttons[7][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_DIGITAL_WRITE, 2, [7,1]))
+ground_valve_buttons[0][0].clicked.connect(lambda: toggle_valve('ground', 0))
+ground_valve_buttons[1][0].clicked.connect(lambda: toggle_valve('ground', 1))
+ground_valve_buttons[2][0].clicked.connect(lambda: toggle_valve('ground', 2))
+ground_valve_buttons[3][0].clicked.connect(lambda: toggle_valve('ground', 3))
+ground_valve_buttons[4][0].clicked.connect(lambda: toggle_valve('ground', 4))
+ground_valve_buttons[5][0].clicked.connect(lambda: toggle_valve('ground', 5))
+ground_valve_buttons[6][0].clicked.connect(lambda: toggle_valve('ground', 6))
+ground_valve_buttons[7][0].clicked.connect(lambda: toggle_valve('ground', 7))
+ground_valve_buttons[0][1].clicked.connect(lambda: toggle_valve('ground', 0))
+ground_valve_buttons[1][1].clicked.connect(lambda: toggle_valve('ground', 1))
+ground_valve_buttons[2][1].clicked.connect(lambda: toggle_valve('ground', 2))
+ground_valve_buttons[3][1].clicked.connect(lambda: toggle_valve('ground', 3))
+ground_valve_buttons[4][1].clicked.connect(lambda: toggle_valve('ground', 4))
+ground_valve_buttons[5][1].clicked.connect(lambda: toggle_valve('ground', 5))
+ground_valve_buttons[6][1].clicked.connect(lambda: toggle_valve('ground', 6))
+ground_valve_buttons[7][1].clicked.connect(lambda: toggle_valve('ground', 7))
 # # FLIGHT VALVES
-flight_valve_buttons[0][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [0,0]))
-flight_valve_buttons[1][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [1,0]))
-flight_valve_buttons[2][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[2,0]))
-flight_valve_buttons[3][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[3,0]))
-flight_valve_buttons[4][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[4,0]))
-flight_valve_buttons[5][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[5,0]))
-flight_valve_buttons[6][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[6,0]))
-flight_valve_buttons[7][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[7,0]))
-flight_valve_buttons[0][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [0,1]))
-flight_valve_buttons[1][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2, [1,1]))
-flight_valve_buttons[2][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[2,1]))
-flight_valve_buttons[3][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[3,1]))
-flight_valve_buttons[4][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[4,1]))
-flight_valve_buttons[5][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[5,1]))
-flight_valve_buttons[6][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[6,1]))
-flight_valve_buttons[7][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DIGITAL_WRITE, 2,[7,1]))
+flight_valve_buttons[0][0].clicked.connect(lambda: toggle_valve('flight', 0))
+flight_valve_buttons[1][0].clicked.connect(lambda: toggle_valve('flight', 1))
+flight_valve_buttons[2][0].clicked.connect(lambda: toggle_valve('flight', 2))
+flight_valve_buttons[3][0].clicked.connect(lambda: toggle_valve('flight', 3))
+flight_valve_buttons[4][0].clicked.connect(lambda: toggle_valve('flight', 4))
+flight_valve_buttons[5][0].clicked.connect(lambda: toggle_valve('flight', 5))
+flight_valve_buttons[6][0].clicked.connect(lambda: toggle_valve('flight', 6))
+flight_valve_buttons[7][0].clicked.connect(lambda: toggle_valve('flight', 7))
+flight_valve_buttons[0][1].clicked.connect(lambda: toggle_valve('flight', 0))
+flight_valve_buttons[1][1].clicked.connect(lambda: toggle_valve('flight', 1))
+flight_valve_buttons[2][1].clicked.connect(lambda: toggle_valve('flight', 2))
+flight_valve_buttons[3][1].clicked.connect(lambda: toggle_valve('flight', 3))
+flight_valve_buttons[4][1].clicked.connect(lambda: toggle_valve('flight', 4))
+flight_valve_buttons[5][1].clicked.connect(lambda: toggle_valve('flight', 5))
+flight_valve_buttons[6][1].clicked.connect(lambda: toggle_valve('flight', 6))
+flight_valve_buttons[7][1].clicked.connect(lambda: toggle_valve('flight', 7))
 # # GROUND LEDS
 ground_valve_buttons[8][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [0,1]))
 ground_valve_buttons[9][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [1,1]))
@@ -953,9 +989,9 @@ flight_valve_buttons[10][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FL
 flight_valve_buttons[11][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [3,0]))
 
 ### CONTROL GAINS
-kp_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_SET_KP, 1, [int(kp_input.text())]))
-ki_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_SET_KI, 1, [int(ki_input.text())]))
-kd_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_SET_KD, 1, [int(kd_input.text())]))
+kp_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_SET_KP, 1, [int(kp_input.text())]))
+ki_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_SET_KI, 1, [int(ki_input.text())]))
+kd_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_SET_KD, 1, [int(kd_input.text())]))
 
 ### MOTORS
 mtr_send[0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_MOTOR_WRITE, 2, [0, int(mtr_setpoint[0].text())]))

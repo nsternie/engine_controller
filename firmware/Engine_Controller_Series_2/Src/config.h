@@ -13,4 +13,20 @@
 //#define BOARD_ID TARGET_ADDRESS_GROUND
 #define BOARD_ID TARGET_ADDRESS_FLIGHT
 
+#if BOARD_ID == TARGET_ADDRESS_GROUND
+
+#define WATER_DELUGE_CHANNEL 	vlv4
+
+#endif
+
+
+
+#if BOARD_ID == TARGET_ADDRESS_FLIGHT
+
+#define IGNITER_CHANNEL			vlv7
+#define OX_VALVE_MOTOR			0
+#define FUEL_VALVE_MOTOR		1
+
+#endif
+
 #endif /* CONFIG_H_ */

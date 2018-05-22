@@ -86,6 +86,6 @@ uint32_t qd_stop_time = 0;
 
 volatile uint32_t xmit_counter = 0;
 uint32_t xmit_delay = 20;
-
-
 uint8_t TELEM_ACTIVE = 1;
+
+
