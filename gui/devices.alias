@@ -23,22 +23,22 @@ fvlv8	FLIGHT LED 0
 fvlv9	FLIGHT LED 1
 fvlv10	FLIGHT LED 2
 fvlv11	FLIGHT LED 3
-gpressure0	Ground press 0
-gpressure1	Ground press 1
-gpressure2	Ground press 2
-gpressure3	Ground press 3
-gpressure4	Ground press 4
-gpressure5	Ground press 5
-gpressure6	Ground press 6
-gpressure7	Ground press 7
-fpressure0	Flight press 0
-fpressure1	Flight press 1
-fpressure2	Flight press 2
-fpressure3	Flight press 3
-fpressure4	Flight press 4
-fpressure5	Flight press 5
-fpressure6	Flight press 6
-fpressure7	Flight press 7
+gpressure0	N2 Fill Hose
+gpressure1	Ox Mother
+gpressure2	Ox Fill Hose
+gpressure3	N2 Mother
+gpressure4	p4
+gpressure5	p5
+gpressure6	p6
+gpressure7	p7
+fpressure0	Ox Tank
+fpressure1	p1
+fpressure2	Fuel Tank
+fpressure3	Ox Manifold
+fpressure4	DP
+fpressure5	Chamber
+fpressure6	Fuel Manifold
+fpressure7	p7
 mtr0	OX VALVE
 mtr1	FUEL VALVE
 mtr2	unused

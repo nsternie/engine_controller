@@ -95,7 +95,6 @@ static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM5_Init(void);
 static void MX_TIM9_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -107,6 +106,7 @@ static void MX_TIM7_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM10_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_TIM5_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -197,7 +197,6 @@ void system_init(){
 	add_command(&p, COMMAND_TARE, 			tare);
 	add_command(&p, COMMAND_AMBIENTIZE, 	ambientize);
 	add_command(&p, COMMAND_LOGRATE_SET, 	lograte_set);
-
 	add_command(&p, COMMAND_PRINT_FILE, 	print_file);
 	add_command(&p, COMMAND_NUMFILES, 		numfiles);
 	add_command(&p, COMMAD_LOG_START, 		log_start);
@@ -205,6 +204,12 @@ void system_init(){
 	add_command(&p, COMMAD_INIT_FS, 		init_fs);
 	add_command(&p, COMMAND_TELEM_PAUSE, 		telem_pause);
 	add_command(&p, COMMAND_TELEM_RESUME, 		telem_resume);
+
+	release_device(adc0);
+	release_device(adc1);
+	release_device(adc2);
+	release_device(flash);
+
 
   unlock_all(); // Flash init
 
@@ -247,7 +252,6 @@ int main(void)
   MX_SPI1_Init();
   MX_SPI4_Init();
   MX_TIM2_Init();
-  MX_TIM5_Init();
   MX_TIM9_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
@@ -259,16 +263,13 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM10_Init();
   MX_IWDG_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
 
  	system_init();
  	read_flash_id();
 
-//	setpwm(htim5, TIM_CHANNEL_1, 32768, 0);
-//	setpwm(htim9, TIM_CHANNEL_1, 32768, 16535);
-//
-//	HAL_GPIO_WritePin(inb_mtr0_GPIO_Port, inb_mtr0_Pin, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -276,12 +277,16 @@ int main(void)
   while (1)
   {
 
+
+	  if(STATE == FIRING){
+		  run_auto(millis);
+	  }
  //Check if packet is in from downstream engine controller
     for(uint8_t n = 0; n < 255; n++){
         if(upstream_buffer.data[n] == (uint8_t) '\n'){
         	command(led1, 1);
         	//__disable_irq();
-        	HAL_Delay(1);
+        	HAL_Delay(0);
 //        	while(millis - xmit_counter < xmit_delay);
             HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
 //            xmit_counter = millis;
@@ -594,9 +599,9 @@ static void MX_TIM5_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim5.Instance = TIM5;
-  htim5.Init.Prescaler = 2;
+  htim5.Init.Prescaler = 0;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim5.Init.Period = 32768;
+  htim5.Init.Period = 0;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_PWM_Init(&htim5) != HAL_OK)
   {
@@ -711,7 +716,7 @@ static void MX_TIM9_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim9.Instance = TIM9;
-  htim9.Init.Prescaler = 4;
+  htim9.Init.Prescaler = 0;
   htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim9.Init.Period = 32768;
   htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

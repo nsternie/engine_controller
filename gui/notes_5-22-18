@@ -1,0 +1,32 @@
+log start
+
+1000ms
+
+start pump
+
+5000ms
+
+ignite
+
+500ms
+
+both valves open
+
+6000ms
+
+close valve
+
+pump off
+
+
+fuel    100 = close
+        225  open
+
+ox      70 = close
+        150 = open
+        230 = close
+
+ox gains
+P 1500
+I 70
+D 300

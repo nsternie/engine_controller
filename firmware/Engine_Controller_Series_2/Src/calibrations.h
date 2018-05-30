@@ -6,7 +6,7 @@
 #define Ki 1
 #define Kd 2
 
-#define I_LIMIT 500
+#define I_LIMIT 30
 
 #define ebatt_cal 	0.00324707
 #define ibus_cal	0.01418500
