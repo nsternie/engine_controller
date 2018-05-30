@@ -152,6 +152,16 @@ void system_init(){
 	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1); 	// mtr0
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);	// mtr1
 
+	writeMotor(mtr0, 1000);
+	writeMotor(mtr1, 1000);
+	HAL_Delay(5);
+	writeMotor(mtr0, -1000);
+	writeMotor(mtr1, -1000);
+	HAL_Delay(5);
+	writeMotor(mtr0, 0);
+	writeMotor(mtr1, 0);
+
+
 	for(uint8_t n = 0; n < 255; n++){
 		upstream_buffer.data[n] = 0;
 	}

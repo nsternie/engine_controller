@@ -9,8 +9,8 @@ float motor_control_gain[3] = {
 		0.0
 };
 const float motor_pot_slope[4] = {
-		1,
-		1,
+		0.083,
+		0.083,
 		1,
 		1
 };

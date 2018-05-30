@@ -113,7 +113,6 @@ void scale_readings(){
 	tbrd = (adc_data[2][5])/1.24;
 	tbrd -= 600;
 	tbrd /= 10;
-	tbrd = 1;
 	tvlv = (adc_data[2][6])/1.24;
 	tvlv -= 600;
 	tvlv /= 10;
@@ -321,11 +320,11 @@ void motor_control(){
 			command_sum += (motor_control_gain[Kd] * (motor_position[mtrx] - motor_last_position[mtrx]));
 
 			int16_t command = 0;
-			if(command_sum > 32768){
-				command = 32736;
+			if(command_sum > 32700){
+				command = 32700;
 			}
-			else if(command_sum < -32767){
-				command = -32767;
+			else if(command_sum < -32700){
+				command = -32700;
 			}
 			else{
 				command = command_sum;

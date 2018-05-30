@@ -339,10 +339,10 @@ def parse_serial():
             #      os.system("python G:\\Code\\python\\alert_bot.py \"Ivalid packet detected at"+time.ctime()+"\"")
             #     # death()
             #     # exit()
-            if(len(packet) == 0):
-                os.system("python G:\\Code\\python\\alert_bot.py \"Zero packet detected. Exiting... at"+time.ctime()+"\"")
-                death()
-                exit()
+            # if(len(packet) == 0):
+            #     os.system("python G:\\Code\\python\\alert_bot.py \"Zero packet detected. Exiting... at"+time.ctime()+"\"")
+            #     death()
+            #     exit()
             serial_log.write("%.3f," % time.clock())
             serial_log.write(str(packet)+'length = '+str(len(packet))+'\n')
             # Unstuff the packet
@@ -953,9 +953,9 @@ flight_valve_buttons[10][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FL
 flight_valve_buttons[11][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [3,0]))
 
 ### CONTROL GAINS
-kp_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_SET_KP, 1, [int(kp_input.text())]))
-ki_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_SET_KI, 1, [int(ki_input.text())]))
-kd_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_SET_KD, 1, [int(kd_input.text())]))
+kp_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_SET_KP, 1, [int(kp_input.text())]))
+ki_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_SET_KI, 1, [int(ki_input.text())]))
+kd_set.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_SET_KD, 1, [int(kd_input.text())]))
 
 ### MOTORS
 mtr_send[0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_MOTOR_WRITE, 2, [0, int(mtr_setpoint[0].text())]))
