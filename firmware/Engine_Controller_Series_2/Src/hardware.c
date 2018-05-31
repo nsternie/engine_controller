@@ -327,7 +327,7 @@ void motor_control(){
 		if(motor_active[mtrx]){
 
 			float motor_error = (motor_position[mtrx] - motor_setpoint[mtrx])*pot_polarity[mtrx];
-			motor_accumulated_error[mtrx] += motor_error;
+
 
 			if(motor_accumulated_error[mtrx] > I_LIMIT){
 				motor_accumulated_error[mtrx] = I_LIMIT;
@@ -335,27 +335,38 @@ void motor_control(){
 			if(motor_accumulated_error[mtrx] < -I_LIMIT){
 				motor_accumulated_error[mtrx] = -I_LIMIT;
 			}
-
 			count2 = motor_accumulated_error[mtrx];
 			count1 = motor_error;
 			count3 = ((motor_position[mtrx] - motor_last_position[mtrx]))*1000;
 
 			float kp, ki, kd;
-			if(mtrx == 1){
-				kp = 1000;
-				ki = 100;
-				kd = 200;
+			if(mtrx == 0){
+				kp = 2000;
+				ki = 8;
+				kd = 500;
 			}
-			else if(mtrx == 0){
-				kp = 1500;
-				ki = 70;
-				kd = 300;
+			else if(mtrx == 1){
+				kp = 1200;
+				ki = 0;
+				kd = 0;
+			}
+
+			else{
+				kp = motor_control_gain[0];
+				ki = motor_control_gain[1];
+				kd = motor_control_gain[2];
+			}
+//			kp = motor_control_gain[0];
+//			ki = motor_control_gain[1];
+//			kd = motor_control_gain[2];
+			command_sum = kp * motor_error;
+			if(motor_error < INTEGRATOR_ACTIVE_REGION){
+				motor_accumulated_error[mtrx] += motor_error;
+				command_sum += (ki * motor_accumulated_error[mtrx]);
 			}
 			else{
-				kp = 0; ki = 0; kd = 0;
+				motor_accumulated_error[mtrx] = 0;
 			}
-			command_sum = kp * motor_error;
-			command_sum += (ki * motor_accumulated_error[mtrx]);
 			command_sum += (kd * (motor_position[mtrx] - motor_last_position[mtrx]));
 
 			int16_t command = 0;
@@ -412,6 +423,8 @@ void motor_enable(int32_t argc, int32_t* argv){
 }
 void arm(int32_t argc, int32_t* argv){
 	STATE = ARMED;
+	motor_setpoint[OX_VALVE_MOTOR] = OX_CLOSE;
+	motor_setpoint[FUEL_VALVE_MOTOR] = FUEL_CLOSE;
 	motor_active[0] = 1;
 	motor_active[1] = 1;
 

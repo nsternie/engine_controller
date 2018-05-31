@@ -34,8 +34,8 @@ const float motor_limit_low[4] = {
 		0
 };
 const float pot_polarity[4] = {
-		-1,
 		1,
+		-1,
 		1,
 		1
 };

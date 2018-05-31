@@ -12,6 +12,9 @@
 
 #if BOARD_ID == TARGET_ADDRESS_FLIGHT
 
+
+
+
 uint32_t main_auto_start_time;
 uint32_t main_auto_time[10] = {
 		0,
@@ -51,14 +54,32 @@ void execute_auto(uint32_t index){
 			break;
 		case 2:
 			command(IGNITER_CHANNEL, 1);
+			writeMotor(mtr0, 1000);
+				writeMotor(mtr1, 1000);
+				HAL_Delay(5);
+				writeMotor(mtr0, -1000);
+				writeMotor(mtr1, -1000);
+				HAL_Delay(5);
+				writeMotor(mtr0, 0);
+				writeMotor(mtr1, 0);
 			break;
 		case 3:
-			motor_setpoint[OX_VALVE_MOTOR] = 150;
-			motor_setpoint[FUEL_VALVE_MOTOR] = 225;
+			motor_setpoint[OX_VALVE_MOTOR] = OX_OPEN;
+			motor_setpoint[FUEL_VALVE_MOTOR] = FUEL_OPEN;
+			command(IGNITER_CHANNEL, 0);
 			break;
 		case 4:
-			motor_setpoint[OX_VALVE_MOTOR] = 70;
-			motor_setpoint[FUEL_VALVE_MOTOR] = 100;
+
+			writeMotor(mtr0, 1000);
+				writeMotor(mtr1, 1000);
+				HAL_Delay(5);
+				writeMotor(mtr0, -1000);
+				writeMotor(mtr1, -1000);
+				HAL_Delay(5);
+				writeMotor(mtr0, 0);
+				writeMotor(mtr1, 0);
+			motor_setpoint[OX_VALVE_MOTOR] = OX_CLOSE;
+			motor_setpoint[FUEL_VALVE_MOTOR] = FUEL_CLOSE;
 			//command(WATER_DELUGE_CHANNEL, 0);
 			break;
 		case 5:

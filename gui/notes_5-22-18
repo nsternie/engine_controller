@@ -27,6 +27,9 @@ ox      70 = close
         230 = close
 
 ox gains
-P 1500
-I 70
-D 300
+P 2200
+I 50
+D 1000
+
+fuel:
+P 1200

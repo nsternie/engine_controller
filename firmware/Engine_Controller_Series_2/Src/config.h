@@ -27,6 +27,11 @@
 #define OX_VALVE_MOTOR			0
 #define FUEL_VALVE_MOTOR		1
 
+#define OX_OPEN 150
+#define OX_CLOSE 230
+#define FUEL_OPEN 225
+#define	FUEL_CLOSE	90
+
 #endif
 
 #endif /* CONFIG_H_ */
