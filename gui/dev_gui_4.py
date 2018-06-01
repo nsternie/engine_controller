@@ -13,6 +13,8 @@ from PlotDefinition import PlotDefinition
 
 parser = ECParse()
 packet_number = 0
+ground_packet_number = 0
+flight_packet_number = 0
 
 # COMMAND IDs
 COMMAND_TARE             =    30
@@ -47,7 +49,7 @@ COMMAND_TELEM_RESUME   =   46
 
 
 def s2_command(target_id, command_id, argc, argv):
-    global packet_number;
+    global packet_number, ground_packet_number, flight_packet_number;
     packet_number += 1
     command_id = command_id;
     packet = [0]*(8+4*argc+2)
@@ -73,6 +75,12 @@ def s2_command(target_id, command_id, argc, argv):
     tosend = bytes(packet)
     # print("Packet "+str(packet_number)+", target_id "+str(target_id)+", command_id "+str(command_id))
     ser.write(tosend)
+
+    if(target_id == TARGET_ADDRESS_GROUND):
+        ground_packet_number += 1
+    if(target_id == TARGET_ADDRESS_FLIGHT):
+        flight_packet_number += 1
+
     # TODO: Log command
 
 def stuff_array(arr, seperator):
@@ -107,7 +115,9 @@ def get_file(target_id):
     filelist = []
     for filenum in range(response):
         print("Downloading file "+str(filenum)+"...")
-        filename = os.getcwd()+"\\data\\temp\\"+str(filenum)+".bin"
+        mydir = os.getcwd()+"\\data\\"+str(time.strftime("%Y_%m_%d_-_%H%M_%S"))
+        os.makedirs(mydir)
+        filename = mydir+"\\"+str(filenum)+".bin"
         filelist.append(filename)
         binfile = open(filename, "wb")              # Open the binary
         readfile = True
@@ -129,6 +139,8 @@ def get_file(target_id):
     s2_command(target_id, COMMAND_TELEM_RESUME, 0, []);
     print("All files downloaded.")
     print("Telemetry Resumed.")
+    os.system("python ec_binary_parser.py "+filename)
+    os.system("python csvplot.py "+filename)
     print("")
 
 # Gloabals
@@ -412,6 +424,11 @@ def parse_serial():
             ###################################################################
             if(parser.BOARD_ID == TARGET_ADDRESS_FLIGHT):
 
+                if(parser.ebatt < 10):
+                    print(len(packet))
+                else:
+                    print(str(len(packet))+" - good")
+
                 for n in range(parser.num_items-1):
                     flight_y[n].append(parser.dict[parser.items[n]])
                     flight_x[n].append(time.clock())
@@ -450,7 +467,12 @@ def parse_serial():
 
                 last_packet_flight.setText(str(parser.last_packet_number))
                 last_command_flight.setText(str(parser.last_command_id))
-
+                if(parser.last_packet_number == flight_packet_number):
+                    # good
+                    pass
+                else:
+                    #bad
+                    pass
                 flight_ibridge0.setText("Motor 0 Current: "+str(parser.imtr[0]))
                 flight_ibridge1.setText("Motor 1 Current: "+str(parser.imtr[1]))
 
@@ -671,12 +693,17 @@ layout_common_widgets(flight_layout, flight_valve_buttons, flight_pressure_label
 
 qd_ox_release = QtGui.QPushButton("Release Ox")
 qd_ox_connect = QtGui.QPushButton("Connect Ox")
+qd_ox_off = QtGui.QPushButton("OFF Ox")
 qd_fuel_release = QtGui.QPushButton("Release Fuel")
 qd_fuel_connect = QtGui.QPushButton("Connect Fuel")
+qd_fuel_off = QtGui.QPushButton("OFF Fuel")
 ground_layout.addWidget(qd_ox_connect,zr+9, zc+0)
-ground_layout.addWidget(qd_ox_release,zr+9, zc+1)
-ground_layout.addWidget(qd_fuel_connect,zr+10, zc+0)
+ground_layout.addWidget(qd_ox_release,zr+10, zc+0)
+ground_layout.addWidget(qd_fuel_connect,zr+9, zc+1)
 ground_layout.addWidget(qd_fuel_release,zr+10, zc+1)
+ground_layout.addWidget(qd_ox_off,zr+11, zc+0)
+ground_layout.addWidget(qd_fuel_off,zr+11, zc+1)
+
 
 
 
@@ -689,12 +716,12 @@ telem_pause = QtGui.QPushButton("Pause Telemetry")
 telem_resume = QtGui.QPushButton("Resume Telemetry")
 file_download = QtGui.QPushButton("Download file")
 
-ground_layout.addWidget(init_fs,zr+13, zc+0)
-ground_layout.addWidget(log_start,zr+14, zc+0)
-ground_layout.addWidget(log_end,zr+15, zc+0)
-ground_layout.addWidget(telem_pause,zr+16, zc+0)
-ground_layout.addWidget(telem_resume,zr+17, zc+0)
-ground_layout.addWidget(file_download,zr+18, zc+0)
+ground_layout.addWidget(init_fs,zr+14, zc+0)
+ground_layout.addWidget(log_start,zr+15, zc+0)
+ground_layout.addWidget(log_end,zr+16, zc+0)
+ground_layout.addWidget(telem_pause,zr+17, zc+0)
+ground_layout.addWidget(telem_resume,zr+18, zc+0)
+ground_layout.addWidget(file_download,zr+19, zc+0)
 
 init_fs.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_INIT_FS, 0, []))
 log_start.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_LOG_START, 0, []))
@@ -711,12 +738,12 @@ telem_pause = QtGui.QPushButton("Pause Telemetry")
 telem_resume = QtGui.QPushButton("Resume Telemetry")
 file_download = QtGui.QPushButton("Download file")
 
-flight_layout.addWidget(init_fs,zr+13, zc+0)
-flight_layout.addWidget(log_start,zr+14, zc+0)
-flight_layout.addWidget(log_end,zr+15, zc+0)
-flight_layout.addWidget(telem_pause,zr+16, zc+0)
-flight_layout.addWidget(telem_resume,zr+17, zc+0)
-flight_layout.addWidget(file_download,zr+18, zc+0)
+flight_layout.addWidget(init_fs,zr+14, zc+0)
+flight_layout.addWidget(log_start,zr+15, zc+0)
+flight_layout.addWidget(log_end,zr+16, zc+0)
+flight_layout.addWidget(telem_pause,zr+17, zc+0)
+flight_layout.addWidget(telem_resume,zr+18, zc+0)
+flight_layout.addWidget(file_download,zr+19, zc+0)
 
 init_fs.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_INIT_FS, 0, []))
 log_start.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LOG_START, 0, []))
@@ -754,28 +781,28 @@ for mtrx in range(0, 2):
 ground_samplerate_setpoint = QtGui.QLineEdit('50')
 # ground_samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
 ground_samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
-ground_layout.addWidget(ground_samplerate_send, zr+11, zc+0)
-ground_layout.addWidget(ground_samplerate_setpoint, zr+11, zc+1)
+ground_layout.addWidget(ground_samplerate_send, zr+12, zc+0)
+ground_layout.addWidget(ground_samplerate_setpoint, zr+12, zc+1)
 # ground_layout.addWidget(ground_samplerate_setpointfb, zr+11, zc+2)
 flight_samplerate_setpoint = QtGui.QLineEdit('50')
 # flight_samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
 flight_samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
-flight_layout.addWidget(flight_samplerate_send, zr+11, zc+0)
-flight_layout.addWidget(flight_samplerate_setpoint, zr+11, zc+1)
+flight_layout.addWidget(flight_samplerate_send, zr+12, zc+0)
+flight_layout.addWidget(flight_samplerate_setpoint, zr+12, zc+1)
 # flight_layout.addWidget(flight_samplerate_setpointfb, zr+11, zc+2)
 
 # Telemrate set
 ground_telemrate_setpoint = QtGui.QLineEdit('10')
 # ground_telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
 ground_telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
-ground_layout.addWidget(ground_telemrate_send, zr+12, zc+0)
-ground_layout.addWidget(ground_telemrate_setpoint, zr+12, zc+1)
+ground_layout.addWidget(ground_telemrate_send, zr+13, zc+0)
+ground_layout.addWidget(ground_telemrate_setpoint, zr+13, zc+1)
 # ground_layout.addWidget(ground_telemrate_setpointfb, zr+12, zc+2)
 flight_telemrate_setpoint = QtGui.QLineEdit('10')
 # flight_telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
 flight_telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
-flight_layout.addWidget(flight_telemrate_send, zr+12, zc+0)
-flight_layout.addWidget(flight_telemrate_setpoint, zr+12, zc+1)
+flight_layout.addWidget(flight_telemrate_send, zr+13, zc+0)
+flight_layout.addWidget(flight_telemrate_setpoint, zr+13, zc+1)
 # flight_layout.addWidget(flight_telemrate_setpointfb, zr+12, zc+2)
 
 # Motor gains set
@@ -1002,10 +1029,13 @@ mtr_disable[0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND
 mtr_disable[1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_MOTOR_DISABLE, 1, [1]))
 
 ### QICK DISCONNECTS
-qd_ox_release.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 0, [0]))
-qd_ox_connect.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 0, [1]))
-qd_fuel_release.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 1, [0]))
-qd_fuel_connect.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 1, [1]))
+qd_ox_release.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 2, [0, -1]))
+qd_ox_connect.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 2, [0, 1]))
+qd_ox_off.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 2, [0, 0]))
+qd_fuel_release.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 2, [1, -1]))
+qd_fuel_connect.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 2, [1, 1]))
+qd_fuel_off.clicked.connect(lambda: s2_command(TARGET_ADDRESS_GROUND, COMMAND_QD_SET, 2, [1, 0]))
+
 
 ##############################################################################
 ### END FUNCTIONAL CONNECTIONS ###############################################

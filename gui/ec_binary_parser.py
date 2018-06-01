@@ -21,9 +21,10 @@ while True:
 	else:
 		this_line += b
 
+print(n)
 
 for packet in packets:
-	# print(packet)
+	# print(len(packet))
 	packet = list(packet)
 	unstuffed = b''
 	index = int(packet[0])

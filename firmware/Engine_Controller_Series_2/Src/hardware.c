@@ -481,7 +481,8 @@ void pwm_set(int32_t argc, int32_t* argv){
 
 }
 void qd_set(int32_t argc, int32_t* argv){
-
+	prime_bridge();
+	writeMotor(mtr0 + argv[0], argv[1] * QD_ACTUATION_FORCE);
 }
 void telemrate_set(int32_t argc, int32_t* argv){
 	uint16_t period = 100000/argv[0];
@@ -587,6 +588,33 @@ void init_fs(int32_t argc, int32_t* argv){
 	snprintf(message, sizeof(message), "init_fs complete\r\n");
 	HAL_UART_Transmit(&huart1, message, strlen(message), 0xffff);
 }
+void prime_bridge_wrapper(int32_t argc, int32_t* argv){
+	prime_bridge();
+}
+void prime_bridge(){
+	int16_t temp[2];
+	temp[0] = motor_pwm[0];
+	temp[1] = motor_pwm[1];
+	for(int n = 0; n< 2; n++){
+		if(temp[n] > 30000){
+			temp[n] = 30000;
+		}
+		if(temp[n] < -30000){
+			temp[n] = -30000;
+		}
+
+	}
+
+	writeMotor(mtr0, temp[0]+1000);
+	writeMotor(mtr1, temp[1]+1000);
+	HAL_Delay(5);
+	writeMotor(mtr0, temp[0]+-1000);
+	writeMotor(mtr1, temp[1]+-1000);
+	HAL_Delay(5);
+	writeMotor(mtr0, temp[0]);
+	writeMotor(mtr1, temp[1]);
+}
+
 
 void telem_pause(int32_t argc, int32_t* argv){
 	TELEM_ACTIVE = 0;

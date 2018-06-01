@@ -152,15 +152,7 @@ void system_init(){
 	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1); 	// mtr0
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);	// mtr1
 
-	writeMotor(mtr0, 1000);
-	writeMotor(mtr1, 1000);
-	HAL_Delay(5);
-	writeMotor(mtr0, -1000);
-	writeMotor(mtr1, -1000);
-	HAL_Delay(5);
-	writeMotor(mtr0, 0);
-	writeMotor(mtr1, 0);
-
+	prime_bridge();
 
 	for(uint8_t n = 0; n < 255; n++){
 		upstream_buffer.data[n] = 0;
@@ -204,6 +196,7 @@ void system_init(){
 	add_command(&p, COMMAD_INIT_FS, 		init_fs);
 	add_command(&p, COMMAND_TELEM_PAUSE, 		telem_pause);
 	add_command(&p, COMMAND_TELEM_RESUME, 		telem_resume);
+	add_command(&p, COMMAND_PRIME_BRIDGE,		prime_bridge_wrapper);
 
 	release_device(adc0);
 	release_device(adc1);
@@ -277,10 +270,11 @@ int main(void)
   while (1)
   {
 
-
+#if BOARD_ID == TARGET_ADDRESS_FLIGHT
 	  if(STATE == FIRING){
 		  run_auto(millis);
 	  }
+#endif
  //Check if packet is in from downstream engine controller
     for(uint8_t n = 0; n < 255; n++){
         if(upstream_buffer.data[n] == (uint8_t) '\n'){
@@ -320,28 +314,21 @@ int main(void)
         read_adc_now = 0;
         read_adc(&hspi1);
         scale_readings();
+        pack_telem(telem_unstuffed);
+		stuff_telem(telem_unstuffed, telem_stuffed);
         TIME(adc_cycle_time);
         if(LOGGING_ACTIVE){
         	save_telem(logfile);
         }
-
+#if BOARD_ID == TARGET_ADDRESS_FLIGHT
         motor_control();
+#endif
     }
 
     if(send_rs422_now && TELEM_ACTIVE){
         send_rs422_now = 0;
-        pack_telem(telem_unstuffed);
-		stuff_telem(telem_unstuffed, telem_stuffed);
 
-
-//		for(int n = 0; n < PACKET_SIZE; n++){
-//			if(telem_stuffed[n] == '\n'){
-//				command(led2, 1);
-//			}
-//		}
-
-		//while(millis - xmit_counter < xmit_delay);
-       send_telem(rs422_com, gui_byte_packet);
+		send_telem(rs422_com, gui_byte_packet);
         //xmit_counter = millis;
 
         TIME(telemetry_cycle_time);

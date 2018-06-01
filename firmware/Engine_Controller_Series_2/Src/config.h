@@ -16,6 +16,7 @@
 #if BOARD_ID == TARGET_ADDRESS_GROUND
 
 #define WATER_DELUGE_CHANNEL 	vlv4
+#define QD_ACTUATION_FORCE		20000 // PWM value, 0 to 32k
 
 #endif
 

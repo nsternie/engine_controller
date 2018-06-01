@@ -25,6 +25,7 @@
 // COMMAND IDs
 #define COMMAND_TARE 			30
 #define COMMAND_AMBIENTIZE 		31
+#define COMMAND_PRIME_BRIDGE	32
 
 #define COMMAND_PRINT_FILE		40
 #define COMMAND_NUMFILES        41
@@ -95,4 +96,7 @@ void log_end(int32_t argc, int32_t* argv);
 void init_fs(int32_t argc, int32_t* argv);
 void telem_pause(int32_t argc, int32_t* argv);
 void telem_resume(int32_t argc, int32_t* argv);
+void prime_bridge_wrapper(int32_t argc, int32_t* argv);
+void prime_bridge();
+
 #endif /* HARDWARE_H_ */

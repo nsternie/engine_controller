@@ -47,6 +47,7 @@ void execute_auto(uint32_t index){
 		{
 			int32_t args[1] = {1000};
 			samplerate_set(1, args);
+			log_start(0, args);
 		}
 			break;
 		case 1:
@@ -54,14 +55,7 @@ void execute_auto(uint32_t index){
 			break;
 		case 2:
 			command(IGNITER_CHANNEL, 1);
-			writeMotor(mtr0, 1000);
-				writeMotor(mtr1, 1000);
-				HAL_Delay(5);
-				writeMotor(mtr0, -1000);
-				writeMotor(mtr1, -1000);
-				HAL_Delay(5);
-				writeMotor(mtr0, 0);
-				writeMotor(mtr1, 0);
+				prime_bridge();
 			break;
 		case 3:
 			motor_setpoint[OX_VALVE_MOTOR] = OX_OPEN;
@@ -70,14 +64,10 @@ void execute_auto(uint32_t index){
 			break;
 		case 4:
 
-			writeMotor(mtr0, 1000);
-				writeMotor(mtr1, 1000);
-				HAL_Delay(5);
-				writeMotor(mtr0, -1000);
-				writeMotor(mtr1, -1000);
-				HAL_Delay(5);
-				writeMotor(mtr0, 0);
-				writeMotor(mtr1, 0);
+			{
+				int32_t args[0] = {};
+				prime_bridge(1, args);
+			}
 			motor_setpoint[OX_VALVE_MOTOR] = OX_CLOSE;
 			motor_setpoint[FUEL_VALVE_MOTOR] = FUEL_CLOSE;
 			//command(WATER_DELUGE_CHANNEL, 0);
@@ -86,7 +76,6 @@ void execute_auto(uint32_t index){
 		{
 			int32_t args[1] = {50};
 			samplerate_set(1, args);
-			log_end(0, args);
 		}
 			break;
 		case 6:
