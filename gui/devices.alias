@@ -1,24 +1,24 @@
 Device	Alias
-gvlv0	GND 0
-gvlv1	GND 1
-gvlv2	GND 2
-gvlv3	GND 3
-gvlv4	GND 4
-gvlv5	GND 5
-gvlv6	GND 6
-gvlv7	GND 7
+gvlv0	OX QD BREAKWIRE
+gvlv1	FUEL QD BREAKWIRE
+gvlv2	OX QD
+gvlv3	FUEL QD
+gvlv4	N2 FILL
+gvlv5	N2 VENT
+gvlv6	OX FILL
+gvlv7	OX DRAIN
 gvlv8	GND LED 0
 gvlv9	GND LED 1
 gvlv10	GND LED 2
 gvlv11	GND LED 3
 fvlv0	FLIGHT 0
 fvlv1	FLIGHT 1
-fvlv2	FLIGHT 2		 
+fvlv2	OX VENT		 
 fvlv3	FLIGHT 3
-fvlv4	FLIGHT 4
+fvlv4	FUEL VENT
 fvlv5	FLIGHT 5
 fvlv6	FLIGHT 6
-fvlv7	FLIGHT 7
+fvlv7	IGNITER
 fvlv8	FLIGHT LED 0
 fvlv9	FLIGHT LED 1
 fvlv10	FLIGHT LED 2
@@ -34,9 +34,9 @@ gpressure7	p7
 fpressure0	Ox Tank
 fpressure1	p1
 fpressure2	Fuel Tank
-fpressure3	Ox Manifold
+fpressure3	Chamber
 fpressure4	DP
-fpressure5	Chamber
+fpressure5	Ox Manifold
 fpressure6	Fuel Manifold
 fpressure7	p7
 mtr0	OX VALVE
@@ -52,5 +52,5 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM6
+COM_PORT	COM13
 BAUDRATE	921600

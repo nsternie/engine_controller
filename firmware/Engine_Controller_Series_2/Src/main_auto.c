@@ -22,7 +22,7 @@ uint32_t main_auto_time[10] = {
 		1000,
 		1500,
 		7500,
-		9000,
+		15000,
 		0,
 		0,
 		0,
@@ -77,6 +77,12 @@ void execute_auto(uint32_t index){
 			int32_t args[1] = {50};
 			samplerate_set(1, args);
 		}
+		{
+			int32_t args[0] = {};
+			log_end(0, args);
+		}
+		motor_active[0] = 0;
+		motor_active[1] = 0;
 			break;
 		case 6:
 			break;

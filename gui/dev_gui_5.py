@@ -313,7 +313,7 @@ except Exception:
     print("INVALID STATE ALIAS DEFINITIONS")
 
 # Try to open the serial port
-ser = serial.Serial(port=None, baudrate=int(alias["BAUDRATE"]), timeout=0.5)
+ser = serial.Serial(port=None, baudrate=int(alias["BAUDRATE"]), timeout=0.2)
 ser.port = alias["COM_PORT"]
 try:
     ser.open()
@@ -368,6 +368,9 @@ def parse_serial():
             ### GROUND DATA UPDATE ############################################
             ###################################################################
             if(parser.BOARD_ID == TARGET_ADDRESS_GROUND):
+
+                parser.pressure[1] += 25
+
                 for n in range(parser.num_items-1):
                     ground_y[n].append(parser.dict[parser.items[n]])
                     ground_x[n].append(time.clock())
@@ -430,6 +433,8 @@ def parse_serial():
             ### FLIGHT DATA UPDATE ############################################
             ###################################################################
             if(parser.BOARD_ID == TARGET_ADDRESS_FLIGHT):
+
+
 
                 if(parser.ebatt < 10):
                     print(len(packet))
@@ -1076,14 +1081,25 @@ timer2.start(10) # 100hz for 10 as arg
 # timer3 = pg.QtCore.QTimer()
 # timer3.timeout.connect(test_qd)
 # timer3.start(2000) # 100hz for 10 as arg
+parity = True
+def ground_reset_watchdog():
+    global parity
+    if parity:
+        s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,0])
+        parity = False
+    else:
+        s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [2,0])
+        parity = True
 
-def reset_watchdog():
-    s2_command(TARGET_ADDRESS_GROUND, COMMAND_LED_WRITE, 2, [2,0])
-    time.sleep(0.020)
-    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,0])
+ground_timer = pg.QtCore.QTimer()
+ground_timer.timeout.connect(ground_reset_watchdog)
+ground_timer.start(250) 
 
-timer = pg.QtCore.QTimer()
-timer.timeout.connect(reset_watchdog)
-timer.start(500) 
+# def flight_reset_watchdog():
+#     s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,0])
+
+# flight_timer = pg.QtCore.QTimer()
+# flight_timer.timeout.connect(flight_reset_watchdog)
+# flight_timer.start(500) 
 
 app.exec_()

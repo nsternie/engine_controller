@@ -341,12 +341,12 @@ void motor_control(){
 
 			float kp, ki, kd;
 			if(mtrx == 0){
-				kp = 2000;
-				ki = 8;
-				kd = 500;
+				kp = 1500;//2000
+				ki = 0;//8
+				kd = 200;//500
 			}
 			else if(mtrx == 1){
-				kp = 1200;
+				kp = 1500;//1200
 				ki = 0;
 				kd = 0;
 			}
@@ -399,6 +399,7 @@ void motor_control(){
 // S2 commands
 void led_write(int32_t argc, int32_t* argv){
 	command(led0 - argv[0], argv[1]);
+	__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
 }
 void digital_write(int32_t argc, int32_t* argv){
 	command(vlv0 + argv[0], argv[1]);

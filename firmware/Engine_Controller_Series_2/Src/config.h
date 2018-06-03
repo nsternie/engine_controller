@@ -30,8 +30,8 @@
 
 #define OX_OPEN 150
 #define OX_CLOSE 230
-#define FUEL_OPEN 225
-#define	FUEL_CLOSE	90
+#define FUEL_OPEN 175
+#define	FUEL_CLOSE	77//90
 
 #endif
 

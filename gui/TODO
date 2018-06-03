@@ -1,0 +1,11 @@
+logging:
+    _ add proper name to csv header
+    _ make seperate logs for datalogs
+    _ 2-3 seperate graphs
+    _ make lines on graph different colors
+    _ totally refactor code :)
+    _ time of day time stamp rather than script time
+
+
+ec_parser:
+    _ search alias file to add csv header names

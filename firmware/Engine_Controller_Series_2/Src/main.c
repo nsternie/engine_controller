@@ -267,12 +267,15 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+ 	uint32_t last_motor_millis = 0;
   while (1)
   {
 
 #if BOARD_ID == TARGET_ADDRESS_FLIGHT
 	  if(STATE == FIRING){
 		  run_auto(millis);
+		  __HAL_IWDG_RELOAD_COUNTER(&hiwdg);
 	  }
 #endif
  //Check if packet is in from downstream engine controller
@@ -320,10 +323,13 @@ int main(void)
         if(LOGGING_ACTIVE){
         	save_telem(logfile);
         }
-#if BOARD_ID == TARGET_ADDRESS_FLIGHT
-        motor_control();
-#endif
     }
+#if BOARD_ID == TARGET_ADDRESS_FLIGHT
+    if((millis - last_motor_millis) > 10){
+        motor_control();
+        last_motor_millis = millis;
+    }
+#endif
 
     if(send_rs422_now && TELEM_ACTIVE){
         send_rs422_now = 0;
@@ -332,7 +338,7 @@ int main(void)
         //xmit_counter = millis;
 
         TIME(telemetry_cycle_time);
-        __HAL_IWDG_RELOAD_COUNTER(&hiwdg);
+        //__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
     }
 
 if(p.buffer[p.filled - 1] == 0){
@@ -420,7 +426,7 @@ static void MX_IWDG_Init(void)
 {
 
   hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_8;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_16;
   hiwdg.Init.Reload = 4095;
   if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
   {

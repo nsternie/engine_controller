@@ -138,9 +138,10 @@ void run_parser(parser* p){
 		// Command is valid
 		if(target_id == p->device_id){
 			//printf("device %d\n", target_id);
+			p->commands_executed++;
 			p->commands[command_id]->f(num_args, args);
 			p->commands[command_id]->num_execs++;
-			last_command_id = command_id;
+			last_command_id = p->commands_executed % 100;
 			last_packet_number = packet_number;
 		}
 		else{
