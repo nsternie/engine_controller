@@ -1,11 +1,19 @@
 logging:
-    _ add proper name to csv header
-    _ make seperate logs for datalogs
+    _ add proper name to csv header // harder than it should be
+    T make seperate logs for datalogs
+    X split current logs
     _ 2-3 seperate graphs
     _ make lines on graph different colors
-    _ totally refactor code :)
-    _ time of day time stamp rather than script time
+    _ totally refactor code to be less hella ugly :)
+    T time of day time stamp rather than script time
 
 
 ec_parser:
     _ search alias file to add csv header names
+
+firmware:
+    _ change mod on watchdog count to 16 bit int
+        _ update telem template
+
+Bookmark:
+    Working on porting ground_plots and ground_curves to arrays

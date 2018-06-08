@@ -7,42 +7,42 @@ gvlv4	N2 FILL
 gvlv5	N2 VENT
 gvlv6	OX FILL
 gvlv7	OX DRAIN
-gvlv8	GND LED 0
-gvlv9	GND LED 1
-gvlv10	GND LED 2
-gvlv11	GND LED 3
-fvlv0	FLIGHT 0
-fvlv1	FLIGHT 1
+gvlv8	LED 0
+gvlv9	LED 1
+gvlv10	LED 2
+gvlv11	LED 3
+fvlv0	.
+fvlv1	.
 fvlv2	OX VENT		 
-fvlv3	FLIGHT 3
+fvlv3	.
 fvlv4	FUEL VENT
-fvlv5	FLIGHT 5
-fvlv6	FLIGHT 6
+fvlv5	.
+fvlv6	.
 fvlv7	IGNITER
-fvlv8	FLIGHT LED 0
-fvlv9	FLIGHT LED 1
-fvlv10	FLIGHT LED 2
-fvlv11	FLIGHT LED 3
+fvlv8	LED 0
+fvlv9	LED 1
+fvlv10	LED 2
+fvlv11	LED 3
 gpressure0	N2 Fill Hose
 gpressure1	Ox Mother
 gpressure2	Ox Fill Hose
 gpressure3	N2 Mother
-gpressure4	p4
-gpressure5	p5
-gpressure6	p6
-gpressure7	p7
+gpressure4	.
+gpressure5	.
+gpressure6	.
+gpressure7	.
 fpressure0	Ox Tank
-fpressure1	p1
+fpressure1	.
 fpressure2	Fuel Tank
 fpressure3	Chamber
 fpressure4	DP
 fpressure5	Ox Manifold
 fpressure6	Fuel Manifold
-fpressure7	p7
+fpressure7	.
 mtr0	OX VALVE
 mtr1	FUEL VALVE
-mtr2	unused
-mtr3	unused
+mtr2	.
+mtr3	.
 STATE0	ERROR
 STATE1	MANUAL
 STATE2	ARMED
@@ -52,5 +52,5 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM13
+COM_PORT	COM7
 BAUDRATE	921600
