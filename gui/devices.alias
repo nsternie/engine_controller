@@ -1,47 +1,48 @@
-Device  Alias
-vlv0    0 - Ox Vent
-vlv1    1 - Fuel Vent
-vlv2    2 - Ox Fill
-vlv3    3 - Ox Drain
-vlv4    4 - N2 Drain
-vlv5    5 - N2 Fill
-vlv6    6 - Ox QD
-vlv7    7 - Water
-vlv8    8 - Camera
-vlv9    9 - R.I.P.
-vlv10   __       
-vlv11   __
-vlv12   __
-vlv13   __
-vlv14   __
-vlv15   IGNITER
-pressure0   0 - DP
-pressure1   1 - Chamber
-pressure2   2 - Ox Man
-pressure3   3 - Fuel Man
-pressure4   4 - Ox Tank
-pressure5   5 - Fuel Tank
-pressure6   6 - __
-pressure7   7 - __
-pressure8   8 - Ox Fill Hose
-pressure9   9 - MOM
-pressure10  10 - N2 Fill
-pressure11  11 - N2 Mother
-pressure12  12 - __
-pressure13  13 - __
-pressure14  14 - _s_
-pressure15  15 - __
-mtr0    OX VALVE
-mtr1    FUEL VALVE
-mtr2    unused
-mtr3    unused
-STATE0  ERROR
-STATE1  MANUAL
-STATE2  ARMED
-STATE3  IGNITION
-STATE4  FIRING
-STATE5  FULL_DURATION
-STATE6  PRE_IGNITION
-STATE7  FULL_DURATION_SAFE
-STATE_N 8
-COM_PORT    COM13
+Device	Alias
+vlv0	0 - Ox Vent
+vlv1	1 - Fuel Vent
+vlv2	2 - Ox Fill
+vlv3	3 - Ox Drain
+vlv4	4 - N2 Drain
+vlv5	5 - N2 Fill
+vlv6	6 - Ox QD
+vlv7	7 - Water
+vlv8	8 - Camera
+vlv9	9 - R.I.P.
+vlv10	__		 
+vlv11	__
+vlv12	__
+vlv13	__
+vlv14	__
+vlv15	IGNITER
+pressure0	0 - DP
+pressure1	1 - Chamber
+pressure2	2 - Ox Man
+pressure3	3 - Fuel Man
+pressure4	4 - Ox Tank
+pressure5	5 - Fuel Tank
+pressure6	6 - __
+pressure7	7 - __
+pressure8	8 - Ox Fill Hose
+pressure9	9 - MOM
+pressure10	10 - N2 Fill
+pressure11	11 - N2 Mother
+pressure12	12 - __
+pressure13	13 - __
+pressure14	14 - _s_
+pressure15	15 - __
+mtr0	OX VALVE
+mtr1	FUEL VALVE
+mtr2	unused
+mtr3	unused
+STATE0	ERROR
+STATE1	MANUAL
+STATE2	ARMED
+STATE3	IGNITION
+STATE4	FIRING
+STATE5	FULL_DURATION
+STATE6	PRE_IGNITION
+STATE7	FULL_DURATION_SAFE
+STATE_N	8
+COM_PORT	COM13
+BAUDRATE	921600
