@@ -20,4 +20,5 @@
 
 *.pdf
 
-/gui/data/*
+/gui/data/*.csv
+/gui/data/*.dat
