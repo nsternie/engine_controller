@@ -304,15 +304,6 @@ int main(void)
         }
     }
 
-//	  if(relay_packet == 1){
-//		  command(led1, 1);
-////		  memcpy(uart6_in, upstream_buffer.data, PACKET_SIZE+2);  // swap src and dst???
-//		  HAL_UART_Transmit(&huart1, uart6_in, PACKET_SIZE+2, 0xffff);
-//		  relay_packet = 0;
-//		  command(led1, 0);
-//	  }
-
-
     if(read_adc_now){
         read_adc_now = 0;
         read_adc(&hspi1);
