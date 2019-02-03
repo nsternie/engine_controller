@@ -22,6 +22,8 @@
 
 
 
+
+
 // COMMAND IDs
 #define COMMAND_TARE 			30
 #define COMMAND_AMBIENTIZE 		31
@@ -57,75 +59,6 @@
 
 #define TARGET_ADDRESS_GROUND 100
 #define TARGET_ADDRESS_FLIGHT 101
-
-const uint16_t vlv_pins[32] = {
-        vlv0_Pin,
-        vlv1_Pin,
-        vlv2_Pin,
-        vlv3_Pin,
-        vlv4_Pin,
-        vlv5_Pin,
-        vlv6_Pin,
-        vlv7_Pin,
-        vlv8_Pin,
-        vlv9_Pin,
-        vlv10_Pin,
-        vlv11_Pin,
-        vlv12_Pin,
-        vlv13_Pin,
-        vlv14_Pin,
-        vlv15_Pin,
-        vlv16_Pin,
-        vlv17_Pin,
-        vlv18_Pin,
-        vlv19_Pin,
-        vlv20_Pin,
-        vlv21_Pin,
-        vlv22_Pin,
-        vlv23_Pin,
-        vlv24_Pin,
-        vlv25_Pin,
-        vlv26_Pin,
-        vlv27_Pin,
-        vlv28_Pin,
-        vlv29_Pin,
-        vlv30_Pin,
-        vlv31_Pin
-};
-const uint16_t vlv_ports[32] = {
-        vlv0_GPIO_Port,
-        vlv1_GPIO_Port,
-        vlv2_GPIO_Port,
-        vlv3_GPIO_Port,
-        vlv4_GPIO_Port,
-        vlv5_GPIO_Port,
-        vlv6_GPIO_Port,
-        vlv7_GPIO_Port,
-        vlv8_GPIO_Port,
-        vlv9_GPIO_Port,
-        vlv10_GPIO_Port,
-        vlv11_GPIO_Port,
-        vlv12_GPIO_Port,
-        vlv13_GPIO_Port,
-        vlv14_GPIO_Port,
-        vlv15_GPIO_Port,
-        vlv16_GPIO_Port,
-        vlv17_GPIO_Port,
-        vlv18_GPIO_Port,
-        vlv19_GPIO_Port,
-        vlv20_GPIO_Port,
-        vlv21_GPIO_Port,
-        vlv22_GPIO_Port,
-        vlv23_GPIO_Port,
-        vlv24_GPIO_Port,
-        vlv25_GPIO_Port,
-        vlv26_GPIO_Port,
-        vlv27_GPIO_Port,
-        vlv28_GPIO_Port,
-        vlv29_GPIO_Port,
-        vlv30_GPIO_Port,
-        vlv31_GPIO_Port
-};
 
 // Hardware Specific functions
 void read_adc(SPI_HandleTypeDef* SPI_BUS);
