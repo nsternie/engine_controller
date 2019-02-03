@@ -139,6 +139,18 @@ void set_device(uint8_t device, GPIO_PinState state){
 		case adc2:
 			HAL_GPIO_WritePin(adc2_cs_GPIO_Port, adc2_cs_Pin, state);
 			break;
+		case adc3:
+			HAL_GPIO_WritePin(adc3_cs_GPIO_Port, adc3_cs_Pin, state);
+			break;
+		case adc4:
+			HAL_GPIO_WritePin(adc4_cs_GPIO_Port, adc4_cs_Pin, state);
+			break;
+		case adc5:
+			HAL_GPIO_WritePin(adc5_cs_GPIO_Port, adc5_cs_Pin, state);
+			break;
+		case adc6:
+			HAL_GPIO_WritePin(adc6_cs_GPIO_Port, adc6_cs_Pin, state);
+			break;
 
 		case sram:
 			//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_RESET);

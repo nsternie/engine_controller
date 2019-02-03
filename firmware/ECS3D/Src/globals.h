@@ -43,7 +43,10 @@
 #define adc0 50
 #define adc1 51
 #define adc2 52
-
+#define adc3 53
+#define adc4 54
+#define adc5 55
+#define adc6 56
 
 #define sram 60
 #define flash 61
@@ -112,18 +115,12 @@ extern char* states[10][15];
 extern volatile uint8_t read_adc_now;
 extern volatile uint8_t send_rs422_now;
 extern volatile uint8_t send_xbee_now;
-extern volatile uint8_t update_motors_now;
 volatile uint8_t relay_packet;
-extern uint16_t adc_data[5][16];		// 5 ADCs, 16 channels each.
+extern uint16_t adc_data[6][16];		// 5 ADCs, 16 channels each.
 extern uint16_t valve_states;
 extern uint32_t IGNITION_DURATION;
 extern uint32_t FIRING_DURATION;
 extern uint32_t POST_IGNITE_DELAY;
-extern float motor_position[4];
-extern float motor_last_position[4];
-extern float motor_accumulated_error[4];
-extern int16_t motor_pwm[4];
-extern uint8_t motor_active[4];
 extern uint8_t LOGGING_ACTIVE;
 //extern uint8_t spirit_data_buf[UART_BUFFER_SIZE];
 //extern uint8_t rs422_data_buf[UART_BUFFER_SIZE];
@@ -140,9 +137,8 @@ extern uint8_t command_index;
 extern uint8_t telem_unstuffed[254];
 extern uint8_t telem_stuffed[256];
 extern uint8_t unstuffed_packet_length;
-extern float evlv[16];
-extern float ivlv[16];
-float imtr[2];
+extern float evlv[32];
+extern float ivlv[32];
 extern float ebatt;
 extern float ibus;
 extern float e5v;

@@ -14,44 +14,31 @@ volatile uint8_t send_rs422_now;
 volatile uint8_t send_xbee_now;
 volatile uint8_t update_motors_now;
 volatile uint8_t relay_packet = 0;
-uint16_t adc_data[5][16];		// 5 ADCs, 16 channels each.
+uint16_t adc_data[6][16];		// 5 ADCs, 16 channels each.
 uint16_t valve_states;
 uint32_t IGNITION_DURATION = 750000;
 uint32_t FIRING_DURATION = 3000000;
 uint32_t POST_IGNITE_DELAY = 500000;
-float motor_position[4];
-float motor_last_position[4];
-float motor_accumulated_error[4];
-int16_t motor_pwm[4];
-uint8_t motor_active[4];
 uint8_t LOGGING_ACTIVE = 0;
-//uint8_t spirit_data_buf[UART_BUFFER_SIZE];
-//uint8_t rs422_data_buf[UART_BUFFER_SIZE];
-//uint8_t xbee_data_buf[UART_BUFFER_SIZE];
-struct buffer spirit_buf;
 struct buffer rs422_buf;
-struct buffer xbee_buf;
-uint8_t spirit_in;							// Temp single byte buffer for rx
 uint8_t rs422_in;							// Temp single byte buffer for rx
 uint8_t uart6_in;
-uint8_t xbee_in;							// Temp single byte buffer for rx
 uint8_t command_buffer[COMMAND_HISTORY][COMMAND_BUFFER_LENGTH];
 uint8_t command_index = 0;
 uint8_t telem_unstuffed[254];
 uint8_t telem_stuffed[256];
 uint8_t unstuffed_packet_length = 0;
-float evlv[16];
-float ivlv[16];
-float imtr[2];
+float evlv[32];
+float ivlv[32];
 float ebatt;
 float ibus;
 float e5v;
 float e3v;
 float tbrd, tvlv, tmtr;
-float pressure[16];
-float load[6];
+float pressure[22];
+float load[5];
 float thrust_load;
-float thermocouple[4];
+float thermocouple[16];
 uint8_t temp = 0;
 int32_t count1;
 int32_t count2;

@@ -244,6 +244,9 @@ while(1){
 	HAL_Delay(100);
 	HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, 0);
 	HAL_Delay(100);
+	char* message = "LMAO its ALIIIIIVE\r\n";
+	HAL_UART_Transmit(&huart1, message, strlen(message), 0xffff);
+
 
 }
   while (1)
