@@ -20,7 +20,7 @@ extern TIM_HandleTypeDef htim9;
 extern TIM_HandleTypeDef htim2;
 #define millis	((__HAL_TIM_GET_COUNTER(&htim2))/1000)
 
-//extern IWDG_HandleTypeDef hiwdg;
+extern IWDG_HandleTypeDef hiwdg;
 
 extern UART_HandleTypeDef huart1;
 
@@ -62,20 +62,20 @@ void read_adc(SPI_HandleTypeDef* SPI_BUS){
 void set_device(uint8_t device, GPIO_PinState state){
 	switch(device){
 		case adc0:
-			HAL_GPIO_WritePin(adc0_cs_GPIO_Port, adc0_cs_Pin, state);
+			HAL_GPIO_WritePin(ADC0_CS_GPIO_Port, ADC0_CS_Pin, state);
 			break;
 		case adc1:
-			HAL_GPIO_WritePin(adc1_cs_GPIO_Port, adc1_cs_Pin, state);
+			HAL_GPIO_WritePin(ADC1_CS_GPIO_Port, ADC1_CS_Pin, state);
 			break;
 		case adc2:
-			HAL_GPIO_WritePin(adc2_cs_GPIO_Port, adc2_cs_Pin, state);
+			HAL_GPIO_WritePin(ADC2_CS_GPIO_Port, ADC2_CS_Pin, state);
 			break;
 
 		case sram:
 			//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_RESET);
 			break;
 		case flash:
-			HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, GPIO_PIN_RESET);
 			break;
 
 		default:
@@ -215,6 +215,30 @@ void command(uint8_t device, int16_t command_value){
 			valve_states &= mask;
 		}
 		switch(device){
+			case vlv0:
+				HAL_GPIO_WritePin(GPIOC, GPIO_PIN_10, GPIO_COMMAND);
+				break;
+			case vlv1:
+				HAL_GPIO_WritePin(vlv1_GPIO_Port, vlv1_Pin, GPIO_COMMAND);
+				break;
+			case vlv2:
+				HAL_GPIO_WritePin(vlv2_GPIO_Port, vlv2_Pin, GPIO_COMMAND);
+				break;
+			case vlv3:
+				HAL_GPIO_WritePin(vlv3_GPIO_Port, vlv3_Pin, GPIO_COMMAND);
+				break;
+			case vlv4:
+				HAL_GPIO_WritePin(vlv4_GPIO_Port, vlv4_Pin, GPIO_COMMAND);
+				break;
+			case vlv5:
+				HAL_GPIO_WritePin(vlv5_GPIO_Port, vlv5_Pin, GPIO_COMMAND);
+				break;
+			case vlv6:
+				HAL_GPIO_WritePin(vlv6_GPIO_Port, vlv6_Pin, GPIO_COMMAND);
+				break;
+			case vlv7:
+				HAL_GPIO_WritePin(vlv7_GPIO_Port, vlv7_Pin, GPIO_COMMAND);
+				break;
 
 			case led0:
 				HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, GPIO_COMMAND);
@@ -228,12 +252,6 @@ void command(uint8_t device, int16_t command_value){
 			case led3:
 				HAL_GPIO_WritePin(led3_GPIO_Port, led3_Pin, GPIO_COMMAND);
 				break;
-
-			default:
-				if(device >= vlv0 && device <= vlv0+31){
-					HAL_GPIO_WritePin(vlv_ports[device - vlv0], vlv_pins[device - vlv0], GPIO_COMMAND);\
-					break;
-				}
 
 		}
 
@@ -251,16 +269,137 @@ void command(uint8_t device, int16_t command_value){
 }
 void writeMotor(uint8_t device, int16_t motor_command){
 
+	TIM_HandleTypeDef timer;
+
+	uint8_t dir = (motor_command >=0) ? 1 : 0;
+
+	switch(device){
+	case mtr0:
+		timer = htim9;
+
+		if(dir){
+			HAL_GPIO_WritePin(ina_mtr0_GPIO_Port, ina_mtr0_Pin, GPIO_PIN_SET);		// ina
+			HAL_GPIO_WritePin(inb_mtr0_GPIO_Port, inb_mtr0_Pin, GPIO_PIN_RESET);	// inb
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);		// sel
+		}
+		else{
+			HAL_GPIO_WritePin(ina_mtr0_GPIO_Port, ina_mtr0_Pin, GPIO_PIN_RESET); 	// ^^
+			HAL_GPIO_WritePin(inb_mtr0_GPIO_Port, inb_mtr0_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+		}
+
+		break;
+
+	case mtr1:
+
+		timer = htim5;
+
+		if(dir){
+			HAL_GPIO_WritePin(ina_mtr1_GPIO_Port, ina_mtr1_Pin, GPIO_PIN_SET);		// ina
+			HAL_GPIO_WritePin(inb_mtr1_GPIO_Port, inb_mtr1_Pin, GPIO_PIN_RESET);	// inb
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);		// sel
+		}
+		else{
+			HAL_GPIO_WritePin(ina_mtr1_GPIO_Port, ina_mtr1_Pin, GPIO_PIN_RESET);	// ^^
+			HAL_GPIO_WritePin(inb_mtr1_GPIO_Port, inb_mtr1_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+		}
+
+
+		break;
+	default:
+		// Oops
+		break;
+	}
+
+	// Config Direction
+
+	// Set PWM value
+	setpwm(timer, TIM_CHANNEL_1, 32768, abs(motor_command));
+	motor_pwm[device-mtr0] = motor_command;
 
 }
 void motor_control(){
 
+	float command_sum;
+
+	for(uint8_t mtrx = 0; mtrx < 2; mtrx++){
+		if(motor_active[mtrx]){
+
+			float motor_error = (motor_position[mtrx] - motor_setpoint[mtrx])*pot_polarity[mtrx];
+
+
+			if(motor_accumulated_error[mtrx] > I_LIMIT){
+				motor_accumulated_error[mtrx] = I_LIMIT;
+			}
+			if(motor_accumulated_error[mtrx] < -I_LIMIT){
+				motor_accumulated_error[mtrx] = -I_LIMIT;
+			}
+			count2 = motor_accumulated_error[mtrx];
+			count1 = motor_error;
+			count3 = ((motor_position[mtrx] - motor_last_position[mtrx]))*1000;
+
+			float kp, ki, kd;
+			if(mtrx == 0){
+				kp = 1500;//2000
+				ki = 0;//8
+				kd = 200;//500
+			}
+			else if(mtrx == 1){
+				kp = 1500;//1200
+				ki = 0;
+				kd = 0;
+			}
+
+			else{
+				kp = motor_control_gain[0];
+				ki = motor_control_gain[1];
+				kd = motor_control_gain[2];
+			}
+//			kp = motor_control_gain[0];
+//			ki = motor_control_gain[1];
+//			kd = motor_control_gain[2];
+			command_sum = kp * motor_error;
+			if(motor_error < INTEGRATOR_ACTIVE_REGION){
+				motor_accumulated_error[mtrx] += motor_error;
+				command_sum += (ki * motor_accumulated_error[mtrx]);
+			}
+			else{
+				motor_accumulated_error[mtrx] = 0;
+			}
+			command_sum += (kd * (motor_position[mtrx] - motor_last_position[mtrx]));
+
+			int16_t command = 0;
+			if(command_sum > 32700){
+				command = 32700;
+			}
+			else if(command_sum < -32700){
+				command = -32700;
+			}
+			else{
+				command = command_sum;
+			}
+
+			// Softstop
+			if(adc_data[2][12+mtrx] > 3900 || adc_data[2][12+mtrx] < 200){
+				//command = 0;
+			}
+
+			motor_last_position[mtrx] = motor_position[mtrx];
+			writeMotor(mtrx+mtr0, command);
+
+		}
+		else{
+			// Motor is disabled
+			writeMotor(mtrx+mtr0, 0);
+		}
+	}
 }
 
 // S2 commands
 void led_write(int32_t argc, int32_t* argv){
 	command(led0 - argv[0], argv[1]);
-//	__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
+	__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
 }
 void digital_write(int32_t argc, int32_t* argv){
 	command(vlv0 + argv[0], argv[1]);
@@ -347,37 +486,37 @@ void qd_set(int32_t argc, int32_t* argv){
 	writeMotor(mtr0 + argv[0], argv[1] * QD_ACTUATION_FORCE);
 }
 void telemrate_set(int32_t argc, int32_t* argv){
-//	uint16_t period = 100000/argv[0];
-//
-//	HAL_TIM_Base_Stop_IT(&htim6);
-//
-//	htim6.Instance = TIM6;
-//	htim6.Init.Prescaler = 900;
-//	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-//	htim6.Init.Period = period;
-//	htim6.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-//	HAL_TIM_Base_Init(&htim6);
-//
-//	HAL_TIM_Base_Start_IT(&htim6);
-//
-//	telemetry_rate[rs422] = (100000/period);	// Actual rate
+	uint16_t period = 100000/argv[0];
+
+	HAL_TIM_Base_Stop_IT(&htim6);
+
+	htim6.Instance = TIM6;
+	htim6.Init.Prescaler = 900;
+	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim6.Init.Period = period;
+	htim6.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	HAL_TIM_Base_Init(&htim6);
+
+	HAL_TIM_Base_Start_IT(&htim6);
+
+	telemetry_rate[rs422] = (100000/period);	// Actual rate
 }
 void samplerate_set(int32_t argc, int32_t* argv){
-//	samplerate = argv[0];
-//	uint16_t period = 100000/samplerate;
-//
-//	HAL_TIM_Base_Stop_IT(&htim4);
-//
-//	htim4.Instance = TIM4;
-//	htim4.Init.Prescaler = 900;
-//	htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-//	htim4.Init.Period = period;
-//	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-//	HAL_TIM_Base_Init(&htim4);
-//
-//	HAL_TIM_Base_Start_IT(&htim4);
-//
-//	samplerate = (100000/period);	// Actual rate
+	samplerate = argv[0];
+	uint16_t period = 100000/samplerate;
+
+	HAL_TIM_Base_Stop_IT(&htim4);
+
+	htim4.Instance = TIM4;
+	htim4.Init.Prescaler = 900;
+	htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim4.Init.Period = period;
+	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	HAL_TIM_Base_Init(&htim4);
+
+	HAL_TIM_Base_Start_IT(&htim4);
+
+	samplerate = (100000/period);	// Actual rate
 }
 void tare(int32_t argc, int32_t* argv){
 
@@ -399,7 +538,7 @@ void print_file(int32_t argc, int32_t* argv){
 		uint8_t buffer[2048];
 		read_buffer(0, buffer, 2048);
 		HAL_UART_Transmit(&huart1, buffer, 2048, 0xffff);
-//		__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
+		__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
 	}
 }
 void numfiles(int32_t argc, int32_t* argv){

@@ -41,17 +41,7 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-#include "stdint.h"
-#include "stdlib.h"
-#include "globals.h"
-#include "calibrations.h"
-#include "telem.h"
-#include "pack_telem_defines.h"
-#include "command.h"
-#include "hardware.h"
-#include "flash.h"
-#include "config.h"
-#include "string.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -69,14 +59,6 @@ UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-#define millis	((__HAL_TIM_GET_COUNTER(&htim2))/1000)
-
-#define DMA_RX_BUFFER_SIZE          (PACKET_SIZE + 2)
-uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];
-//
-#define UART_BUFFER_SIZE            256
-uint8_t UART_Buffer[UART_BUFFER_SIZE];
-
 
 /* USER CODE END PV */
 
@@ -98,101 +80,9 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
-// Function prototypes  ///////////////////////////////////
-void print_adc_raw(UART_HandleTypeDef device);				// Print all the ADC things in a decentish table
-uint8_t configure_devices();								// Send Configuration data to the spirit.
-void send_telem(UART_HandleTypeDef device, uint8_t format);	//
-void assemble_telem();
-
-void scale_readings();
-void buffer_init(struct buffer *b, uint8_t* data_buffer, size_t size, uint8_t id);
-void buffer_read(struct buffer *b, uint8_t* dst, size_t size);
-void buffer_write(struct buffer *b, uint8_t* src, size_t size);
-void parse_buffer(struct buffer *b);
-
-void error(char * error_message);
-
-void run_auto(struct autosequence *a);
-void start_auto(struct autosequence *a);
-void stop_auto(struct autosequence *a);
-void kill_auto(struct autosequence *a);
-
-
-
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
-
-
-void system_init(){
-	// Start the timers
-//	HAL_TIM_Base_Start_IT(&htim4);		// ADC sampling
-//	HAL_TIM_Base_Start_IT(&htim6);		// rs422 timing
-//	HAL_TIM_Base_Start_IT(&htim7);		// xbee timing
-//	HAL_TIM_Base_Start_IT(&htim10);		// motor control timing
-//	HAL_TIM_Base_Start_IT(&htim2);		// microsecond tick
-//
-//	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1); 	// mtr0
-//	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);	// mtr1
-
-	prime_bridge();
-
-	for(uint8_t n = 0; n < 255; n++){
-		upstream_buffer.data[n] = 0;
-	}
-
-	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
-	HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
-	//HAL_UART_Receive_DMA(&huart6, &uart6_in, PACKET_SIZE+2);
-
-
-	for(int n = 0; n < 4; n++){
-		  command(led0-n,1);
-		  HAL_Delay(10);
-		  command(led0-n, 0);
-	  }
-
-	p = init_parser(BOARD_ID);
-	//load_commands(&p);
-	add_command(&p, COMMAND_DIGITAL_WRITE, 	digital_write);
-	add_command(&p, COMMAND_LED_WRITE, 		led_write);
-	add_command(&p, COMMAND_MOTOR_WRITE, 	motor_write);
-	add_command(&p, COMMAND_MOTOR_DISABLE, 	motor_disable);
-	add_command(&p, COMMAND_MOTOR_ENABLE, 	motor_enable);
-	add_command(&p, COMMAND_SET_KP, 		set_kp);
-	add_command(&p, COMMAND_SET_KI, 		set_ki);
-	add_command(&p, COMMAND_SET_KD, 		set_kd);
-	add_command(&p, COMMAND_TELEMRATE_SET, 	telemrate_set);
-	add_command(&p, COMMAND_SAMPLERATE_SET, samplerate_set);
-	add_command(&p, COMMAND_ARM, 			arm);
-	add_command(&p, COMMAND_DISARM, 		disarm);
-	add_command(&p, COMMAND_MAIN_AUTO_START,main_auto_start);
-	add_command(&p, COMMAND_PWM_SET, 		pwm_set);
-	add_command(&p, COMMAND_QD_SET, 		qd_set);
-	add_command(&p, COMMAND_TARE, 			tare);
-	add_command(&p, COMMAND_AMBIENTIZE, 	ambientize);
-	add_command(&p, COMMAND_LOGRATE_SET, 	lograte_set);
-	add_command(&p, COMMAND_PRINT_FILE, 	print_file);
-	add_command(&p, COMMAND_NUMFILES, 		numfiles);
-	add_command(&p, COMMAD_LOG_START, 		log_start);
-	add_command(&p, COMMAD_LOG_END, 		log_end);
-	add_command(&p, COMMAD_INIT_FS, 		init_fs);
-	add_command(&p, COMMAND_TELEM_PAUSE, 		telem_pause);
-	add_command(&p, COMMAND_TELEM_RESUME, 		telem_resume);
-	add_command(&p, COMMAND_PRIME_BRIDGE,		prime_bridge_wrapper);
-
-	release_device(adc0);
-	release_device(adc1);
-	release_device(adc2);
-	release_device(flash);
-
-
-  unlock_all(); // Flash init
-
-
-}
-
 
 /* USER CODE END 0 */
 
@@ -235,84 +125,20 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
-
- 	system_init();
- 	read_flash_id();
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
- 	uint32_t last_motor_millis = 0;
   while (1)
   {
 
-#if BOARD_ID == TARGET_ADDRESS_FLIGHT
-	  if(STATE == FIRING){
-		  run_auto(millis);
-//		  __HAL_IWDG_RELOAD_COUNTER(&hiwdg);
-	  }
-#endif
- //Check if packet is in from downstream engine controller
-    for(uint8_t n = 0; n < 255; n++){
-        if(upstream_buffer.data[n] == (uint8_t) '\n'){
-        	command(led1, 1);
-        	//__disable_irq();
-        	HAL_Delay(0);
-//        	while(millis - xmit_counter < xmit_delay);
-            HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
-//            xmit_counter = millis;
-            command(led1, 0);
-//            send_rs422_now = 1;
-//            pack_telem(telem_unstuffed);
-//			stuff_telem(telem_unstuffed, telem_stuffed);
-//			send_telem(rs422_com, gui_byte_packet);
-//			TIME(telemetry_cycle_time);
-//			__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
-
-            upstream_buffer.filled = 0;
-            for(int j = 0; j < 255; j++){
-                upstream_buffer.data[j] = 0;
-            }
-            //__enable_irq();
-            break;
-        }
-    }
-
-    if(read_adc_now){
-        read_adc_now = 0;
-        read_adc(&hspi1);
-        scale_readings();
-        pack_telem(telem_unstuffed);
-		stuff_telem(telem_unstuffed, telem_stuffed);
-//        TIME(adc_cycle_time);
-        if(LOGGING_ACTIVE){
-        	save_telem(logfile);
-        }
-    }
-#if BOARD_ID == TARGET_ADDRESS_FLIGHT
-    if((millis - last_motor_millis) > 10){
-        motor_control();
-        last_motor_millis = millis;
-    }
-#endif
-
-    if(send_rs422_now && TELEM_ACTIVE){
-        send_rs422_now = 0;
-
-		send_telem(rs422_com, gui_byte_packet);
-        //xmit_counter = millis;
-
-//        TIME(telemetry_cycle_time);
-        //__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
-    }
-
-if(p.buffer[p.filled - 1] == 0){
-run_parser(&p);
-}
-
   /* USER CODE END WHILE */
+
+	  HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, 1);
+	  HAL_Delay(200);
+	  HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, 0);
+	  HAL_Delay(1000);
+
 
   /* USER CODE BEGIN 3 */
 
