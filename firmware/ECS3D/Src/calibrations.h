@@ -16,6 +16,8 @@
 #define imtr_cal	0.00322265
 #define e5v_cal		0.00161132
 #define e3v_cal		0.00161132
+#define i5v_cal     1.00000000
+#define i3v_cal 	1.00000000
 #define tbrd_offset	600.000000
 #define tbrd_slope	0.12400000
 

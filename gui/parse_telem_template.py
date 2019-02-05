@@ -199,7 +199,7 @@ for index, var in enumerate(python_variables):
 
 parsed_printf_file = open((filename+"_sprintf-call_.c"),"w+")
 parsed_python_file = open(("hotfire_packet.py"),"w+")
-pack_telem_defines_h = open("../firmware/Engine_Controller_Series_2/src/pack_telem_defines.h", "w+")
+pack_telem_defines_h = open("../firmware/ECS3D/Src/pack_telem_defines.h", "w+")
 
 parsed_printf_file.write("snprintf(line, sizeof(line), \""+format_string+"\\r\\n\""+argument_string+");")
 parsed_python_file.write(	"import time\nimport struct\n\nclass ECParse:\n\n" + \

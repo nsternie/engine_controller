@@ -61,7 +61,7 @@
 #define TARGET_ADDRESS_FLIGHT 101
 
 // Hardware Specific functions
-void read_adc(SPI_HandleTypeDef* SPI_BUS);
+void read_adc(SPI_HandleTypeDef* SPI_BUS, uint8_t adc_number);
 void set_device(uint8_t device, GPIO_PinState state);
 void select_device(uint8_t device);
 void release_device(uint8_t device);

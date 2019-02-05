@@ -48,9 +48,9 @@ uint16_t load_page(uint16_t page_number){
   data[2] = (page_number & 0xFF00) >> 8;
   data[3] = page_number & 0x00FF;
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   HAL_SPI_Transmit(&hspi4, data, 4, 0xFF);
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 
   while(flash_busy());      // wait for the page to load
 
@@ -58,19 +58,19 @@ uint16_t load_page(uint16_t page_number){
 // Sends a one-byte flash command to the chip
 // TODO: None
 void flash_command(uint8_t command){
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   HAL_SPI_Transmit(&hspi4, &command, 1, 0xFF);
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 }
 // Checks the flash ID matches data sheet. A good check to see if the chip is alive
 int read_flash_id(){
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   uint8_t data[8];
   data[0] = 0x9F;
   HAL_SPI_Transmit(&hspi4, data, 1, 0xFF);
   HAL_SPI_Receive(&hspi4, data, 4, 0xFF);
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 
   if(data[1] == 0xef && data[2] == 0xaa && data[3] == 0x21){
       return 0;
@@ -86,9 +86,9 @@ void unlock_all(){
   data[0] = FLASH_COMMAND_WRITE_STATUS_REGISTER;
   data[1] = 0xA0;
   data[2] = 0x00;
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   HAL_SPI_Transmit(&hspi4, data, 3, 0xFF);
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 }
 
 void read_buffer(uint16_t column, uint8_t *buffer, uint16_t size){
@@ -98,12 +98,12 @@ void read_buffer(uint16_t column, uint8_t *buffer, uint16_t size){
   data[1] = (column & 0xFF00) >> 8;
   data[2] = column & 0x00FF;
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   HAL_SPI_Transmit(&hspi4, data, 4, 0xff);
 
   HAL_SPI_Receive(&hspi4, buffer, size, 0xff);
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 
 }
 
@@ -115,9 +115,9 @@ void erase_block(uint16_t block_number){
   data[2] = (block_number & 0xFF00) >> 8;
   data[3] = block_number & 0x00FF;
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   HAL_SPI_Transmit(&hspi4, data, 4, 0xFF);
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 
   while(flash_busy());
 
@@ -132,12 +132,12 @@ void write_buffer(uint16_t column, uint8_t *page_buffer, uint16_t size){
   data[1] = (column & 0xFF00) >> 8;
   data[2] = column & 0x00FF;
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   HAL_SPI_Transmit(&hspi4, data, 3, 0xff);
 
   HAL_SPI_Transmit(&hspi4, page_buffer, size, 0xff);
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 
 }
 uint8_t flash_read_status_register(uint8_t reg){
@@ -145,10 +145,10 @@ uint8_t flash_read_status_register(uint8_t reg){
   data[0] = FLASH_COMMAND_READ_STATUS_REGISTER;
   data[1] = reg;
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   HAL_SPI_Transmit(&hspi4, data, 2, 0xFF);
   HAL_SPI_Receive(&hspi4, data, 1, 0xFF);
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 
   return data[0];
 }
@@ -160,9 +160,9 @@ void program_page(uint16_t page_number){
   data[2] = (page_number & 0xFF00) >> 8;
   data[3] = page_number & 0x00FF;
 
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 0);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 0);
   HAL_SPI_Transmit(&hspi4, data, 4, 0xff);
-  HAL_GPIO_WritePin(MEM_CS_GPIO_Port, MEM_CS_Pin, 1);
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, 1);
 
   while(flash_busy());    // Wait for the page to finish programming
 

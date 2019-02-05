@@ -62,6 +62,9 @@ SPI_HandleTypeDef hspi2;
 SPI_HandleTypeDef hspi4;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim9;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
@@ -87,13 +90,13 @@ static void MX_DAC_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_SPI4_Init(void);
-static void MX_TIM2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART6_UART_Init(void);
-
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                
+static void MX_TIM4_Init(void);
+static void MX_TIM6_Init(void);
+static void MX_TIM2_Init(void);
+static void MX_TIM9_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -127,11 +130,11 @@ void kill_auto(struct autosequence *a);
 
 void system_init(){
 	// Start the timers
-//	HAL_TIM_Base_Start_IT(&htim4);		// ADC sampling
-//	HAL_TIM_Base_Start_IT(&htim6);		// rs422 timing
+	HAL_TIM_Base_Start_IT(&htim4);		// ADC sampling
+	HAL_TIM_Base_Start_IT(&htim6);		// rs422 timing
 //	HAL_TIM_Base_Start_IT(&htim7);		// xbee timing
 //	HAL_TIM_Base_Start_IT(&htim10);		// motor control timing
-//	HAL_TIM_Base_Start_IT(&htim2);		// microsecond tick
+	HAL_TIM_Base_Start_IT(&htim2);		// microsecond tick
 
 	for(uint8_t n = 0; n < 255; n++){
 		upstream_buffer.data[n] = 0;
@@ -149,9 +152,9 @@ void system_init(){
 	//load_commands(&p);
 	add_command(&p, COMMAND_DIGITAL_WRITE, 	digital_write);
 	add_command(&p, COMMAND_LED_WRITE, 		led_write);
-	add_command(&p, COMMAND_MOTOR_WRITE, 	motor_write);
-	add_command(&p, COMMAND_MOTOR_DISABLE, 	motor_disable);
-	add_command(&p, COMMAND_MOTOR_ENABLE, 	motor_enable);
+//	add_command(&p, COMMAND_MOTOR_WRITE, 	motor_write);
+//	add_command(&p, COMMAND_MOTOR_DISABLE, 	motor_disable);
+//	add_command(&p, COMMAND_MOTOR_ENABLE, 	motor_enable);
 	add_command(&p, COMMAND_SET_KP, 		set_kp);
 	add_command(&p, COMMAND_SET_KI, 		set_ki);
 	add_command(&p, COMMAND_SET_KD, 		set_kd);
@@ -172,7 +175,7 @@ void system_init(){
 	add_command(&p, COMMAD_INIT_FS, 		init_fs);
 	add_command(&p, COMMAND_TELEM_PAUSE, 		telem_pause);
 	add_command(&p, COMMAND_TELEM_RESUME, 		telem_resume);
-	add_command(&p, COMMAND_PRIME_BRIDGE,		prime_bridge_wrapper);
+//	add_command(&p, COMMAND_PRIME_BRIDGE,		prime_bridge_wrapper);
 
 	release_device(adc0);
 	release_device(adc1);
@@ -181,6 +184,16 @@ void system_init(){
 	release_device(adc4);
 	release_device(adc5);
 	release_device(adc6);
+
+	release_device(rtd0);
+	release_device(rtd1);
+	release_device(rtd2);
+	release_device(rtd3);
+	release_device(rtd4);
+	release_device(rtd5);
+	release_device(rtd6);
+	release_device(rtd7);
+
 	release_device(flash);
 	unlock_all(); // Flash init
 
@@ -222,10 +235,13 @@ int main(void)
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_SPI4_Init();
-  MX_TIM2_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART6_UART_Init();
+  MX_TIM4_Init();
+  MX_TIM6_Init();
+  MX_TIM2_Init();
+  MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -239,16 +255,7 @@ int main(void)
 
  	uint32_t last_motor_millis = 0;
 
-while(1){
-	HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, 1);
-	HAL_Delay(100);
-	HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, 0);
-	HAL_Delay(100);
-	char* message = "LMAO its ALIIIIIVE\r\n";
-	HAL_UART_Transmit(&huart1, message, strlen(message), 0xffff);
 
-
-}
   while (1)
   {
 
@@ -268,25 +275,25 @@ while(1){
     }
 
     if(read_adc_now){
-        read_adc_now = 0;
-        read_adc(&hspi1);
-        scale_readings();
-        pack_telem(telem_unstuffed);
-		stuff_telem(telem_unstuffed, telem_stuffed);
-        TIME(adc_cycle_time);
-        if(LOGGING_ACTIVE){
-        	save_telem(logfile);
-        }
+    	read_adc_now = 0;
     }
 
     if(send_rs422_now && TELEM_ACTIVE){
         send_rs422_now = 0;
-
+        command(led0, 1);
+        for(uint8_t n = 0; n < 7; n++){
+        	if(n == 4){
+        		read_adc(&hspi2, n);
+        	}
+        	else{
+        		read_adc(&hspi1, n);
+        	}
+        }
+		scale_readings();
+		pack_telem(telem_unstuffed);
+		stuff_telem(telem_unstuffed, telem_stuffed);
 		send_telem(rs422_com, gui_byte_packet);
-        //xmit_counter = millis;
-
-        TIME(telemetry_cycle_time);
-        //__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
+		command(led0, 0);
     }
 
 if(p.buffer[p.filled - 1] == 0){
@@ -402,10 +409,10 @@ static void MX_SPI1_Init(void)
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -426,10 +433,10 @@ static void MX_SPI2_Init(void)
   hspi2.Init.Mode = SPI_MODE_MASTER;
   hspi2.Init.Direction = SPI_DIRECTION_2LINES;
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -469,15 +476,21 @@ static void MX_SPI4_Init(void)
 static void MX_TIM2_Init(void)
 {
 
+  TIM_ClockConfigTypeDef sClockSourceConfig;
   TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_OC_InitTypeDef sConfigOC;
 
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
+  htim2.Init.Prescaler = 90;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 0;
+  htim2.Init.Period = 4294967295;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -489,16 +502,85 @@ static void MX_TIM2_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+}
+
+/* TIM4 init function */
+static void MX_TIM4_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 45;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 10000;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  HAL_TIM_MspPostInit(&htim2);
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* TIM6 init function */
+static void MX_TIM6_Init(void)
+{
+
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 45000;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 200;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* TIM9 init function */
+static void MX_TIM9_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+
+  htim9.Instance = TIM9;
+  htim9.Init.Prescaler = 90;
+  htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim9.Init.Period = 1000;
+  htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim9) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim9, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
 
 }
 

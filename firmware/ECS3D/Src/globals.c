@@ -14,8 +14,8 @@ volatile uint8_t send_rs422_now;
 volatile uint8_t send_xbee_now;
 volatile uint8_t update_motors_now;
 volatile uint8_t relay_packet = 0;
-uint16_t adc_data[6][16];		// 5 ADCs, 16 channels each.
-uint16_t valve_states;
+uint16_t adc_data[7][16];		// 5 ADCs, 16 channels each.
+uint32_t valve_states;
 uint32_t IGNITION_DURATION = 750000;
 uint32_t FIRING_DURATION = 3000000;
 uint32_t POST_IGNITE_DELAY = 500000;
@@ -32,8 +32,8 @@ float evlv[32];
 float ivlv[32];
 float ebatt;
 float ibus;
-float e5v;
-float e3v;
+float e28v, e5v, e3v;
+float i5v, i3v;
 float tbrd, tvlv, tmtr;
 float pressure[22];
 float load[5];

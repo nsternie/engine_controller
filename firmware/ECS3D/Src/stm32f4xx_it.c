@@ -37,9 +37,47 @@
 
 /* USER CODE BEGIN 0 */
 
+#include "command.h"
+#include "globals.h"
+#include "pack_telem_defines.h"
+#include "string.h"
+#include "stm32f4xx_hal_tim.h"
+
+extern UART_HandleTypeDef huart5;
+extern uint8_t spirit_in;
+extern uint8_t rs422_in;
+extern uint8_t xbee_in;
+extern struct buffer spirit_buf;
+extern struct buffer rs422_buf;
+extern struct buffer xbee_buf;
+extern volatile uint8_t read_adc_now;
+extern volatile uint8_t send_rs422_now;
+extern volatile uint8_t send_xbee_now;
+extern volatile uint8_t update_motors_now;
+
+extern TIM_HandleTypeDef htim2;
+
+void push_buf(struct simple_buf *b, uint8_t data_in){
+	b->data[b->filled] = data_in;
+	b->filled++;
+}
+uint8_t pop_buf(struct simple_buf *b){
+	uint8_t temp = b->data[(b->filled - 1)];
+	b->filled--;
+	return temp;
+}
+
+
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DAC_HandleTypeDef hdac;
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim4;
+extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim9;
+extern UART_HandleTypeDef huart1;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -190,6 +228,80 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
+
+/**
+* @brief This function handles TIM1 break interrupt and TIM9 global interrupt.
+*/
+void TIM1_BRK_TIM9_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 0 */
+
+  /* USER CODE END TIM1_BRK_TIM9_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim9);
+  /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 1 */
+
+  /* USER CODE END TIM1_BRK_TIM9_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM2 global interrupt.
+*/
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM4 global interrupt.
+*/
+void TIM4_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM4_IRQn 0 */
+
+  /* USER CODE END TIM4_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim4);
+  /* USER CODE BEGIN TIM4_IRQn 1 */
+  read_adc_now = 1;
+  /* USER CODE END TIM4_IRQn 1 */
+}
+
+/**
+* @brief This function handles USART1 global interrupt.
+*/
+void USART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART1_IRQn 0 */
+
+  /* USER CODE END USART1_IRQn 0 */
+  HAL_UART_IRQHandler(&huart1);
+  /* USER CODE BEGIN USART1_IRQn 1 */
+  	  //HAL_UART_Transmit_IT(&huart6, &rs422_in, 1);
+
+	pass_byte(&p, rs422_in);
+	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
+  /* USER CODE END USART1_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM6 global interrupt and DAC1, DAC2 underrun error interrupts.
+*/
+void TIM6_DAC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+  /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_DAC_IRQHandler(&hdac);
+  HAL_TIM_IRQHandler(&htim6);
+  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+  send_rs422_now = 1;
+  /* USER CODE END TIM6_DAC_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 

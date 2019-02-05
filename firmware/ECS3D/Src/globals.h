@@ -58,6 +58,16 @@
 
 #define spirit 80
 
+#define rtd0	100
+#define rtd1	101
+#define rtd2	102
+#define rtd3	103
+#define rtd4	104
+#define rtd5	105
+#define rtd6	106
+#define rtd7	107
+
+
 #define rs422_com 	huart1
 #define xbee_com 	huart4
 
@@ -116,8 +126,8 @@ extern volatile uint8_t read_adc_now;
 extern volatile uint8_t send_rs422_now;
 extern volatile uint8_t send_xbee_now;
 volatile uint8_t relay_packet;
-extern uint16_t adc_data[6][16];		// 5 ADCs, 16 channels each.
-extern uint16_t valve_states;
+extern uint16_t adc_data[7][16];		// 5 ADCs, 16 channels each.
+extern uint32_t valve_states;
 extern uint32_t IGNITION_DURATION;
 extern uint32_t FIRING_DURATION;
 extern uint32_t POST_IGNITE_DELAY;
@@ -141,13 +151,15 @@ extern float evlv[32];
 extern float ivlv[32];
 extern float ebatt;
 extern float ibus;
+extern float e28v;
 extern float e5v;
 extern float e3v;
+extern float i5v, i3v;
 extern float tbrd, tvlv, tmtr;
-extern float pressure[16];
-extern float load[6];
+extern float pressure[22];
+extern float load[5];
 extern float thrust_load;
-extern float thermocouple[4];
+extern float thermocouple[16];
 extern uint8_t temp;
 extern int32_t count1;
 extern int32_t count2;
