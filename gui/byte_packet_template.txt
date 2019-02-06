@@ -1,27 +1,27 @@
 name	firmware_variable	min_val	max_val	unit	firmware_type	printf_format	type_cast	xmit_scale	device	python_variable_override	python_type	python_globals	python_init	|
 Valve State Feedback	valve_states				uint32_t	%u	uint32_t	1			int	valve_states	0	|
-Pressure 0	pressure[0]	-100	3000	psi	float	%.1f	int16_t	1	pressure0		float	pressure	[0]*22	|
-Pressure 1	pressure[1]	-100	3000	psi	float	%.1f	int16_t	1	pressure1		float	samplerate	0	|
-Pressure 2	pressure[2]	-100	3000	psi	float	%.1f	int16_t	1	pressure2		float	motor_setpoint	[0]*4	|
-Pressure 3	pressure[3]	-100	3000	psi	float	%.1f	int16_t	1	pressure3		float	main_cycle_time	0	|
-Pressure 4	pressure[4]	-100	3000	psi	float	%.1f	int16_t	1	pressure4		float	motor_cycle_time	0	|
-Pressure 5	pressure[5]	-100	3000	psi	float	%.1f	int16_t	1	pressure5		float	adc_cycle_time	0	|
-Pressure 6	pressure[6]	-100	3000	psi	float	%.1f	int16_t	1	pressure6		float	telemetry_cycle_time	0	|
-Pressure 7	pressure[7]	-100	3000	psi	float	%.1f	int16_t	1	pressure7		float	ebatt	0	|
-Pressure 8	pressure[8]	-100	3000	psi	float	%.1f	int16_t	2	pressure8		float	ibus	0	|
-Pressure 9	pressure[9]	-100	3000	psi	float	%.1f	int16_t	3	pressure9		float	telemetry_rate	0	|
-Pressure 10	pressure[10]	-100	3000	psi	float	%.1f	int16_t	4	pressure10		float	motor_control_gain	[0]*4	|
-Pressure 11	pressure[11]	-100	3000	psi	float	%.1f	int16_t	5	pressure11		float	motor_position	[0]*4	|
-Pressure 12	pressure[12]	-100	3000	psi	float	%.1f	int16_t	6	pressure12		float	motor_pwm	[0]*4	|
-Pressure 13	pressure[13]	-100	3000	psi	float	%.1f	int16_t	7	pressure13		float	count1	0	|
-Pressure 14	pressure[14]	-100	3000	psi	float	%.1f	int16_t	8	pressure14		float	count2	0	|
-Pressure 15	pressure[15]	-100	3000	psi	float	%.1f	int16_t	9	pressure15		float	count3	0	|
-Pressure 16	pressure[16]	-100	3000	psi	float	%.1f	int16_t	10	pressure16		float	STATE	0	|
-Pressure 17	pressure[17]	-100	3000	psi	float	%.1f	int16_t	11	pressure17		float	load	[0]*4	|
-Pressure 18	pressure[18]	-100	3000	psi	float	%.1f	int16_t	12	pressure18		float	thrust_load	0	|
-Pressure 19	pressure[19]	-100	3000	psi	float	%.1f	int16_t	13	pressure19		float	thermocouple	[0]*4	|
-Pressure 20	pressure[20]	-100	3000	psi	float	%.1f	int16_t	14	pressure20		float	ivlv	[0]*32	|
-Pressure 21	pressure[21]	-100	3000	psi	float	%.1f	int16_t	15	pressure21		float	evlv	[0]*32	|
+Pressure 0	pressure[0]	-100	3000	counts	float	%.1f	int16_t	1	pressure0		float	pressure	[0]*22	|
+Pressure 1	pressure[1]	-100	3000	counts	float	%.1f	int16_t	1	pressure1		float	samplerate	0	|
+Pressure 2	pressure[2]	-100	3000	counts	float	%.1f	int16_t	1	pressure2		float	motor_setpoint	[0]*4	|
+Pressure 3	pressure[3]	-100	3000	counts	float	%.1f	int16_t	1	pressure3		float	main_cycle_time	0	|
+Pressure 4	pressure[4]	-100	3000	counts	float	%.1f	int16_t	1	pressure4		float	motor_cycle_time	0	|
+Pressure 5	pressure[5]	-100	3000	counts	float	%.1f	int16_t	1	pressure5		float	adc_cycle_time	0	|
+Pressure 6	pressure[6]	-100	3000	counts	float	%.1f	int16_t	1	pressure6		float	telemetry_cycle_time	0	|
+Pressure 7	pressure[7]	-100	3000	counts	float	%.1f	int16_t	1	pressure7		float	ebatt	0	|
+Pressure 8	pressure[8]	-100	3000	counts	float	%.1f	int16_t	1	pressure8		float	ibus	0	|
+Pressure 9	pressure[9]	-100	3000	counts	float	%.1f	int16_t	1	pressure9		float	telemetry_rate	0	|
+Pressure 10	pressure[10]	-100	3000	counts	float	%.1f	int16_t	1	pressure10		float	motor_control_gain	[0]*4	|
+Pressure 11	pressure[11]	-100	3000	counts	float	%.1f	int16_t	1	pressure11		float	motor_position	[0]*4	|
+Pressure 12	pressure[12]	-100	3000	counts	float	%.1f	int16_t	1	pressure12		float	motor_pwm	[0]*4	|
+Pressure 13	pressure[13]	-100	3000	counts	float	%.1f	int16_t	1	pressure13		float	count1	0	|
+Pressure 14	pressure[14]	-100	3000	counts	float	%.1f	int16_t	1	pressure14		float	count2	0	|
+Pressure 15	pressure[15]	-100	3000	counts	float	%.1f	int16_t	1	pressure15		float	count3	0	|
+Pressure 16	pressure[16]	-100	3000	counts	float	%.1f	int16_t	1	pressure16		float	STATE	0	|
+Pressure 17	pressure[17]	-100	3000	counts	float	%.1f	int16_t	1	pressure17		float	load	[0]*4	|
+Pressure 18	pressure[18]	-100	3000	counts	float	%.1f	int16_t	1	pressure18		float	thrust_load	0	|
+Pressure 19	pressure[19]	-100	3000	counts	float	%.1f	int16_t	1	pressure19		float	thermocouple	[0]*4	|
+Pressure 20	pressure[20]	-100	3000	counts	float	%.1f	int16_t	1	pressure20		float	ivlv	[0]*32	|
+Pressure 21	pressure[21]	-100	3000	count	float	%.1f	int16_t	1	pressure21		float	evlv	[0]*32	|
 ADC rate	samplerate	0	1000000	Hz		%d	uint32_t	1			float	LOG_TO_AUTO	0	|
 main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int	auto_states	0	|
 motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int	debug	[0]*8	|
@@ -38,9 +38,9 @@ ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	100			float	error_code	0	|
 ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float	LOGGING_ACTIVE	0	|
 ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	100			float	current_page	-1	|
 ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	100			float	zero	0	|
-ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[8]	ivlv[8]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[9]	ivlv[9]	-1	20	Amps		%.1f	int16_t	100			float			|
+ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float	e28v	0	|
+ivlv[8]	ivlv[8]	-1	20	Amps		%.1f	int16_t	100			float	i3v	0	|
+ivlv[9]	ivlv[9]	-1	20	Amps		%.1f	int16_t	100			float	i5v	0	|
 ivlv[10]	ivlv[10]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[11]	ivlv[11]	-1	20	Amps		%.1f	int16_t	100			float			|
 ivlv[12]	ivlv[12]	-1	20	Amps		%.1f	int16_t	100			float			|
@@ -95,9 +95,11 @@ evlv[28]	evlv[28]	-5	15	Volts		%.1f	int16_t	100			float
 evlv[29]	evlv[29]	-5	15	Volts		%.1f	int16_t	100			float			
 evlv[30]	evlv[30]	-5	15	Volts		%.1f	int16_t	100			float			
 evlv[31]	evlv[31]	-5	15	Volts		%.1f	int16_t	100			float			
-e3v	e3v					%.2f	int32_t	100			float			
-e28v	e28v	0	30			%.3f	int16_t	100			float			
-e5v	e5v					%.2f	int32_t	100			float			
+e3v	e3v	0	5	Volts		%.2f	int32_t	100			float			
+e5v	e5v	0	5	Volts		%.2f	int32_t	100			float			
+e28v	e28v	0	30	Volts		%.3f	int16_t	100			float			
+i5v	i5v	0	2	amps		%.1f	uint8_t	100			float			
+i3v	i3v	0	2	amps		%.1f	uint8_t	100			float			
 BOARD_ID	BOARD_ID					%d	uint16_t	1			float			
 last_packet_number	last_packet_number					%d	uint16_t	1			float			
 last_command_id	last_command_id					%d	uint16_t	1			float			

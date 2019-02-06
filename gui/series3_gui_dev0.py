@@ -87,7 +87,9 @@ def s2_command(target_id, command_id, argc, argv):
     packet = stuff_array(packet, 0)
     tosend = bytes(packet)
     ser.write(tosend)
-    
+
+    print(command_id, argc, argv)
+
     if(target_id == TARGET_ADDRESS_FLIGHT):
         flight_packet_number += 1
         flight_command_log.write(str(packet)+'\n')
@@ -349,7 +351,7 @@ def parse_serial():
 
                 mask = 1
                 # Update valve state feedback
-                for n in range(0, 8):
+                for n in range(0, 32):
                     state = 0
                     if(mask & parser.valve_states):
                         state = 1
@@ -361,6 +363,7 @@ def parse_serial():
                     flight_valve_buttons[n][0].setText(vlv_id+" is "+str(state))
                     flight_valve_buttons[n][3].setText(str(parser.ivlv[n])+"A / "+str(parser.evlv[n])+"V")
                     mask = mask << 1
+                for n in range(0, 8):
 
                     flight_pressure_labels[n][1].setText(str(parser.pressure[n])+"psi")
 
@@ -381,8 +384,8 @@ def parse_serial():
                 else:
                     flight_BOARD_HEALTH_LABEL.setText("PACKET BAD")
                     pass
-                flight_ibridge0.setText("Motor 0 Current: "+str(parser.imtr[0]))
-                flight_ibridge1.setText("Motor 1 Current: "+str(parser.imtr[1]))
+                flight_ibridge0.setText("")
+                flight_ibridge1.setText("")
 
                 flight_samplerate_send.setText("Samplerate: "+str(parser.samplerate)+"hz")
                 flight_telemrate_send.setText("Telemrate: "+str(parser.telemetry_rate)+"hz")
@@ -428,7 +431,7 @@ flight_pressure_labels = []
 
 # lol
 for valve_buttons, pressure_labels, abbrev in [(flight_valve_buttons, flight_pressure_labels, 'f')]:
-    for n in range(0, 8):
+    for n in range(0, 32):
 
         # Valve wdgets init
         temp = []
@@ -443,6 +446,7 @@ for valve_buttons, pressure_labels, abbrev in [(flight_valve_buttons, flight_pre
         valve_buttons.append(temp)
 
         # Pressure reading widgets init
+    for n in range(0, 8):
         ptemp = []
         ptemp.append(QtGui.QLabel())
         ptemp.append(QtGui.QLabel())
@@ -540,20 +544,21 @@ flight_layout.setColumnStretch(16, 90)
     # layout.setColumnStretch(zc+21, 10)
 
 def layout_common_widgets(layout, vlv_buttons, p_labels):
-    for n in range(0, 8):
+    for n in range(0, 32):
         layout.addWidget(vlv_buttons[n][0], zr+n+1, zc+0-2)
         # layout.addWidget(vlv_buttons[n][1], zr+n+1, zc+1-2)
         # layout.addWidget(vlv_buttons[n][2], zr+n+1, zc+2-2)
         layout.addWidget(vlv_buttons[n][3], zr+n+1, zc-1)
         # layout.addWidget(vlv_buttons[n][4], zr+n+1, zc+0)
+    for n in range(0, 8):
         layout.addWidget(p_labels[n][0], zr+n+1, zc+0)
         layout.addWidget(p_labels[n][1], zr+n+1, zc+1)
     for n in range(0, 4):
-        layout.addWidget(vlv_buttons[n+8][0], zr+n+1+8, zc+0-2)
-        layout.addWidget(vlv_buttons[n+8][1], zr+n+1+8, zc+1-2)
-        layout.addWidget(vlv_buttons[n+8][2], zr+n+1+8, zc+2-2)
-        layout.addWidget(vlv_buttons[n+8][3], zr+n+1+8, zc+3-2)
-        layout.addWidget(vlv_buttons[n+8][4], zr+n+1+8, zc+4-2)
+        layout.addWidget(vlv_buttons[n+32][0], zr+n+1+32, zc+0-2)
+        layout.addWidget(vlv_buttons[n+32][1], zr+n+1+32, zc+1-2)
+        layout.addWidget(vlv_buttons[n+32][2], zr+n+1+32, zc+2-2)
+        layout.addWidget(vlv_buttons[n+32][3], zr+n+1+32, zc+3-2)
+        layout.addWidget(vlv_buttons[n+32][4], zr+n+1+32, zc+4-2)
 
 
 
@@ -647,8 +652,8 @@ kdfb = QtGui.QLabel("kdfb")
 # Bridge current
 flight_ibridge0 = QtGui.QLabel("flight_ibridge0")
 flight_ibridge1 = QtGui.QLabel("flight_ibridge1")
-flight_layout.addWidget(flight_ibridge0, zr+24, zc-2, 1, 2)
-flight_layout.addWidget(flight_ibridge1, zr+25, zc-2, 1, 2)
+# flight_layout.addWidget(flight_ibridge0, zr+24, zc-2, 1, 2)
+# flight_layout.addWidget(flight_ibridge1, zr+25, zc-2, 1, 2)
 
 # State Feedback
 state_label = QtGui.QLabel("STATE = N/A")
@@ -754,7 +759,32 @@ flight_valve_buttons[3][0].clicked.connect(lambda: toggle_valve('flight', 3))
 flight_valve_buttons[4][0].clicked.connect(lambda: toggle_valve('flight', 4))
 flight_valve_buttons[5][0].clicked.connect(lambda: toggle_valve('flight', 5))
 flight_valve_buttons[6][0].clicked.connect(lambda: toggle_valve('flight', 6))
-# flight_valve_buttons[7][0].clicked.connect(lambda: toggle_valve('flight', 7))
+flight_valve_buttons[7][0].clicked.connect(lambda: toggle_valve('flight', 7))
+flight_valve_buttons[8][0].clicked.connect(lambda: toggle_valve('flight', 8))
+flight_valve_buttons[9][0].clicked.connect(lambda: toggle_valve('flight', 9))
+flight_valve_buttons[10][0].clicked.connect(lambda: toggle_valve('flight', 10))
+flight_valve_buttons[11][0].clicked.connect(lambda: toggle_valve('flight', 11))
+flight_valve_buttons[12][0].clicked.connect(lambda: toggle_valve('flight', 12))
+flight_valve_buttons[13][0].clicked.connect(lambda: toggle_valve('flight', 13))
+flight_valve_buttons[14][0].clicked.connect(lambda: toggle_valve('flight', 14))
+flight_valve_buttons[15][0].clicked.connect(lambda: toggle_valve('flight', 15))
+flight_valve_buttons[16][0].clicked.connect(lambda: toggle_valve('flight', 16))
+flight_valve_buttons[17][0].clicked.connect(lambda: toggle_valve('flight', 17))
+flight_valve_buttons[18][0].clicked.connect(lambda: toggle_valve('flight', 18))
+flight_valve_buttons[19][0].clicked.connect(lambda: toggle_valve('flight', 19))
+flight_valve_buttons[20][0].clicked.connect(lambda: toggle_valve('flight', 20))
+flight_valve_buttons[21][0].clicked.connect(lambda: toggle_valve('flight', 21))
+flight_valve_buttons[22][0].clicked.connect(lambda: toggle_valve('flight', 22))
+flight_valve_buttons[23][0].clicked.connect(lambda: toggle_valve('flight', 23))
+flight_valve_buttons[24][0].clicked.connect(lambda: toggle_valve('flight', 24))
+flight_valve_buttons[25][0].clicked.connect(lambda: toggle_valve('flight', 25))
+flight_valve_buttons[26][0].clicked.connect(lambda: toggle_valve('flight', 26))
+flight_valve_buttons[27][0].clicked.connect(lambda: toggle_valve('flight', 27))
+flight_valve_buttons[28][0].clicked.connect(lambda: toggle_valve('flight', 28))
+flight_valve_buttons[29][0].clicked.connect(lambda: toggle_valve('flight', 29))
+flight_valve_buttons[30][0].clicked.connect(lambda: toggle_valve('flight', 30))
+flight_valve_buttons[31][0].clicked.connect(lambda: toggle_valve('flight', 31))
+
 flight_valve_buttons[0][1].clicked.connect(lambda: toggle_valve('flight', 0))
 flight_valve_buttons[1][1].clicked.connect(lambda: toggle_valve('flight', 1))
 flight_valve_buttons[2][1].clicked.connect(lambda: toggle_valve('flight', 2))
@@ -762,9 +792,32 @@ flight_valve_buttons[3][1].clicked.connect(lambda: toggle_valve('flight', 3))
 flight_valve_buttons[4][1].clicked.connect(lambda: toggle_valve('flight', 4))
 flight_valve_buttons[5][1].clicked.connect(lambda: toggle_valve('flight', 5))
 flight_valve_buttons[6][1].clicked.connect(lambda: toggle_valve('flight', 6))
-# flight_valve_buttons[7][1].clicked.connect(lambda: toggle_valve('flight', 7))
-# # GROUND LEDS
-
+flight_valve_buttons[7][1].clicked.connect(lambda: toggle_valve('flight', 7))
+flight_valve_buttons[8][1].clicked.connect(lambda: toggle_valve('flight', 8))
+flight_valve_buttons[9][1].clicked.connect(lambda: toggle_valve('flight', 9))
+flight_valve_buttons[10][1].clicked.connect(lambda: toggle_valve('flight', 10))
+flight_valve_buttons[11][1].clicked.connect(lambda: toggle_valve('flight', 11))
+flight_valve_buttons[12][1].clicked.connect(lambda: toggle_valve('flight', 12))
+flight_valve_buttons[13][1].clicked.connect(lambda: toggle_valve('flight', 13))
+flight_valve_buttons[14][1].clicked.connect(lambda: toggle_valve('flight', 14))
+flight_valve_buttons[15][1].clicked.connect(lambda: toggle_valve('flight', 15))
+flight_valve_buttons[16][1].clicked.connect(lambda: toggle_valve('flight', 16))
+flight_valve_buttons[17][1].clicked.connect(lambda: toggle_valve('flight', 17))
+flight_valve_buttons[18][1].clicked.connect(lambda: toggle_valve('flight', 18))
+flight_valve_buttons[19][1].clicked.connect(lambda: toggle_valve('flight', 19))
+flight_valve_buttons[20][1].clicked.connect(lambda: toggle_valve('flight', 20))
+flight_valve_buttons[21][1].clicked.connect(lambda: toggle_valve('flight', 21))
+flight_valve_buttons[22][1].clicked.connect(lambda: toggle_valve('flight', 22))
+flight_valve_buttons[23][1].clicked.connect(lambda: toggle_valve('flight', 23))
+flight_valve_buttons[24][1].clicked.connect(lambda: toggle_valve('flight', 24))
+flight_valve_buttons[25][1].clicked.connect(lambda: toggle_valve('flight', 25))
+flight_valve_buttons[26][1].clicked.connect(lambda: toggle_valve('flight', 26))
+flight_valve_buttons[27][1].clicked.connect(lambda: toggle_valve('flight', 27))
+flight_valve_buttons[28][1].clicked.connect(lambda: toggle_valve('flight', 28))
+flight_valve_buttons[29][1].clicked.connect(lambda: toggle_valve('flight', 29))
+flight_valve_buttons[30][1].clicked.connect(lambda: toggle_valve('flight', 30))
+flight_valve_buttons[31][1].clicked.connect(lambda: toggle_valve('flight', 31))
+1# # GROUND LEDS1
 # # FLIGHT LEDS
 flight_valve_buttons[8][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [0,1]))
 flight_valve_buttons[9][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [1,1]))

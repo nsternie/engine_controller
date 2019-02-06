@@ -44,7 +44,6 @@
 #include "stdint.h"
 #include "stdlib.h"
 #include "globals.h"
-#include "calibrations.h"
 #include "telem.h"
 #include "pack_telem_defines.h"
 #include "command.h"
@@ -260,19 +259,19 @@ int main(void)
   {
 
  //Check if packet is in from downstream engine controller
-    for(uint8_t n = 0; n < 255; n++){
-        if(upstream_buffer.data[n] == (uint8_t) '\n'){
-        	command(led1, 1);
-        	HAL_Delay(0);
-            HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
-            command(led1, 0);
-            upstream_buffer.filled = 0;
-            for(int j = 0; j < 255; j++){
-                upstream_buffer.data[j] = 0;
-            }
-            break;
-        }
-    }
+//    for(uint8_t n = 0; n < 255; n++){
+//        if(upstream_buffer.data[n] == (uint8_t) '\n'){
+//        	command(led1, 1);
+//        	HAL_Delay(0);
+//            HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
+//            command(led1, 0);
+//            upstream_buffer.filled = 0;
+//            for(int j = 0; j < 255; j++){
+//                upstream_buffer.data[j] = 0;
+//            }
+//            break;
+//        }
+//    }
 
     if(read_adc_now){
     	read_adc_now = 0;

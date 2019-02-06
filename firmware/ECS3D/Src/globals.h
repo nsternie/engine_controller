@@ -30,23 +30,48 @@
 #define vlv6 26
 #define vlv7 27
 
+#define vlv8 28
+#define vlv9 29
+#define vlv10 30
+#define vlv11 31
+#define vlv12 32
+#define vlv13 33
+#define vlv14 34
+#define vlv15 35
 
-#define led0 39
-#define led1 38
-#define led2 37
-#define led3 36
+#define vlv16 36
+#define vlv17 37
+#define vlv18 38
+#define vlv19 39
+#define vlv20 40
+#define vlv21 41
+#define vlv22 42
+#define vlv23 43
+
+#define vlv24 44
+#define vlv25 45
+#define vlv26 46
+#define vlv27 47
+#define vlv28 48
+#define vlv29 49
+#define vlv30 50
+#define vlv31 51
 
 
-#define mtr0 40
-#define mtr1 41
+#define led0 159
+#define led1 158
+#define led2 157
+#define led3 156
 
-#define adc0 50
-#define adc1 51
-#define adc2 52
-#define adc3 53
-#define adc4 54
-#define adc5 55
-#define adc6 56
+
+
+#define adc0 190
+#define adc1 191
+#define adc2 192
+#define adc3 193
+#define adc4 194
+#define adc5 195
+#define adc6 196
 
 #define sram 60
 #define flash 61

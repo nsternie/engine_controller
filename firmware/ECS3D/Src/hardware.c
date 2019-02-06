@@ -198,6 +198,18 @@ void release_device(uint8_t device){
 }
 void scale_readings(){
 
+#define ebatt_cal 	0.00324707
+#define ibus_cal	0.01418500
+#define evlv_cal  	0.00324707
+#define ivlv_cal  	0.00322265
+#define imtr_cal	0.00322265
+#define e5v_cal		0.00161132
+#define e3v_cal		0.00161132
+#define i5v_cal     1.00000000
+#define i3v_cal 	1.00000000
+#define tbrd_offset	600.000000
+#define tbrd_slope	0.12400000
+
 	for(uint8_t adcn = 0; adcn < 4; adcn++){
 		for(uint8_t n = 0; n < 8; n++){
 			evlv[7-n+(8*adcn)] = (adc_data[adcn][(2*n)+1])*evlv_cal;
@@ -211,7 +223,6 @@ void scale_readings(){
 	e3v = (adc_data[4][3])*e3v_cal;
 	i5v = (adc_data[4][9])*i5v_cal;
 	i3v = (adc_data[4][8])*i3v_cal;
-	float e3v_correction_factor = 3.300/e3v;
 
 	tbrd = (adc_data[4][5])/1.24;
 	tbrd -= 600;
@@ -224,8 +235,7 @@ void scale_readings(){
 	tmtr /= 10;
 
 	for(uint8_t n = 0; n < 16; n ++){
-		pressure[n] = adc_data[1][15-n]-press_cal[OFFSET][n];
-		pressure[n] *= press_cal[SLOPE][n];
+		pressure[n] = adc_data[1][15-n];
 	}
 
 
@@ -237,10 +247,6 @@ void scale_readings(){
 	load[2] = adc_data[6][7];
 	load[3] = adc_data[6][6];
 	load[4] = adc_data[6][5];
-	for(uint8_t n = 0; n < 5; n++){
-		load[n] -= load_cal[OFFSET][n];
-		load[n] *= load_cal[SLOPE][n];
-	}
 	thrust_load = load[0]+load[1]+load[2]+load[3]+load[4];
 
 
@@ -281,12 +287,12 @@ void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t
 void command(uint8_t device, int16_t command_value){
 
 	// VALVE CHANNELS ///////////////////////////////////////////////////////////////////
-	if((device < 40) && (device >= 20)){ // It is a valve channel (or led)
+	if( ((device <= vlv31) && (device >= vlv0)) || ((device <= led0) && (device >= led3)) ){ // It is a valve channel (or led)
 
 		// If else will default to a de-energized state if a bad command is sent.
 		GPIO_PinState GPIO_COMMAND;
 
-		uint16_t mask = 1;
+		uint32_t mask = 1;
 		mask = mask << (device - vlv0);
 
 		if(command_value == 1){
@@ -295,7 +301,7 @@ void command(uint8_t device, int16_t command_value){
 		}
 		else{
 			GPIO_COMMAND = GPIO_PIN_RESET;
-			mask ^= 0xFFFF;
+			mask ^= 0xFFFFFFFF;
 			valve_states &= mask;
 		}
 		switch(device){
@@ -325,13 +331,6 @@ void command(uint8_t device, int16_t command_value){
 
 	} // END VALVES
 
-	// BEGIN MOTORS
-	else if( (device >= mtr0) && (device <= mtr1) ){
-
-		motor_setpoint[device-mtr0] = command_value;
-		//writeMotor(device, command_value); 		// DEBUGGING ONLY - DELETE EVENTUALLY
-
-	}	// END MOTORS
 
 }
 
@@ -344,13 +343,13 @@ void digital_write(int32_t argc, int32_t* argv){
 	command(vlv0 + argv[0], argv[1]);
 }
 void set_kp(int32_t argc, int32_t* argv){
-	motor_control_gain[0] = argv[0];
+//	motor_control_gain[0] = argv[0];
 }
 void set_ki(int32_t argc, int32_t* argv){
-	motor_control_gain[1] = argv[0];
+//	motor_control_gain[1] = argv[0];
 }
 void set_kd(int32_t argc, int32_t* argv){
-	motor_control_gain[2] = argv[0];
+//	motor_control_gain[2] = argv[0];
 }
 
 void arm(int32_t argc, int32_t* argv){
