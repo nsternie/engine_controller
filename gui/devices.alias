@@ -11,18 +11,6 @@ gvlv8	LED 0
 gvlv9	LED 1
 gvlv10	LED 2
 gvlv11	LED 3
-fvlv0	.
-fvlv1	.
-fvlv2	OX VENT		 
-fvlv3	.
-fvlv4	FUEL VENT
-fvlv5	.
-fvlv6	.
-fvlv7	IGNITER
-fvlv8	LED 0
-fvlv9	LED 1
-fvlv10	LED 2
-fvlv11	LED 3
 gpressure0	N2 Fill Hose
 gpressure1	Ox Mother
 gpressure2	Ox Fill Hose

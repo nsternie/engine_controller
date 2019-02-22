@@ -38,7 +38,7 @@ float tbrd, tvlv, tmtr;
 float pressure[22];
 float load[5];
 float thrust_load;
-float thermocouple[16];
+float tc[16];
 uint8_t temp = 0;
 int32_t count1;
 int32_t count2;

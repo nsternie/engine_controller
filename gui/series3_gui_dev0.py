@@ -367,34 +367,34 @@ def parse_serial():
 
                     flight_pressure_labels[n][1].setText(str(parser.pressure[n])+"psi")
 
-                # Board health
-                flight_ebatt_value.setText(str(parser.ebatt))
-                flight_ibus_value.setText(str(parser.ibus))
-                flight_e5v_value.setText(str(parser.e5v))
-                flight_e3v_value.setText(str(parser.e3v))
-                flight_tbrd_value.setText(str(parser.tbrd))
-                flight_tvlv_value.setText(str(parser.tvlv))
-                flight_tmtr_value.setText(str(parser.tmtr))
+                # # Board health
+                # flight_ebatt_value.setText(str(parser.ebatt))
+                # flight_ibus_value.setText(str(parser.ibus))
+                # flight_e5v_value.setText(str(parser.e5v))
+                # flight_e3v_value.setText(str(parser.e3v))
+                # flight_tbrd_value.setText(str(parser.tbrd))
+                # flight_tvlv_value.setText(str(parser.tvlv))
+                # flight_tmtr_value.setText(str(parser.tmtr))
 
-                last_packet_flight.setText(str(parser.last_packet_number))
-                last_command_flight.setText(str(parser.last_command_id))
-                if(parser.last_packet_number == flight_packet_number):
-                    flight_BOARD_HEALTH_LABEL.setText("PACKET GOOD")
-                    pass
-                else:
-                    flight_BOARD_HEALTH_LABEL.setText("PACKET BAD")
-                    pass
-                flight_ibridge0.setText("")
-                flight_ibridge1.setText("")
+                # last_packet_flight.setText(str(parser.last_packet_number))
+                # last_command_flight.setText(str(parser.last_command_id))
+                # if(parser.last_packet_number == flight_packet_number):
+                #     flight_BOARD_HEALTH_LABEL.setText("PACKET GOOD")
+                #     pass
+                # else:
+                #     flight_BOARD_HEALTH_LABEL.setText("PACKET BAD")
+                #     pass
+                # flight_ibridge0.setText("")
+                # flight_ibridge1.setText("")
 
-                flight_samplerate_send.setText("Samplerate: "+str(parser.samplerate)+"hz")
-                flight_telemrate_send.setText("Telemrate: "+str(parser.telemetry_rate)+"hz")
+                # flight_samplerate_send.setText("Samplerate: "+str(parser.samplerate)+"hz")
+                # flight_telemrate_send.setText("Telemrate: "+str(parser.telemetry_rate)+"hz")
 
-                state_label.setText("STATE = "+state_dict[parser.STATE])
+                # state_label.setText("STATE = "+state_dict[parser.STATE])
 
-                kpfb.setText(str(parser.motor_control_gain[0]))
-                kifb.setText(str(parser.motor_control_gain[1]))
-                kdfb.setText(str(parser.motor_control_gain[2]))
+                # kpfb.setText(str(parser.motor_control_gain[0]))
+                # kifb.setText(str(parser.motor_control_gain[1]))
+                # kdfb.setText(str(parser.motor_control_gain[2]))
 
                 for n in range(parser.num_items - 1):
                     flight_table.setItem(n, 1, QtGui.QTableWidgetItem(str(parser.dict[parser.items[n]])))
@@ -472,48 +472,48 @@ for valve_buttons, pressure_labels, abbrev in [(flight_valve_buttons, flight_pre
 
 
 # Board Health
-flight_BOARD_HEALTH_LABEL = QtGui.QLabel("Board Health")
-flight_ebatt_label =  QtGui.QLabel("BUS VOLTAGE:")
-flight_ibus_label =  QtGui.QLabel("BUS CURRENT:")
-flight_e5v_label = QtGui.QLabel("5 VOLT")
-flight_e3v_label = QtGui.QLabel("3.3 VOLT")
-flight_ebatt_value =  QtGui.QLabel("ebatt")
-flight_ibus_value = QtGui.QLabel("ibus")
-flight_e5v_value =  QtGui.QLabel("e5v")
-flight_e3v_value =  QtGui.QLabel("e3v")
-flight_tbrd_label = QtGui.QLabel("BOARD TEMP:")
-flight_tvlv_label = QtGui.QLabel("VALVE TEMP:")
-flight_tmtr_label = QtGui.QLabel("MOTOR TEMP:")
-flight_tbrd_value = QtGui.QLabel("tbrd")
-flight_tvlv_value = QtGui.QLabel("tvlv")
-flight_tmtr_value = QtGui.QLabel("tmtr")
-flight_layout.addWidget(flight_BOARD_HEALTH_LABEL, zr+9+5, zc+1-1-2)
-flight_layout.addWidget(flight_ebatt_label, zr+10+5, zc+1-1-2)
-flight_layout.addWidget(flight_ibus_label, zr+11+5, zc+1-1-2)
-flight_layout.addWidget(flight_ebatt_value, zr+10+5, zc+2-1-2)
-flight_layout.addWidget(flight_ibus_value, zr+11+5, zc+2-1-2)
-flight_layout.addWidget(flight_e5v_label, zr+12+5, zc+1-1-2)
-flight_layout.addWidget(flight_e3v_label, zr+13+5, zc+1-1-2)
-flight_layout.addWidget(flight_e5v_value, zr+12+5, zc+2-1-2)
-flight_layout.addWidget(flight_e3v_value, zr+13+5, zc+2-1-2)
-flight_layout.addWidget(flight_tbrd_label, zr+14+5, zc+1-1-2)
-flight_layout.addWidget(flight_tvlv_label, zr+15+5, zc+1-1-2)
-flight_layout.addWidget(flight_tmtr_label, zr+16+5, zc+1-1-2)
-flight_layout.addWidget(flight_tbrd_value, zr+14+5, zc+2-1-2)
-flight_layout.addWidget(flight_tvlv_value, zr+15+5, zc+2-1-2)
-flight_layout.addWidget(flight_tmtr_value, zr+16+5, zc+2-1-2)
+# flight_BOARD_HEALTH_LABEL = QtGui.QLabel("Board Health")
+# flight_ebatt_label =  QtGui.QLabel("BUS VOLTAGE:")
+# flight_ibus_label =  QtGui.QLabel("BUS CURRENT:")
+# flight_e5v_label = QtGui.QLabel("5 VOLT")
+# flight_e3v_label = QtGui.QLabel("3.3 VOLT")
+# flight_ebatt_value =  QtGui.QLabel("ebatt")
+# flight_ibus_value = QtGui.QLabel("ibus")
+# flight_e5v_value =  QtGui.QLabel("e5v")
+# flight_e3v_value =  QtGui.QLabel("e3v")
+# flight_tbrd_label = QtGui.QLabel("BOARD TEMP:")
+# flight_tvlv_label = QtGui.QLabel("VALVE TEMP:")
+# flight_tmtr_label = QtGui.QLabel("MOTOR TEMP:")
+# flight_tbrd_value = QtGui.QLabel("tbrd")
+# flight_tvlv_value = QtGui.QLabel("tvlv")
+# flight_tmtr_value = QtGui.QLabel("tmtr")
+# flight_layout.addWidget(flight_BOARD_HEALTH_LABEL, zr+9+5, zc+1-1-2)
+# flight_layout.addWidget(flight_ebatt_label, zr+10+5, zc+1-1-2)
+# flight_layout.addWidget(flight_ibus_label, zr+11+5, zc+1-1-2)
+# flight_layout.addWidget(flight_ebatt_value, zr+10+5, zc+2-1-2)
+# flight_layout.addWidget(flight_ibus_value, zr+11+5, zc+2-1-2)
+# flight_layout.addWidget(flight_e5v_label, zr+12+5, zc+1-1-2)
+# flight_layout.addWidget(flight_e3v_label, zr+13+5, zc+1-1-2)
+# flight_layout.addWidget(flight_e5v_value, zr+12+5, zc+2-1-2)
+# flight_layout.addWidget(flight_e3v_value, zr+13+5, zc+2-1-2)
+# flight_layout.addWidget(flight_tbrd_label, zr+14+5, zc+1-1-2)
+# flight_layout.addWidget(flight_tvlv_label, zr+15+5, zc+1-1-2)
+# flight_layout.addWidget(flight_tmtr_label, zr+16+5, zc+1-1-2)
+# flight_layout.addWidget(flight_tbrd_value, zr+14+5, zc+2-1-2)
+# flight_layout.addWidget(flight_tvlv_value, zr+15+5, zc+2-1-2)
+# flight_layout.addWidget(flight_tmtr_value, zr+16+5, zc+2-1-2)
 
 # Last packet
 
-last_packet_flight_label = QtGui.QLabel("Packet # TX/RX")
-last_command_flight_label = QtGui.QLabel("Last Command id")
-flight_layout.addWidget(last_packet_flight_label, zr+16+5+1, zc-2)
-flight_layout.addWidget(last_command_flight_label, zr+16+5+2, zc-2)
+# last_packet_flight_label = QtGui.QLabel("Packet # TX/RX")
+# last_command_flight_label = QtGui.QLabel("Last Command id")
+# flight_layout.addWidget(last_packet_flight_label, zr+16+5+1, zc-2)
+# flight_layout.addWidget(last_command_flight_label, zr+16+5+2, zc-2)
 
-last_packet_flight = QtGui.QLabel("last packet")
-last_command_flight = QtGui.QLabel("last command")
-flight_layout.addWidget(last_packet_flight, zr+16+5+1, zc-1)
-flight_layout.addWidget(last_command_flight, zr+16+5+2, zc-1)
+# last_packet_flight = QtGui.QLabel("last packet")
+# last_command_flight = QtGui.QLabel("last command")
+# flight_layout.addWidget(last_packet_flight, zr+16+5+1, zc-1)
+# flight_layout.addWidget(last_command_flight, zr+16+5+2, zc-1)
 
 
 
@@ -704,31 +704,31 @@ if(0):
     w.setPalette(p)
 
 
-font_list = []
-font_list.append(flight_BOARD_HEALTH_LABEL)
-font_list.append(flight_ebatt_label)
-font_list.append(flight_ibus_label)
-font_list.append(flight_e5v_label )
-font_list.append(flight_e3v_label )
-font_list.append(flight_ebatt_value)
-font_list.append(flight_ibus_value)
-font_list.append(flight_e5v_value )
-font_list.append(flight_e3v_value )
-font_list.append(flight_tbrd_label)
-font_list.append(flight_tvlv_label)
-font_list.append(flight_tmtr_label)
-font_list.append(flight_tbrd_value)
-font_list.append(flight_tvlv_value)
-font_list.append(flight_tmtr_value)
-font_list.append(last_packet_flight)
-font_list.append(last_command_flight)
-font_list.append(last_packet_flight_label)
-font_list.append(last_command_flight_label)
-font_list.append(flight_ibridge0)
-font_list.append(flight_ibridge1)
+# font_list = []
+# font_list.append(flight_BOARD_HEALTH_LABEL)
+# font_list.append(flight_ebatt_label)
+# font_list.append(flight_ibus_label)
+# font_list.append(flight_e5v_label )
+# font_list.append(flight_e3v_label )
+# font_list.append(flight_ebatt_value)
+# font_list.append(flight_ibus_value)
+# font_list.append(flight_e5v_value )
+# font_list.append(flight_e3v_value )
+# font_list.append(flight_tbrd_label)
+# font_list.append(flight_tvlv_label)
+# font_list.append(flight_tmtr_label)
+# font_list.append(flight_tbrd_value)
+# font_list.append(flight_tvlv_value)
+# font_list.append(flight_tmtr_value)
+# font_list.append(last_packet_flight)
+# font_list.append(last_command_flight)
+# font_list.append(last_packet_flight_label)
+# font_list.append(last_command_flight_label)
+# font_list.append(flight_ibridge0)
+# font_list.append(flight_ibridge1)
 
-for thing in font_list:
-    thing.setFont(QtGui.QFont('SansSerif', 14))
+# for thing in font_list:
+#     thing.setFont(QtGui.QFont('SansSerif', 14))
 
 
 ###############################################################################
@@ -817,16 +817,16 @@ flight_valve_buttons[28][1].clicked.connect(lambda: toggle_valve('flight', 28))
 flight_valve_buttons[29][1].clicked.connect(lambda: toggle_valve('flight', 29))
 flight_valve_buttons[30][1].clicked.connect(lambda: toggle_valve('flight', 30))
 flight_valve_buttons[31][1].clicked.connect(lambda: toggle_valve('flight', 31))
-1# # GROUND LEDS1
+# # GROUND LEDS1
 # # FLIGHT LEDS
-flight_valve_buttons[8][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [0,1]))
-flight_valve_buttons[9][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [1,1]))
-flight_valve_buttons[10][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,1]))
-flight_valve_buttons[11][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [3,1]))
-flight_valve_buttons[8][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [0,0]))
-flight_valve_buttons[9][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [1,0]))
-flight_valve_buttons[10][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,0]))
-flight_valve_buttons[11][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [3,0]))
+# flight_valve_buttons[8][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [0,1]))
+# flight_valve_buttons[9][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [1,1]))
+# flight_valve_buttons[10][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,1]))
+# flight_valve_buttons[11][1].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [3,1]))
+# flight_valve_buttons[8][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [0,0]))
+# flight_valve_buttons[9][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [1,0]))
+# flight_valve_buttons[10][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [2,0]))
+# flight_valve_buttons[11][0].clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LED_WRITE, 2, [3,0]))
 
 
 ##############################################################################

@@ -31,70 +31,70 @@ ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	BOARD_ID	0	|
 Bus Current	ibus	-10	150	Amps		%.2f	int16_t	100			float	last_packet_number	-1	|
 telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	float	last_command_id	-1	|
 STATE	STATE					%u	uint8_t	1			float	imtr	[0]*2	|
-ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float	tbrd	0	|
-ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float	tvlv	0	|
-ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	100			float	tmtr	0	|
-ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	100			float	error_code	0	|
-ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float	LOGGING_ACTIVE	0	|
-ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	100			float	current_page	-1	|
-ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	100			float	zero	0	|
-ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float	e28v	0	|
-ivlv[8]	ivlv[8]	-1	20	Amps		%.1f	int16_t	100			float	i3v	0	|
-ivlv[9]	ivlv[9]	-1	20	Amps		%.1f	int16_t	100			float	i5v	0	|
-ivlv[10]	ivlv[10]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[11]	ivlv[11]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[12]	ivlv[12]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[13]	ivlv[13]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[14]	ivlv[14]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[15]	ivlv[15]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[16]	ivlv[16]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[17]	ivlv[17]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[18]	ivlv[18]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[19]	ivlv[19]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[20]	ivlv[20]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[21]	ivlv[21]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[22]	ivlv[22]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[23]	ivlv[23]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[24]	ivlv[24]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[25]	ivlv[25]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[26]	ivlv[26]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[27]	ivlv[27]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[28]	ivlv[28]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[29]	ivlv[29]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[30]	ivlv[30]	-1	20	Amps		%.1f	int16_t	100			float			|
-ivlv[31]	ivlv[31]	-1	20	Amps		%.1f	int16_t	100			float			|
-evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[1]	evlv[1]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[2]	evlv[2]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[3]	evlv[3]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[4]	evlv[4]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[5]	evlv[5]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[6]	evlv[6]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[7]	evlv[7]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[8]	evlv[8]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[9]	evlv[9]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[10]	evlv[10]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[11]	evlv[11]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[12]	evlv[12]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[13]	evlv[13]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[14]	evlv[14]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[15]	evlv[15]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[16]	evlv[16]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[17]	evlv[17]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[18]	evlv[18]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[19]	evlv[19]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[20]	evlv[20]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[21]	evlv[21]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[22]	evlv[22]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[23]	evlv[23]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[24]	evlv[24]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[25]	evlv[25]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[26]	evlv[26]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[27]	evlv[27]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[28]	evlv[28]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[29]	evlv[29]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[30]	evlv[30]	-5	15	Volts		%.1f	int16_t	100			float			
-evlv[31]	evlv[31]	-5	15	Volts		%.1f	int16_t	100			float			
+ivlv[0]	ivlv[0]	0	20	Amps		%.1f	uint8_t	10			float	tbrd	0	|
+ivlv[1]	ivlv[1]	0	20	Amps		%.1f	uint8_t	10			float	tvlv	0	|
+ivlv[2]	ivlv[2]	0	20	Amps		%.1f	uint8_t	10			float	tmtr	0	|
+ivlv[3]	ivlv[3]	0	20	Amps		%.1f	uint8_t	10			float	error_code	0	|
+ivlv[4]	ivlv[4]	0	20	Amps		%.1f	uint8_t	10			float	LOGGING_ACTIVE	0	|
+ivlv[5]	ivlv[5]	0	20	Amps		%.1f	uint8_t	10			float	current_page	-1	|
+ivlv[6]	ivlv[6]	0	20	Amps		%.1f	uint8_t	10			float	zero	0	|
+ivlv[7]	ivlv[7]	0	20	Amps		%.1f	uint8_t	10			float	e28v	0	|
+ivlv[8]	ivlv[8]	0	20	Amps		%.1f	uint8_t	10			float	i3v	0	|
+ivlv[9]	ivlv[9]	0	20	Amps		%.1f	uint8_t	10			float	i5v	0	|
+ivlv[10]	ivlv[10]	0	20	Amps		%.1f	uint8_t	10			float	tc	[0]*16	|
+ivlv[11]	ivlv[11]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[12]	ivlv[12]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[13]	ivlv[13]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[14]	ivlv[14]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[15]	ivlv[15]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[16]	ivlv[16]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[17]	ivlv[17]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[18]	ivlv[18]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[19]	ivlv[19]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[20]	ivlv[20]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[21]	ivlv[21]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[22]	ivlv[22]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[23]	ivlv[23]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[24]	ivlv[24]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[25]	ivlv[25]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[26]	ivlv[26]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[27]	ivlv[27]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[28]	ivlv[28]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[29]	ivlv[29]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[30]	ivlv[30]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[31]	ivlv[31]	0	20	Amps		%.1f	uint8_t	10			float			|
+evlv[0]	evlv[0]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[1]	evlv[1]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[2]	evlv[2]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[3]	evlv[3]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[4]	evlv[4]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[5]	evlv[5]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[6]	evlv[6]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[7]	evlv[7]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[8]	evlv[8]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[9]	evlv[9]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[10]	evlv[10]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[11]	evlv[11]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[12]	evlv[12]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[13]	evlv[13]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[14]	evlv[14]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[15]	evlv[15]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[16]	evlv[16]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[17]	evlv[17]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[18]	evlv[18]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[19]	evlv[19]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[20]	evlv[20]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[21]	evlv[21]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[22]	evlv[22]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[23]	evlv[23]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[24]	evlv[24]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[25]	evlv[25]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[26]	evlv[26]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[27]	evlv[27]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[28]	evlv[28]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[29]	evlv[29]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[30]	evlv[30]	0	15	Volts		%.1f	uint8_t	10			float			
+evlv[31]	evlv[31]	0	15	Volts		%.1f	uint8_t	10			float			
 e3v	e3v	0	5	Volts		%.2f	int32_t	100			float			
 e5v	e5v	0	5	Volts		%.2f	int32_t	100			float			
 e28v	e28v	0	30	Volts		%.3f	int16_t	100			float			
@@ -109,6 +109,22 @@ tmtr	tmtr					%.2f	uint16_t	10			float
 error_code	error_code					%d	uint8_t	1			float			
 LOGGING_ACTIVE	LOGGING_ACTIVE					%d	uint8_t	1			float			
 logfile->current_page	logfile->current_page					%d	uint16_t	1		current_page	float			
+tc[0]	tc[0]					%d	uint16_t	1			float			
+tc[1]	tc[1]					%d	uint16_t	1			float			
+tc[2]	tc[2]					%d	uint16_t	1			float			
+tc[3]	tc[3]					%d	uint16_t	1			float			
+tc[4]	tc[4]					%d	uint16_t	1			float			
+tc[5]	tc[5]					%d	uint16_t	1			float			
+tc[6]	tc[6]					%d	uint16_t	1			float			
+tc[7]	tc[7]					%d	uint16_t	1			float			
+tc[8]	tc[8]					%d	uint16_t	1			float			
+tc[9]	tc[9]					%d	uint16_t	1			float			
+tc[10]	tc[10]					%d	uint16_t	1			float			
+tc[11]	tc[11]					%d	uint16_t	1			float			
+tc[12]	tc[12]					%d	uint16_t	1			float			
+tc[13]	tc[13]					%d	uint16_t	1			float			
+tc[14]	tc[14]					%d	uint16_t	1			float			
+tc[15]	tc[15]					%d	uint16_t	1			float			
 0	0					%d	uint8_t	1		zero	float			
 0	0					%d	uint8_t	1		zero	float			
 0	0					%d	uint8_t	1		zero	float			
