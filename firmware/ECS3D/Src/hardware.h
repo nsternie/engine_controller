@@ -61,6 +61,7 @@
 
 // Hardware Specific functions
 void read_adc(SPI_HandleTypeDef* SPI_BUS, uint8_t adc_number);
+void read_tc(uint8_t device);
 void set_device(uint8_t device, GPIO_PinState state);
 void select_device(uint8_t device);
 void release_device(uint8_t device);

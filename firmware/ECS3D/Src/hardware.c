@@ -128,6 +128,14 @@ void read_adc(SPI_HandleTypeDef* SPI_BUS, uint8_t adc_number){
 
 	 __enable_irq();
 }
+
+void read_tc(uint8_t device){
+
+	select_device(device);
+
+
+}
+
 void set_device(uint8_t device, GPIO_PinState state){
 	switch(device){
 		case adc0:

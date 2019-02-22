@@ -288,6 +288,9 @@ int main(void)
         		read_adc(&hspi1, n);
         	}
         }
+        for(uint n = 0; n < 16; n++){
+        	read_tc(tc0 + n);
+        }
 		scale_readings();
 		pack_telem(telem_unstuffed);
 		stuff_telem(telem_unstuffed, telem_stuffed);

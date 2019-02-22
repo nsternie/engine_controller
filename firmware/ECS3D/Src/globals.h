@@ -80,8 +80,19 @@
 #define tc1 71
 #define tc2 72
 #define tc3 73
+#define tc4 74
+#define tc5 75
+#define tc6 76
+#define tc7 77
+#define tc8 78
+#define tc9 79
+#define tc10 80
+#define tc11 81
+#define tc12 82
+#define tc13 83
+#define tc14 84
+#define tc15 85
 
-#define spirit 80
 
 #define rtd0	100
 #define rtd1	101
