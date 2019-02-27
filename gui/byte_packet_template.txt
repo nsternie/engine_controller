@@ -109,7 +109,7 @@ tmtr	tmtr					%.2f	uint16_t	10			float
 error_code	error_code					%d	uint8_t	1			float			
 LOGGING_ACTIVE	LOGGING_ACTIVE					%d	uint8_t	1			float			
 logfile->current_page	logfile->current_page					%d	uint16_t	1		current_page	float			
-tc[0]	tc[0]					%d	uint16_t	1			float			
+tc[0]	tc[0]					%d	int16_t	1			float			
 tc[1]	tc[1]					%d	uint16_t	1			float			
 tc[2]	tc[2]					%d	uint16_t	1			float			
 tc[3]	tc[3]					%d	uint16_t	1			float			

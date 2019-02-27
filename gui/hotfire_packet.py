@@ -525,7 +525,7 @@ class ECParse:
 		self.current_page = float((float(struct.unpack("<H", byte_rep)[0]))/1)
 		self.dict[self.items[109]] = self.current_page
 		byte_rep = packet[161:163]
-		self.tc[0] = float((float(struct.unpack("<H", byte_rep)[0]))/1)
+		self.tc[0] = float((float(struct.unpack("<h", byte_rep)[0]))/1)
 		self.dict[self.items[110]] = self.tc[0]
 		byte_rep = packet[163:165]
 		self.tc[1] = float((float(struct.unpack("<H", byte_rep)[0]))/1)

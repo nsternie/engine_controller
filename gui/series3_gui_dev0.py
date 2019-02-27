@@ -267,18 +267,26 @@ try:
 except Exception:
     print("INVALID STATE ALIAS DEFINITIONS")
 
+cal_file = open('calibrations')
+cal_slope = {}
+cal_offset = {}
+for line in cal_file:
+    s = line.split('\t')
+    cal_slope[s[0]] = float(s[1])
+    cal_offset[s[0]] = float(s[2].rstrip('\n'))
+
 # Try to open the serial port
 ser = serial.Serial(port=None, baudrate=int(alias["BAUDRATE"]), timeout=1.5)
-ser.port = alias["COM_PORT"]
-try:
-    ser.open()
-    if(ser.is_open):
-        ser.readline()
-        print("Port active on "+ser.port)
-    else:
-        print("Serial port is not open")
-except:
-    print("Could not open Serial Port")
+# ser.port = alias["COM_PORT"]
+# try:
+#     ser.open()
+#     if(ser.is_open):
+#         ser.readline()
+#         print("Port active on "+ser.port)
+#     else:
+#         print("Serial port is not open")
+# except:
+#     print("Could not open Serial Port")
 
 ###############################################################################
 #  END APPLICATION INITILIZATION ##############################################
@@ -358,14 +366,19 @@ def parse_serial():
 
                     vlv_id = 'f'+'vlv'+str(n)
                     if vlv_id in alias.keys():
-                        vlv_id = alias[vlv_id]
+                        vlv_id = str(n) + ': ' + alias[vlv_id]
 
                     flight_valve_buttons[n][0].setText(vlv_id+" is "+str(state))
                     flight_valve_buttons[n][3].setText(str(parser.ivlv[n])+"A / "+str(parser.evlv[n])+"V")
                     mask = mask << 1
-                for n in range(0, 8):
+                for n in range(0, 22):
 
-                    flight_pressure_labels[n][1].setText(str(parser.pressure[n])+"psi")
+                    this_press = parser.pressure[n]
+                    if(alias['fpressure'+str(n)] in cal_offset.keys()):
+                        this_press -= cal_offset[alias['fpressure'+str(n)]]
+                        this_press *= cal_slope[alias['fpressure'+str(n)]]
+                    this_press = int(this_press)
+                    flight_pressure_labels[n][1].setText(str(this_press)+"psi")
 
                 # # Board health
                 # flight_ebatt_value.setText(str(parser.ebatt))
@@ -400,19 +413,6 @@ def parse_serial():
                     flight_table.setItem(n, 1, QtGui.QTableWidgetItem(str(parser.dict[parser.items[n]])))
 
 
-                for mtrx in range(0, 2):
-                    try:
-                        mtr_send[mtrx].setText("Update "+str(parser.motor_setpoint[mtrx]))
-                        mtr_position[mtrx].setText(str(parser.motor_position[mtrx]))
-                        mtr_toggle[mtrx].setText(str(parser.motor_pwm[mtrx]))
-                    except:
-                        pass
-                try:
-                    motor_cycle_rate.setText(str(round(1000000/parser.motor_cycle_time, 3)))
-                    adc_cycle_rate.setText(str(round(1000000/parser.adc_cycle_time, 3)))
-                    telemetry_cycle_rate.setText(str(round(1000000/parser.telemetry_cycle_time, 3)))
-                except:
-                    pass
 
             ###################################################################
             ### END FLIGHT DATA UPDATE ########################################
@@ -446,14 +446,14 @@ for valve_buttons, pressure_labels, abbrev in [(flight_valve_buttons, flight_pre
         valve_buttons.append(temp)
 
         # Pressure reading widgets init
-    for n in range(0, 8):
+    for n in range(0, 22):
         ptemp = []
         ptemp.append(QtGui.QLabel())
         ptemp.append(QtGui.QLabel())
         pressure_labels.append(ptemp)
         press_id = abbrev+"pressure"+str(n)
         if press_id in alias.keys():
-            press_id = alias[press_id]
+            press_id = str(n) + ': ' + alias[press_id]
         pressure_labels[n][0].setText(press_id+":")
         pressure_labels[n][1].setText(str(0)+"psi")
     for n in range(0, 4):
@@ -550,7 +550,7 @@ def layout_common_widgets(layout, vlv_buttons, p_labels):
         # layout.addWidget(vlv_buttons[n][2], zr+n+1, zc+2-2)
         layout.addWidget(vlv_buttons[n][3], zr+n+1, zc-1)
         # layout.addWidget(vlv_buttons[n][4], zr+n+1, zc+0)
-    for n in range(0, 8):
+    for n in range(0, 22):
         layout.addWidget(p_labels[n][0], zr+n+1, zc+0)
         layout.addWidget(p_labels[n][1], zr+n+1, zc+1)
     for n in range(0, 4):
@@ -576,67 +576,42 @@ qd_fuel_off = QtGui.QPushButton("OFF Fuel")
 
 
 ### GROUND ###
-init_fs = QtGui.QPushButton("Init Filesystem")
-log_start = QtGui.QPushButton("Log Start")
-log_end = QtGui.QPushButton("Log Stop")
-telem_pause = QtGui.QPushButton("Pause Telemetry")
-telem_resume = QtGui.QPushButton("Resume Telemetry")
-file_download = QtGui.QPushButton("Download file")
+# init_fs = QtGui.QPushButton("Init Filesystem")
+# log_start = QtGui.QPushButton("Log Start")
+# log_end = QtGui.QPushButton("Log Stop")
+# telem_pause = QtGui.QPushButton("Pause Telemetry")
+# telem_resume = QtGui.QPushButton("Resume Telemetry")
+# file_download = QtGui.QPushButton("Download file")
 
 
 
-### Flight ###
-init_fs = QtGui.QPushButton("Init Filesystem")
-log_start = QtGui.QPushButton("Log Start")
-log_end = QtGui.QPushButton("Log Stop")
-telem_pause = QtGui.QPushButton("Pause Telemetry")
-telem_resume = QtGui.QPushButton("Resume Telemetry")
-file_download = QtGui.QPushButton("Download file")
+# ### Flight ###
+# init_fs = QtGui.QPushButton("Init Filesystem")
+# log_start = QtGui.QPushButton("Log Start")
+# log_end = QtGui.QPushButton("Log Stop")
+# telem_pause = QtGui.QPushButton("Pause Telemetry")
+# telem_resume = QtGui.QPushButton("Resume Telemetry")
+# file_download = QtGui.QPushButton("Download file")
 
-flight_layout.addWidget(init_fs,zr+14, zc+0)
-flight_layout.addWidget(log_start,zr+15, zc+0)
-flight_layout.addWidget(log_end,zr+16, zc+0)
-flight_layout.addWidget(telem_pause,zr+17, zc+0)
-flight_layout.addWidget(telem_resume,zr+18, zc+0)
-flight_layout.addWidget(file_download,zr+19, zc+0)
+# flight_layout.addWidget(init_fs,zr+14, zc+0)
+# flight_layout.addWidget(log_start,zr+15, zc+0)
+# flight_layout.addWidget(log_end,zr+16, zc+0)
+# flight_layout.addWidget(telem_pause,zr+17, zc+0)
+# flight_layout.addWidget(telem_resume,zr+18, zc+0)
+# flight_layout.addWidget(file_download,zr+19, zc+0)
 
-init_fs.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_INIT_FS, 0, []))
-log_start.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LOG_START, 0, []))
-log_end.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LOG_END, 0, []))
-telem_pause.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEM_PAUSE, 0, []))
-telem_resume.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEM_RESUME, 0, []))
-file_download.clicked.connect(lambda: get_file(TARGET_ADDRESS_FLIGHT));
-
-
+# init_fs.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_INIT_FS, 0, []))
+# log_start.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LOG_START, 0, []))
+# log_end.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_LOG_END, 0, []))
+# telem_pause.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEM_PAUSE, 0, []))
+# telem_resume.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEM_RESUME, 0, []))
+# file_download.clicked.connect(lambda: get_file(TARGET_ADDRESS_FLIGHT));
 
 
 
-flight_samplerate_setpoint = QtGui.QLineEdit('50')
-# flight_samplerate_setpointfb = QtGui.QLabel("SAMPLERATE FB")
-flight_samplerate_send = QtGui.QPushButton("Update samplerate (Hz)")
-flight_layout.addWidget(flight_samplerate_send, zr+13, zc+0)
-flight_layout.addWidget(flight_samplerate_setpoint, zr+13, zc+1)
-# flight_layout.addWidget(flight_samplerate_setpointfb, zr+11, zc+2)
 
-# Telemrate set
-flight_telemrate_setpoint = QtGui.QLineEdit('10')
-# flight_telemrate_setpointfb = QtGui.QLabel("TELEMRATE FB")
-flight_telemrate_send = QtGui.QPushButton("Update telemrate (Hz)")
-flight_layout.addWidget(flight_telemrate_send, zr+13, zc+0)
-flight_layout.addWidget(flight_telemrate_setpoint, zr+13, zc+1)
-# flight_layout.addWidget(flight_telemrate_setpointfb, zr+12, zc+2)
 
-# Motor gains set
-MOTOR_GAINS_LABEL = QtGui.QLabel("Motor Gains")
-kp_set = QtGui.QPushButton("Update Kp")
-ki_set = QtGui.QPushButton("Update Ki")
-kd_set = QtGui.QPushButton("Update Kd")
-kp_input = QtGui.QLineEdit()
-ki_input = QtGui.QLineEdit()
-kd_input = QtGui.QLineEdit()
-kpfb = QtGui.QLabel("kpfb")
-kifb = QtGui.QLabel("kifb")
-kdfb = QtGui.QLabel("kdfb")
+
 # flight_layout.addWidget(kp_set, zr+9-2, zc+5)
 # flight_layout.addWidget(ki_set, zr+10-2, zc+5)
 # flight_layout.addWidget(kd_set, zr+11-2, zc+5)
@@ -660,10 +635,10 @@ state_label = QtGui.QLabel("STATE = N/A")
 arm_button = QtGui.QPushButton("ARM")
 disarm_button = QtGui.QPushButton("DISARM")
 hotfire_button = QtGui.QPushButton("HOTFIRE")
-flight_layout.addWidget(state_label, zr+21, zc+0)
-flight_layout.addWidget(arm_button, zr+22, zc+0)
-flight_layout.addWidget(disarm_button, zr+23, zc+0)
-flight_layout.addWidget(hotfire_button, zr+24, zc+0)
+flight_layout.addWidget(state_label, zr+24, zc+0)
+flight_layout.addWidget(arm_button, zr+25, zc+0)
+flight_layout.addWidget(disarm_button, zr+26, zc+0)
+flight_layout.addWidget(hotfire_button, zr+27, zc+0)
 
 # Loop times
 LOOP_RATE_LABEL = QtGui.QLabel("Loop rates (hz)")
@@ -735,9 +710,6 @@ if(0):
 ### FUNCTIONAL CONNECTIONS ####################################################
 ###############################################################################
 
-
-flight_samplerate_send.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_SAMPLERATE_SET, 1, [int(flight_samplerate_setpoint.text())]))
-flight_telemrate_send.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEMRATE_SET, 1, [int(flight_telemrate_setpoint.text())]))
 
 arm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_ARM, 0, []))
 disarm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DISARM, 0, []))

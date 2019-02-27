@@ -11,6 +11,38 @@ gvlv8	LED 0
 gvlv9	LED 1
 gvlv10	LED 2
 gvlv11	LED 3
+fvlv0	OX-SN-F01
+fvlv1	HE-SN-F11
+fvlv2	HE-SN-F07
+fvlv3	HE-SN-F08
+fvlv4	HE-SN-F09-OPEN
+fvlv5	HE-SN-F10-OPEN
+fvlv6	ET-SN-F02
+fvlv7	ET-SN-F01
+fvlv8	OX-SN-G01
+fvlv9	OX-SN-G02
+fvlv10	OX-SN-G03
+fvlv11	HE-SN-G01
+fvlv12	HE-SN-G02
+fvlv13	.
+fvlv14	HE-SN-G03
+fvlv15	HE-SN-G04
+fvlv16	HE-SN-G05
+fvlv17	HE-SN-G06
+fvlv18	.
+fvlv19	NI-SN-G01
+fvlv20	NI-SN-G02
+fvlv21	.
+fvlv22	.
+fvlv23	.
+fvlv24	HE-SN-F09-CLOSED
+fvlv25	.
+fvlv26	.
+fvlv27	.
+fvlv28	.
+fvlv29	.
+fvlv30	HE-SN-F10-CLOSED
+fvlv31	.
 gpressure0	N2 Fill Hose
 gpressure1	Ox Mother
 gpressure2	Ox Fill Hose
@@ -19,14 +51,28 @@ gpressure4	.
 gpressure5	.
 gpressure6	.
 gpressure7	.
-fpressure0	Ox Tank
+fpressure0	-
 fpressure1	.
-fpressure2	Fuel Tank
-fpressure3	Chamber
-fpressure4	DP
-fpressure5	Ox Manifold
-fpressure6	Fuel Manifold
-fpressure7	.
+fpressure2	OX-PT-F02
+fpressure3	HE-PT-F03
+fpressure4	OX-PT-G01
+fpressure5	HE-PT-G01
+fpressure6	-
+fpressure7	EX-PT-F01
+fpressure8	ET-PT-F03
+fpressure9	OX-PT-F01
+fpressure10	HE-PT-F02
+fpressure11	ET-PT-F01
+fpressure12	ET-PT-F02
+fpressure13	OX-PT-G02
+fpressure14	HE-PT-G03
+fpressure15	NI-PT-G01
+fpressure16	NI-PT-G02
+fpressure17	.
+fpressure18	.
+fpressure19	.
+fpressure20	.
+fpressure21	.
 mtr0	OX VALVE
 mtr1	FUEL VALVE
 mtr2	.
