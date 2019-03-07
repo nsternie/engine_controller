@@ -372,7 +372,7 @@ class SolenoidButton(QWidget):
             self.solenoidList[index][0].setToolTip(self.solenoidList[index][2] + "\nState: Closed")
 
     def loadCsv(self, filename):
-        with open('//Users/jt/Desktop/Michigan/MASA/ATLO/GUI/gsegui/gse_gui/' + filename, 'r') as f:
+        with open(filename, 'r') as f:
             reader = csv.reader(f)
             your_list = list(reader)
         self.solXOffsetList = your_list[0]
