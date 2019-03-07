@@ -21,3 +21,9 @@
 *.pdf
 
 /gui/data/*
+
+# IDE
+*.idea
+
+# Test data files
+gse_gui/data*
