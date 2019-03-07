@@ -19,7 +19,7 @@ class GUI():
 
     def __init__(self, parent=None):
 
-        self.solenoidWindow = SolenoidWindow()
+        self.solenoidWindow = SolenoidWindow(self)
         self.plotWindow = PlotWindow()
 
 class PlotWindow(QMainWindow):
@@ -30,7 +30,7 @@ class PlotWindow(QMainWindow):
     resized = pyqtSignal()
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.update_rate = 1 #Update plots every 1 second
+        self.update_rate = 1/1 #Update plots at 1 Hz
 
         # Set geometry
         self.title = 'Plot View'
@@ -115,7 +115,8 @@ class SolenoidWindow(QMainWindow):
     """
 
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__()
+        self.parent = parent
 
         # Set geometry
         self.title = 'Solenoid Control'
@@ -127,7 +128,7 @@ class SolenoidWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        self.solenoid = SolenoidButton(self)
+        self.solenoid = SolenoidWidget(self)
         self.show()
 
 class Plot(QWidget):
@@ -141,7 +142,7 @@ class Plot(QWidget):
     def __init__(self, name, parent=None):
         super().__init__(parent)
         self.parent = parent
-        self.data_file = 'data.csv'  ## Update this
+        self.dataFile = None
         self.openBool = True
         self.name = name
 
@@ -163,24 +164,24 @@ class Plot(QWidget):
 
     def read_data(self):
         """
-        Read data at 5Hz
+        Read data at update_rate
         Update plot as new data is read
         Target function of thread
         :return:
         """
         while True:
-            if self.openBool is True:
+            if self.openBool is True and self.dataFile is not None:
                 self.message('checking for data')
                 try:
                     data = []
-                    with open(self.data_file, 'r') as f:
+                    with open(self.dataFile, 'r') as f:
                         rd = csv.reader(f)
                         for row in rd:
                             data.append([float(f) for f in row])
 
                     self.plot_data(data)
                 except FileNotFoundError:
-                    print('Could not find {}'.format(self.data_file))
+                    print('Could not find {}'.format(self.dataFile))
                     pass
                 except Exception as e:
                     e_type, e_obj, e_tb = sys.exc_info()
@@ -204,7 +205,7 @@ class Plot(QWidget):
     def get_figure_dimensions(self):
         ## Determine plot size via window size
         parentWidth = self.parent.geometry().width()
-        parentHeight = self.parent.geometry().height()
+        parentHeight = self.parent.geometry().height()-10
         monitorDPIX = self.physicalDpiX()
         monitorDPIY = self.physicalDpiY()
 
@@ -238,7 +239,17 @@ class Plot(QWidget):
         ## Title
         self.fig.suptitle(self.name)
 
-class SolenoidButton(QWidget):
+class PlotButton(QPushButton):
+    """
+    Button class that holds a data file
+    """
+    def __init__(self, name, dataFile, parent=None):
+        super().__init__(name,parent)
+        self.parent = parent
+        self.dataFile = dataFile
+
+
+class SolenoidWidget(QWidget):
     solXOffsetList = []
     solYOffsetList = []
     solenoidList = [[0, 'OX-SN-G01', 0, 0, [1163, 100], 'LOX Main Fill', [0, 0]],
@@ -296,6 +307,45 @@ class SolenoidButton(QWidget):
         self.loadCsv('Sol.csv')
         self.updateSolOffsets()
         self.createSolenoidButtons(self.solenoidList)
+
+        ## Create test ducer button
+        self.ducerButton = PlotButton("Test",'data.csv',self)
+        self.ducerButton.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ducerButton.customContextMenuRequested.connect(
+            lambda *args, button=self.ducerButton: self.plot_menu(*args, button)
+        )
+        self.ducerButton.show()
+
+    def plot_menu(self, event, button):
+        """
+        Handler for context menu. These menus hand-off data plotting to plot windows
+        :param event: default event from pyqt
+        :param button: button instance this plot_menu is connected to
+        :return:
+        """
+        self.plotMenu = QMenu(self)
+        self.plotMenuActions = []
+        for plot in self.parent.parent.plotWindow.plotList:
+            action = QAction(plot.name)
+            self.plotMenuActions.append(action)
+
+            link_plot_wrapper = lambda : self.link_plot(plot)
+            self.plotMenuActions[-1].triggered.connect(
+                lambda *args, p=plot: self.link_plot(p, button)
+            )
+
+            self.plotMenu.addAction(self.plotMenuActions[-1])
+
+        self.plotMenu.exec_(self.mapToGlobal(event))
+
+    def link_plot(self, plot, button):
+        """
+        Link a Plot object to a given data file
+        :param plot: plot object that needs a link to a data file
+        :param button: button instance that was clicked on
+        :return:
+        """
+        plot.dataFile = button.dataFile
 
     def updateSolOffsets(self):
         for i in range(len(self.solenoidList)):
