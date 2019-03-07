@@ -27,42 +27,73 @@ class PlotWindow(QMainWindow):
     Window for plots
     """
 
+    resized = pyqtSignal()
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.update_rate = 1 #Update plots every 1 second
 
         # Set geometry
         self.title = 'Plot View'
         self.left = 300
         self.top = 100
-        self.width = 600
+        self.width = 800
         self.height = 800
 
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        # Plot window
-        self.show()
-
         # Create grid and central widget
-        grid = QGridLayout()
-        cent = QWidget(self)
-        self.setCentralWidget(cent)
+        self.grid = QGridLayout()
+        self.cent = QWidget(self)
+        self.setCentralWidget(self.cent)
 
-        self.plotDimensionNumber = 2 #2 plots per dimension
-        self.plot1 = Plot('plot1',parent=self)
-        self.plot2 = Plot('plot2',parent=self)
-        self.plot3 = Plot('plot3',parent=self)
-        self.plot4 = Plot('plot4',parent=self)
-
-        self.plotList = [self.plot1, self.plot2, self.plot3, self.plot4]
+        self.plotNumber = 4
+        self.gen_plots(self.plotNumber)
 
         ## Place sub-widgets in a grid on the central widget
-        grid.addWidget(self.plot1, 0, 0)
-        grid.addWidget(self.plot2, 0, 1)
-        grid.addWidget(self.plot3, 1, 0)
-        grid.addWidget(self.plot4, 1, 1)
-        cent.setLayout(grid)
+        self.cent.setLayout(self.grid)
         self.show()
+
+        #self.resized.connect(self.layout_widgets)
+
+    def gen_plots(self, num):
+        """
+        Add num plots to grid
+        :param num: number of plots to generate
+        :return:
+        """
+        self.plotList = []
+        for i in range(0,int(self.plotNumber/2)):
+            for j in range(0,int(self.plotNumber/2)):
+                plot = Plot('plot{}-{}'.format(i,j),parent=self)
+                self.plotList.append(plot)
+                self.grid.addWidget(plot, i, j)
+
+    def layout_widgets(self):
+        """
+        Update grid sizing and plot sizing for resized window
+        :return:
+        """
+
+        self.grid = QGridLayout()
+
+        ## Update plot sizes
+        i = 0
+        j = 0
+        for plot in self.plotList:
+            self.grid.addWidget(plot, i, j)
+            plot.update_figure()
+
+            ## Keep counters between 0 and 1
+            i+=1
+            j+=1
+
+            if i > 1:
+                i = 0
+            if j > 1:
+                j = 0
+
+        self.cent.setLayout(self.grid)
 
     def closeEvent(self, event):
         """
@@ -73,6 +104,10 @@ class PlotWindow(QMainWindow):
             plot.openBool = False
         event.accept()
         print('closing window')
+
+    def resizeEvent(self, event):
+        self.resized.emit()
+        super().resizeEvent(event)
 
 class SolenoidWindow(QMainWindow):
     """
@@ -95,31 +130,6 @@ class SolenoidWindow(QMainWindow):
         self.solenoid = SolenoidButton(self)
         self.show()
 
-
-# class Window(QWidget):
-#     """
-#     Generic pop-up window class
-#     """
-#
-#     def __init__(self, parent=None, openBool=False):
-#         """
-#         Initialize a window class
-#         :param parent: parent widget
-#         :param openBool: variable to keep track if window is open
-#         """
-#         super().__init__(parent)
-#         self.openBool = openBool
-#
-#     def closeEvent(self, event):
-#         """
-#         Set openBool to false, then close the window
-#         :return:
-#         """
-#         self.openBool = False
-#         event.accept()
-#         print('closing window')
-
-
 class Plot(QWidget):
     """
     Widget to generate a plot window of data vs. time
@@ -137,13 +147,6 @@ class Plot(QWidget):
 
         self.create_main_frame()
 
-        # ## Generate plot button and link to pop-up window
-        # self.pushPlot = QPushButton(self.parent)
-        # self.pushPlot.setText("Plot")
-        # #self.pushPlot.move(0,0)
-        # self.pushPlot.clicked.connect(self.on_plot_click)
-        # self.pushPlot.show()
-
         ## Open thread to update plot
         plotUpdater = threading.Thread(target=self.read_data,
                                        name='plotUpdater')
@@ -157,16 +160,6 @@ class Plot(QWidget):
         :return:
         """
         print('{}: {}'.format(self.name,msg))
-
-    # def on_plot_click(self):
-    #     """
-    #     On click, generate plot and open window
-    #     :return:
-    #     """
-    #     if self.plotWindow.openBool is False:
-    #         self.create_main_frame()
-    #     self.plotWindow.openBool = True
-
 
     def read_data(self):
         """
@@ -193,7 +186,7 @@ class Plot(QWidget):
                     e_type, e_obj, e_tb = sys.exc_info()
                     print('Got {} on line {}: {}'.format(e_type, e_tb.tb_lineno, e))
                     pass
-            time.sleep(0.2)
+            time.sleep(self.parent.update_rate)
 
     def plot_data(self, data):
         """
@@ -208,6 +201,23 @@ class Plot(QWidget):
         self.axes.plot(data[:, 0], data[:, 1])
         self.canvas.draw()
 
+    def get_figure_dimensions(self):
+        ## Determine plot size via window size
+        parentWidth = self.parent.geometry().width()
+        parentHeight = self.parent.geometry().height()
+        monitorDPIX = self.physicalDpiX()
+        monitorDPIY = self.physicalDpiY()
+
+        figWidth = float(parentWidth) / (self.parent.plotNumber/2) / monitorDPIX
+        figHeight = float(parentHeight) / (self.parent.plotNumber/2) / monitorDPIY
+
+        return figWidth, figHeight
+
+    def update_figure(self):
+        figWidth, figHeight = self.get_figure_dimensions()
+
+        self.fig.set_size_inches(figWidth, figHeight, forward=True)
+
     def create_main_frame(self):
         """
         Generate the plot figure
@@ -216,20 +226,17 @@ class Plot(QWidget):
         self.dpi = 100
 
         ## Determine plot size via window size
-        parentWidth = self.parent.geometry().width()
-        parentHeight = self.parent.geometry().height()
-        monitorDPIX = self.physicalDpiX()
-        monitorDPIY = self.physicalDpiY()
+        figWidth, figHeight = self.get_figure_dimensions()
 
-        figWidth = float(parentWidth)/self.parent.plotDimensionNumber/monitorDPIX
-        figHeight = float(parentHeight)/self.parent.plotDimensionNumber/monitorDPIY
-        self.fig = Figure((figWidth, figHeight), dpi=self.dpi)  # 5x4 inches, 100 dpi
+        self.fig = Figure((figWidth, figHeight), dpi=self.dpi)
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self)
-        self.show()
 
         ## Add axes
         self.axes = self.fig.add_subplot(111)
+
+        ## Title
+        self.fig.suptitle(self.name)
 
 class SolenoidButton(QWidget):
     solXOffsetList = []
