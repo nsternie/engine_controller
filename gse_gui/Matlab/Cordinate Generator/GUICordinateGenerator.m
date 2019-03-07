@@ -27,10 +27,23 @@ hsvValueCutoff = .88;
 %PNG Image of objects to look for. All images must be the exact same size.
 %The object can be anywhere in the image. Low resolution is perfered for
 %performance. ~~(1000 x 1000)
-objects = ["SingleSolHor.png", "SingleSolVer.png"];
+objects = ["InputPhotos/HSol.png", "InputPhotos/VSol.png", "InputPhotos/Tank1.png", "InputPhotos/Tank2.png","InputPhotos/Dewar.png"];
 
 %How many objects the code should find. Use same order as above
-objectQuantity = [11, 7];
+objectQuantity = [11, 7, 3, 2, 2];
+
+%Some objects with more complex geometry benefit from having their origin
+%specified as just the topmost pixel, with no regard to how far left or
+%right it is. A 0 in the below array indicated topmost-leftmost while a 1
+%specifies just topmost.
+
+originPosArray = [0, 0, 1, 1, 1];
+
+%Since the object might not be centered when only setting the origin to the
+%topmost pixel, this array keeps track of the col offset. -1 means the
+%object is set to topmost-leftmost.
+
+originColOffset = [];
 
 %Estimation on the pixel Height and Width
 objectHeight = [];
@@ -53,10 +66,15 @@ for s = 1:objectImgQuantity
     %See %%CONSTANTS for more info
     logicalObjPosArray = hsvObjImg(:,:,3) > hsvValueCutoff;
     
+    %Displays how many pixels are in the object.
+    %USE FOR THE THRESHOLD BELOW
+    disp(['Man Number of Pixels in Object: ', num2str(sum(sum(logicalObjPosArray == 0)))])
+    
     %Displays image with above cuttoff applied
     imshow(logicalObjPosArray)
     title(strcat("Edited:  ", objects(s), "  **PRESS ENTER TO CONTINUE OR 0 TO END** "));
-    goOn = input("Continue Execution? 1 or 0");
+    %[r , c, p] = impixel()
+    goOn = input("Continue Execution? 1 or 0 ");
     if goOn == 0
         close all;
         return
@@ -71,18 +89,25 @@ for s = 1:objectImgQuantity
     objectHeight(s) = max(rowOffset) - min(rowOffset) + 1;
     objectWidth(s) = max(columnOffset) - min(columnOffset) + 1;
     
-    rowOffset = min(rowOffset);
-    columnOffset = min(columnOffset);
+    [rowMinOffset, rowI] = min(rowOffset);
+    [columnMinOffset, colI] = min(columnOffset);
     
     
-    %Shifts the position of the object to the topmost-leftmost pixel of the
-    %image
-    logicalObjPosArray = circshift(logicalObjPosArray, [-rowOffset + 1, -columnOffset + 1]);
+    %Shifts the position of the object to the specified origin pos for the
+    %object
+    if originPosArray(s) == 0
+        logicalObjPosArray = circshift(logicalObjPosArray, [-rowMinOffset + 1, -columnMinOffset + 1]);
+        originColOffset(s) = -1;
+    elseif originPosArray(s) == 1
+        logicalObjPosArray = circshift(logicalObjPosArray, [-rowMinOffset + 1, -columnOffset(rowI) + 1]);
+        originColOffset(s) = columnOffset(rowI) - columnMinOffset;
+        originColOffset(s)
+    end
     
     %Displays image with above cuttoff applied
     imshow(logicalObjPosArray)
     title(strcat("Edited:  ", objects(s), "  **PRESS ENTER TO CONTINUE OR 0 TO END** "));
-    goOn = input("Continue Execution? 1 or 0");
+    goOn = input("Continue Execution? 1 or 0 ");
     if goOn == 0
         close all;
         return
@@ -99,15 +124,20 @@ end
 
 
 
-%% MATCHING
+%% FIND OBJECT CORDS
 %This section of the code overlays the HSV Object Images ontop of a image
 %full of the objects are various locations. When it finds a match it saves
 %the location. 
 
-%RGB & HSV Image with various objects
-fullObjImgName = 'SolToCordPNG.png';
+%RGB & HSV B&W Image with various objects
+fullObjImgName = 'InputPhotos/GUIBlackPNG.png';
 rgbFullObjImg = imread(fullObjImgName);
 hsvFullObjImg = rgb2hsv(rgbFullObjImg);
+
+%RGB & HSV Colored Image with various Objects
+fullColoredObjImgName = 'InputPhotos/GUIColoredPNG.png';
+rgbColoredObjImg = imread(fullColoredObjImgName);
+hsvColoredObjImg = rgb2hsv(rgbColoredObjImg);
 
 %Creates a logical array for the position of the objects in the image.
 %See %%CONSTANTS for more info
@@ -116,7 +146,7 @@ logicalFullObjPosArray = hsvFullObjImg(:,:,3) > hsvValueCutoff;
 %Displays the image with the above cutoff applied
 imshow(logicalFullObjPosArray);
 title(strcat("Edited:  ", fullObjImgName, "  **PRESS ENTER TO CONTINUE OR 0 TO END** "));
-goOn = input("Continue Execution? 1 or 0");
+goOn = input("Continue Execution? 1 or 0 ");
 if goOn == 0
     close all;
     return
@@ -148,7 +178,7 @@ numObjPixelMatchs = zeros(size(objects));
 
 %Threshold for the # of pixel matches required for the program to consider
 %it a match. User Determined. Is in same order as object array above.
-tresNumObjPixelMatchs = [120, 100];
+tresNumObjPixelMatchs = [110, 110, 500, 220, 220];
 
 %Arrays to store xCord and yCord of where overlaps occur
 xCord = [];
@@ -157,6 +187,8 @@ yCord = [];
 %Array to store object type for given cords. 
 objectType = [];
 
+%Array to store the object color.
+objectColor = [];
 
 %Some global variables needed for the loop
 col = 1;
@@ -169,7 +201,7 @@ for row = 1:imgsRowSize
     while (col <= imgsColSize)
         %If the entire row is devoid of black pixels skip it
         if sum(logicalFullObjPosArray(row,:) == 0) == 0
-           disp([row, col, numObjMatches, numObjPixelMatchs])
+           disp(['Row: ', num2str(row),'     Col: ', num2str(col), '     Number of Obj Matches: ', num2str(numObjMatches), '     Number of Pixel Matches: ', num2str(numObjPixelMatchs)])
            break
         end
         
@@ -187,27 +219,57 @@ for row = 1:imgsRowSize
             %If the current number of pixel matches is greater than the
             %treshold AND there is not another suspected match +-2 pixels
             %away THEN record the cords of the match.
-            if numObjPixelMatchs(s) > tresNumObjPixelMatchs(s) && sum(sum(ismember(ismember(xCord, col-2:col+2) + ismember(yCord, row-2:row+2), 2))) == 0
+            if numObjPixelMatchs(s) > tresNumObjPixelMatchs(s)% && sum(sum(ismember(ismember(xCord, col-2:col+2) + ismember(yCord, row-2:row+2), 2))) == 0
                 
                 %Increase number of matches
                 numObjMatches(s) = numObjMatches(s) + 1;
+                
+                %This block matches the color of the object to user
+                %presets. It then asigns that object a color id.
+                %It also marks the just found origin of the object with the
+                %color it found.
+                
+                objectColorId = -1;
+                
+                if hsvColoredObjImg(row,col,1) == 0 && hsvColoredObjImg(row, col,2) == 0
+                    objectColorId = 0;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
+                    hsvColoredObjImg(row-3: row+3,col-4: col+3 , 2) = 0;
+                    hsvColoredObjImg(row-3: row+3,col-4: col+3 , 3) = 0;
+                elseif hsvColoredObjImg(row,col,1) == 0 && hsvColoredObjImg(row,col,2) > .1
+                    objectColorId = 1;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                elseif hsvColoredObjImg(row,col,1) == .5
+                    objectColorId = 2;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                elseif hsvColoredObjImg(row,col,1) > .25 && hsvColoredObjImg(row,col,1) < .29
+                    objectColorId = 3;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                end
+              
                 
                 %Add Cord to arrays and set object type value
                 xCord = [xCord col];
                 yCord = [yCord row];
                 objectType = [objectType, s];
-                
-                %Sets the cordinate pixel colored for human verification
-                %The cordinate is the center of the box
-                hsvFullObjImg(row-3:row+3, col-3: col + 3, 1) = .7;
-                hsvFullObjImg(row-3:row+3, col-3: col + 3, 2) = 1;
-                hsvFullObjImg(row-3:row+3, col-3: col + 3, 3) = 1;
+                objectColor = [objectColor, objectColorId];
                 
                 %Removes the just matched object from the full object
                 %image. This is important for optimization because this
                 %declutters the image and allows the program to skip moving
                 %back over pixels it has already encountered and matched.
-                logicalFullObjPosArray(row - 2: row + objectHeight(s) + 2, col - 2:col + objectWidth(s)+ 2) = 1;
+                if originPosArray(s) == 0
+                    logicalFullObjPosArray(row - 2: row + objectHeight(s) + 2, col - 2:col + objectWidth(s)+ 2) = 1;
+                elseif originPosArray(s) == 1
+                    col - (objectHeight(s) - (objectHeight(s) - originColOffset(s))) - 2 
+                    logicalFullObjPosArray(row - 2: row + objectHeight(s) + 2, col - (objectWidth(s) - (objectWidth(s) - originColOffset(s))) - 2 : col + (objectWidth(s) - originColOffset(s)) + 2) = 1;
+                end
                 
                 %Variable to keep track that an object was matched this
                 %loop
@@ -216,7 +278,7 @@ for row = 1:imgsRowSize
                 %Show the image with blue dots for where the matched
                 %objects origin is.
                 figure(1)
-                imshow(hsv2rgb(hsvFullObjImg));
+                imshow(hsv2rgb(hsvColoredObjImg));
                 title("Full Obj Image with Colored Cord Pixels");
             else
                 %Update to say not found
@@ -230,7 +292,7 @@ for row = 1:imgsRowSize
             %imshow(hsv2rgb(Shsv));
         end
         %Display info for user convience
-        disp([row, col, numObjMatches, numObjPixelMatchs])
+        disp(['Row: ', num2str(row),'     Col: ', num2str(col), '     Number of Obj Matches: ', num2str(numObjMatches), '     Number of Pixel Matches: ', num2str(numObjPixelMatchs)])
         
         %Checks where the next black pixel index is. If it is in this row
         %it skips to it, otherwise it moves to the next col.
@@ -297,11 +359,12 @@ end
 %% OUTPUT
 
 %Creates the CSV Output Matrix
-csvOutputMatrix = [objectType - 1; xCord; yCord];
+csvOutputMatrix = [objectType - 1; objectColor; xCord; yCord];
 
 %Name of csvFile
 csvFileName = "csvObjectData.csv";
 
+%Write the Csv
 csvwrite(csvFileName, csvOutputMatrix);
 
 
