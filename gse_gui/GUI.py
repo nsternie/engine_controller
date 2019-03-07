@@ -30,13 +30,14 @@ class PlotWindow(QMainWindow):
     resized = pyqtSignal()
     def __init__(self, parent=None):
         super().__init__(parent)
+        ##TODO: Change this back to 5 Hz for operational use
         self.update_rate = 1/1 #Update plots at 1 Hz
 
         # Set geometry
         self.title = 'Plot View'
         self.left = 300
         self.top = 100
-        self.width = 800
+        self.width = 1100
         self.height = 800
 
         self.setWindowTitle(self.title)
@@ -140,9 +141,14 @@ class Plot(QWidget):
     """
 
     def __init__(self, name, parent=None):
+        """
+        Init for Plot class
+        :param name: name of widget
+        :param parent: parent of window
+        """
         super().__init__(parent)
         self.parent = parent
-        self.dataFile = None
+        self.dataTuples = []
         self.openBool = True
         self.name = name
 
@@ -162,6 +168,19 @@ class Plot(QWidget):
         """
         print('{}: {}'.format(self.name,msg))
 
+    def link_data(self, button):
+        """
+        Link data from a specific button to a specific plot object
+        :param button: button object to plot data from
+        :return:
+        """
+
+        if len(self.dataTuples) == 2:
+            self.message('This plot is full. Please select another plot')
+            return
+
+        self.dataTuples.append((button.dataFile,button.dataType, button.name))
+
     def read_data(self):
         """
         Read data at update_rate
@@ -170,18 +189,23 @@ class Plot(QWidget):
         :return:
         """
         while True:
-            if self.openBool is True and self.dataFile is not None:
+            if self.openBool is True and len(self.dataTuples) > 0:
                 self.message('checking for data')
                 try:
-                    data = []
-                    with open(self.dataFile, 'r') as f:
-                        rd = csv.reader(f)
-                        for row in rd:
-                            data.append([float(f) for f in row])
+                    for indx, dataTuple in enumerate(self.dataTuples):
+                        dataFile = dataTuple[0]
+                        dataType = dataTuple[1]
+                        dataName = dataTuple[2]
 
-                    self.plot_data(data)
+                        data = []
+                        with open(dataFile, 'r') as f:
+                            rd = csv.reader(f)
+                            for row in rd:
+                                data.append([float(f) for f in row])
+
+                        self.plot_data(data, dataType, dataName, indx)
                 except FileNotFoundError:
-                    print('Could not find {}'.format(self.dataFile))
+                    print('Could not find {}'.format(dataFile))
                     pass
                 except Exception as e:
                     e_type, e_obj, e_tb = sys.exc_info()
@@ -189,22 +213,42 @@ class Plot(QWidget):
                     pass
             time.sleep(self.parent.update_rate)
 
-    def plot_data(self, data):
+    def plot_data(self, data, dataType, dataName, indx):
         """
         Plot data on the figure
         :param data: data to plot [[x,y],[x2,y2]...]
+        :param dataType: type of data to plot
+        :param dataName: name of the line
+        :param indx: index of data in dataTuple
         :return:
         """
         self.message('plotting')
         data = np.array(data)
 
-        self.axes.clear()
-        self.axes.plot(data[:, 0], data[:, 1])
+        if dataType == 'Force':
+            ylabel = "Force (N)"
+        elif dataType == 'Pressure':
+            ylabel = "Pressure (psi)"
+        elif dataType == "Temperature":
+            ylabel = 'Temperature (C)'
+        else:
+            ylabel = 'State'
+
+        ## Set plot color
+        if indx == 1:
+            frm = 'r'
+        else:
+            frm = 'b'
+
+        self.axes[indx].clear()
+        self.axes[indx].set(ylabel=ylabel)
+        self.axes[indx].plot(data[:, 0], data[:, 1], frm, label=dataName)
+        self.fig.legend(loc='best')
         self.canvas.draw()
 
     def get_figure_dimensions(self):
         ## Determine plot size via window size
-        parentWidth = self.parent.geometry().width()
+        parentWidth = self.parent.geometry().width()+25
         parentHeight = self.parent.geometry().height()-10
         monitorDPIX = self.physicalDpiX()
         monitorDPIY = self.physicalDpiY()
@@ -234,7 +278,9 @@ class Plot(QWidget):
         self.canvas.setParent(self)
 
         ## Add axes
-        self.axes = self.fig.add_subplot(111)
+        self.ax0 = self.fig.add_subplot(111)
+        self.ax1 = self.ax0.twinx()
+        self.axes = [self.ax0, self.ax1]
 
         ## Title
         self.fig.suptitle(self.name)
@@ -243,11 +289,24 @@ class PlotButton(QPushButton):
     """
     Button class that holds a data file
     """
-    def __init__(self, name, dataFile, parent=None):
+
+    ## Allowed data types, including solenoid state (0 or 1)
+    allowed_data_types = ['Force','Temperature','Pressure','State']
+    def __init__(self, name, dataFile, dataType, parent=None):
+        """
+        Init for PlotButton
+        :param name: name on button
+        :param dataFile: data file tied to button
+        :param dataType: type of data in [Force, Temperature, Pressure, State]
+        :param parent: parent window
+        """
         super().__init__(name,parent)
         self.parent = parent
+        self.name = name
         self.dataFile = dataFile
+        self.dataType = dataType
 
+        assert dataType in self.allowed_data_types
 
 class SolenoidWidget(QWidget):
     solXOffsetList = []
@@ -309,12 +368,20 @@ class SolenoidWidget(QWidget):
         self.createSolenoidButtons(self.solenoidList)
 
         ## Create test ducer button
-        self.ducerButton = PlotButton("Test",'data.csv',self)
-        self.ducerButton.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.ducerButton.customContextMenuRequested.connect(
-            lambda *args, button=self.ducerButton: self.plot_menu(*args, button)
+        self.ducerButton1 = PlotButton("Test1", 'data.csv', 'Pressure', self)
+        self.ducerButton1.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ducerButton1.customContextMenuRequested.connect(
+            lambda *args, button=self.ducerButton1: self.plot_menu(*args, button)
         )
-        self.ducerButton.show()
+        self.ducerButton1.show()
+
+        self.ducerButton2 = PlotButton("Test2", 'data1.csv', 'Temperature', self)
+        self.ducerButton2.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ducerButton2.customContextMenuRequested.connect(
+            lambda *args, button=self.ducerButton2: self.plot_menu(*args, button)
+        )
+        self.ducerButton2.move(100,0)
+        self.ducerButton2.show()
 
     def plot_menu(self, event, button):
         """
@@ -345,7 +412,7 @@ class SolenoidWidget(QWidget):
         :param button: button instance that was clicked on
         :return:
         """
-        plot.dataFile = button.dataFile
+        plot.link_data(button)
 
     def updateSolOffsets(self):
         for i in range(len(self.solenoidList)):
