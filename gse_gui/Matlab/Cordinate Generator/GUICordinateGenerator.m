@@ -73,7 +73,8 @@ for s = 1:objectImgQuantity
     %Displays image with above cuttoff applied
     imshow(logicalObjPosArray)
     title(strcat("Edited:  ", objects(s), "  **PRESS ENTER TO CONTINUE OR 0 TO END** "));
-    goOn = input("Continue Execution? 1 or 0");
+    %[r , c, p] = impixel()
+    goOn = input("Continue Execution? 1 or 0 ");
     if goOn == 0
         close all;
         return
@@ -106,7 +107,7 @@ for s = 1:objectImgQuantity
     %Displays image with above cuttoff applied
     imshow(logicalObjPosArray)
     title(strcat("Edited:  ", objects(s), "  **PRESS ENTER TO CONTINUE OR 0 TO END** "));
-    goOn = input("Continue Execution? 1 or 0");
+    goOn = input("Continue Execution? 1 or 0 ");
     if goOn == 0
         close all;
         return
@@ -145,7 +146,7 @@ logicalFullObjPosArray = hsvFullObjImg(:,:,3) > hsvValueCutoff;
 %Displays the image with the above cutoff applied
 imshow(logicalFullObjPosArray);
 title(strcat("Edited:  ", fullObjImgName, "  **PRESS ENTER TO CONTINUE OR 0 TO END** "));
-goOn = input("Continue Execution? 1 or 0");
+goOn = input("Continue Execution? 1 or 0 ");
 if goOn == 0
     close all;
     return
