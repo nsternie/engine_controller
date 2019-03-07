@@ -27,7 +27,7 @@ hsvValueCutoff = .88;
 %PNG Image of objects to look for. All images must be the exact same size.
 %The object can be anywhere in the image. Low resolution is perfered for
 %performance. ~~(1000 x 1000)
-objects = ["SingleSolHor.png", "SingleSolVer.png"];
+objects = ["InputPhotos/SingleSolHor.png", "InputPhotos/SingleSolVer.png"];
 
 %How many objects the code should find. Use same order as above
 objectQuantity = [11, 7];
@@ -99,15 +99,20 @@ end
 
 
 
-%% MATCHING
+%% FIND OBJECT CORDS
 %This section of the code overlays the HSV Object Images ontop of a image
 %full of the objects are various locations. When it finds a match it saves
 %the location. 
 
-%RGB & HSV Image with various objects
-fullObjImgName = 'SolToCordPNG.png';
+%RGB & HSV B&W Image with various objects
+fullObjImgName = 'InputPhotos/SolToCordPNG.png';
 rgbFullObjImg = imread(fullObjImgName);
 hsvFullObjImg = rgb2hsv(rgbFullObjImg);
+
+%RGB & HSV Colored Image with various Objects
+fullColoredObjImgName = 'InputPhotos/ColoredPNG.png';
+rgbColoredObjImg = imread(fullColoredObjImgName);
+hsvColoredObjImg = rgb2hsv(rgbColoredObjImg);
 
 %Creates a logical array for the position of the objects in the image.
 %See %%CONSTANTS for more info
@@ -157,6 +162,8 @@ yCord = [];
 %Array to store object type for given cords. 
 objectType = [];
 
+%Array to store the object color.
+objectColor = [];
 
 %Some global variables needed for the loop
 col = 1;
@@ -192,16 +199,41 @@ for row = 1:imgsRowSize
                 %Increase number of matches
                 numObjMatches(s) = numObjMatches(s) + 1;
                 
+                %This block matches the color of the object to user
+                %presets. It then asigns that object a color id.
+                %It also marks the just found origin of the object with the
+                %color it found.
+                
+                objectColorId = -1;
+                
+                if hsvColoredObjImg(row,col,1) == 0 && hsvColoredObjImg(row, col,2) == 0
+                    objectColorId = 0;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
+                    hsvColoredObjImg(row-3: row+3,col-4: col+3 , 2) = 0;
+                    hsvColoredObjImg(row-3: row+3,col-4: col+3 , 3) = 0;
+                elseif hsvColoredObjImg(row,col,1) == 0 && hsvColoredObjImg(row,col,2) > .1
+                    objectColorId = 1;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                elseif hsvColoredObjImg(row,col,1) == .5
+                    objectColorId = 2;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                elseif hsvColoredObjImg(row,col,1) > .25 && hsvColoredObjImg(row,col,1) < .29
+                    objectColorId = 3;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
+                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                end
+              
+                
                 %Add Cord to arrays and set object type value
                 xCord = [xCord col];
                 yCord = [yCord row];
                 objectType = [objectType, s];
-                
-                %Sets the cordinate pixel colored for human verification
-                %The cordinate is the center of the box
-                hsvFullObjImg(row-3:row+3, col-3: col + 3, 1) = .7;
-                hsvFullObjImg(row-3:row+3, col-3: col + 3, 2) = 1;
-                hsvFullObjImg(row-3:row+3, col-3: col + 3, 3) = 1;
+                objectColor = [objectColor, objectColorId];
                 
                 %Removes the just matched object from the full object
                 %image. This is important for optimization because this
@@ -216,7 +248,7 @@ for row = 1:imgsRowSize
                 %Show the image with blue dots for where the matched
                 %objects origin is.
                 figure(1)
-                imshow(hsv2rgb(hsvFullObjImg));
+                imshow(hsv2rgb(hsvColoredObjImg));
                 title("Full Obj Image with Colored Cord Pixels");
             else
                 %Update to say not found
@@ -302,6 +334,7 @@ csvOutputMatrix = [objectType - 1; xCord; yCord];
 %Name of csvFile
 csvFileName = "csvObjectData.csv";
 
+%Write the Csv
 csvwrite(csvFileName, csvOutputMatrix);
 
 
