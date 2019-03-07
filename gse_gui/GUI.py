@@ -12,17 +12,26 @@ from matplotlib.figure import Figure
 
 import numpy as np
 
-
-class GUI(QMainWindow):
+class GUI():
     """
-    Parent class to hold all child widgets
+        Parent class to hold all child windows
+    """
+
+    def __init__(self, parent=None):
+
+        self.solenoidWindow = SolenoidWindow()
+        self.plotWindow = PlotWindow()
+
+class PlotWindow(QMainWindow):
+    """
+    Window for plots
     """
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
         # Set geometry
-        self.title = 'HOTFIRE GUI'
+        self.title = 'Plot View'
         self.left = 300
         self.top = 100
         self.width = 600
@@ -31,45 +40,84 @@ class GUI(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        #Plot window
-        self.plotWindow = Window(openBool=True)
-        self.plotWindow.show();
-
-        # Create grid and central widget
-        #grid = QGridLayout()
-        #cent = QWidget(self)
-        #self.setCentralWidget(cent)
-        self.solenoid = SolenoidButton(self)
-        self.plot = Plot(self.plotWindow)
-
-        ## Place sub-widgets in a grid on the central widget
-        #grid.addWidget(self.solenoid, 0, 0)
-        #grid.addWidget(self.plot, 0, 1)
+        # Plot window
         self.show()
 
+        # Create grid and central widget
+        grid = QGridLayout()
+        cent = QWidget(self)
+        self.setCentralWidget(cent)
 
-class Window(QWidget):
-    """
-    Generic pop-up window class
-    """
+        self.plotDimensionNumber = 2 #2 plots per dimension
+        self.plot1 = Plot('plot1',parent=self)
+        self.plot2 = Plot('plot2',parent=self)
+        self.plot3 = Plot('plot3',parent=self)
+        self.plot4 = Plot('plot4',parent=self)
 
-    def __init__(self, parent=None, openBool=False):
-        """
-        Initialize a window class
-        :param parent: parent widget
-        :param openBool: variable to keep track if window is open
-        """
-        super().__init__(parent)
-        self.openBool = openBool
+        self.plotList = [self.plot1, self.plot2, self.plot3, self.plot4]
+
+        ## Place sub-widgets in a grid on the central widget
+        grid.addWidget(self.plot1, 0, 0)
+        grid.addWidget(self.plot2, 0, 1)
+        grid.addWidget(self.plot3, 1, 0)
+        grid.addWidget(self.plot4, 1, 1)
+        cent.setLayout(grid)
+        self.show()
 
     def closeEvent(self, event):
         """
         Set openBool to false, then close the window
         :return:
         """
-        self.openBool = False
+        for plot in self.plotList:
+            plot.openBool = False
         event.accept()
         print('closing window')
+
+class SolenoidWindow(QMainWindow):
+    """
+    Window for solenoid control
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # Set geometry
+        self.title = 'Solenoid Control'
+        self.left = 300
+        self.top = 100
+        self.width = 600
+        self.height = 800
+
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+        self.solenoid = SolenoidButton(self)
+        self.show()
+
+
+# class Window(QWidget):
+#     """
+#     Generic pop-up window class
+#     """
+#
+#     def __init__(self, parent=None, openBool=False):
+#         """
+#         Initialize a window class
+#         :param parent: parent widget
+#         :param openBool: variable to keep track if window is open
+#         """
+#         super().__init__(parent)
+#         self.openBool = openBool
+#
+#     def closeEvent(self, event):
+#         """
+#         Set openBool to false, then close the window
+#         :return:
+#         """
+#         self.openBool = False
+#         event.accept()
+#         print('closing window')
 
 
 class Plot(QWidget):
@@ -80,19 +128,21 @@ class Plot(QWidget):
     Plot is opened in new window
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, name, parent=None):
         super().__init__(parent)
         self.parent = parent
         self.data_file = 'data.csv'  ## Update this
+        self.openBool = True
+        self.name = name
 
-        ## Generate plot button and link to pop-up window
-        self.pushPlot = QPushButton(self.parent)
-        self.pushPlot.setText("Plot")
-        self.pushPlot.move(0,0)
-        self.pushPlot.clicked.connect(self.on_plot_click)
-        self.pushPlot.show()
+        self.create_main_frame()
 
-        self.plotWindow = Window(openBool=False)
+        # ## Generate plot button and link to pop-up window
+        # self.pushPlot = QPushButton(self.parent)
+        # self.pushPlot.setText("Plot")
+        # #self.pushPlot.move(0,0)
+        # self.pushPlot.clicked.connect(self.on_plot_click)
+        # self.pushPlot.show()
 
         ## Open thread to update plot
         plotUpdater = threading.Thread(target=self.read_data,
@@ -100,14 +150,22 @@ class Plot(QWidget):
         plotUpdater.setDaemon(True)
         plotUpdater.start()
 
-    def on_plot_click(self):
+    def message(self, msg):
         """
-        On click, generate plot and open window
+        Output a message to console with the name of this instance
+        :param msg: string to output
         :return:
         """
-        if self.plotWindow.openBool is False:
-            self.create_main_frame()
-        self.plotWindow.openBool = True
+        print('{}: {}'.format(self.name,msg))
+
+    # def on_plot_click(self):
+    #     """
+    #     On click, generate plot and open window
+    #     :return:
+    #     """
+    #     if self.plotWindow.openBool is False:
+    #         self.create_main_frame()
+    #     self.plotWindow.openBool = True
 
 
     def read_data(self):
@@ -118,8 +176,8 @@ class Plot(QWidget):
         :return:
         """
         while True:
-            if self.plotWindow.openBool is True:
-                print('checking for data')
+            if self.openBool is True:
+                self.message('checking for data')
                 try:
                     data = []
                     with open(self.data_file, 'r') as f:
@@ -143,7 +201,7 @@ class Plot(QWidget):
         :param data: data to plot [[x,y],[x2,y2]...]
         :return:
         """
-        print('plotting')
+        self.message('plotting')
         data = np.array(data)
 
         self.axes.clear()
@@ -155,16 +213,23 @@ class Plot(QWidget):
         Generate the plot figure
         :return:
         """
-        print('test')
         self.dpi = 100
-        self.fig = Figure((5.0, 4.0), dpi=self.dpi)  # 5x4 inches, 100 dpi
+
+        ## Determine plot size via window size
+        parentWidth = self.parent.geometry().width()
+        parentHeight = self.parent.geometry().height()
+        monitorDPIX = self.physicalDpiX()
+        monitorDPIY = self.physicalDpiY()
+
+        figWidth = float(parentWidth)/self.parent.plotDimensionNumber/monitorDPIX
+        figHeight = float(parentHeight)/self.parent.plotDimensionNumber/monitorDPIY
+        self.fig = Figure((figWidth, figHeight), dpi=self.dpi)  # 5x4 inches, 100 dpi
         self.canvas = FigureCanvas(self.fig)
-        self.canvas.setParent(self.plotWindow)
-        self.plotWindow.show()
+        self.canvas.setParent(self)
+        self.show()
 
         ## Add axes
         self.axes = self.fig.add_subplot(111)
-
 
 class SolenoidButton(QWidget):
     solXOffsetList = []
