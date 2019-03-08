@@ -148,7 +148,8 @@ class Plot(QWidget):
         """
         super().__init__(parent)
         self.parent = parent
-        self.dataTuples = []
+        self.dataTuples = [] #Actual data storage
+        self.dataTypes = [] #DataTypes on plot
         self.openBool = True
         self.name = name
 
@@ -171,14 +172,17 @@ class Plot(QWidget):
     def link_data(self, button):
         """
         Link data from a specific button to a specific plot object
+        If 2 datatypes are already on the plot, this doesn't work.
         :param button: button object to plot data from
         :return:
         """
 
-        if len(self.dataTuples) == 2:
+        if len(self.dataTypes) == 2 and button.dataType not in self.dataTypes:
             self.message('This plot is full. Please select another plot')
             return
 
+        if button.dataType not in self.dataTypes:
+            self.dataTypes.append(button.dataType)
         self.dataTuples.append((button.dataFile,button.dataType, button.name))
 
     def read_data(self):
@@ -192,6 +196,9 @@ class Plot(QWidget):
             if self.openBool is True and len(self.dataTuples) > 0:
                 self.message('checking for data')
                 try:
+                    dataArray = []
+                    dataTypes = []
+                    dataNames = []
                     for indx, dataTuple in enumerate(self.dataTuples):
                         dataFile = dataTuple[0]
                         dataType = dataTuple[1]
@@ -203,7 +210,11 @@ class Plot(QWidget):
                             for row in rd:
                                 data.append([float(f) for f in row])
 
-                        self.plot_data(data, dataType, dataName, indx)
+                        dataArray.append(data)
+                        dataTypes.append(dataType)
+                        dataNames.append(dataName)
+
+                    self.plot_data(dataArray, dataTypes, dataNames)
                 except FileNotFoundError:
                     print('Could not find {}'.format(dataFile))
                     pass
@@ -213,36 +224,46 @@ class Plot(QWidget):
                     pass
             time.sleep(self.parent.update_rate)
 
-    def plot_data(self, data, dataType, dataName, indx):
+    def plot_data(self, dataArray, dataTypes, dataNames):
         """
         Plot data on the figure
-        :param data: data to plot [[x,y],[x2,y2]...]
-        :param dataType: type of data to plot
-        :param dataName: name of the line
-        :param indx: index of data in dataTuple
+        :param data: data to plot [[[x,y],[x2,y2]...]]
+        :param dataTypes: types of data to plot (array)
+        :param dataNames: names of the line (array)
         :return:
         """
         self.message('plotting')
-        data = np.array(data)
 
-        if dataType == 'Force':
-            ylabel = "Force (N)"
-        elif dataType == 'Pressure':
-            ylabel = "Pressure (psi)"
-        elif dataType == "Temperature":
-            ylabel = 'Temperature (C)'
-        else:
-            ylabel = 'State'
+        ## Clear old data
+        for dataType in dataTypes:
+            indx = self.dataTypes.index(dataType)
+            self.axes[indx].clear()
 
-        ## Set plot color
-        if indx == 1:
-            frm = 'r'
-        else:
-            frm = 'b'
+        for i in range(0,len(dataArray)):
 
-        self.axes[indx].clear()
-        self.axes[indx].set(ylabel=ylabel)
-        self.axes[indx].plot(data[:, 0], data[:, 1], frm, label=dataName)
+            data = np.array(dataArray[i])
+            dataType = dataTypes[i]
+            dataName = dataNames[i]
+
+            ##TODO: Assign each series a color when it is linked
+            if dataType == 'Force':
+                ylabel = "Force (N)"
+                frm = 'b'
+            elif dataType == 'Pressure':
+                ylabel = "Pressure (psi)"
+                frm = 'g'
+            elif dataType == "Temperature":
+                ylabel = 'Temperature (C)'
+                frm = 'r'
+            else:
+                ylabel = 'State'
+                frm = 'k'
+
+            indx = self.dataTypes.index(dataType)
+
+            self.axes[indx].set(ylabel=ylabel)
+            self.axes[indx].plot(data[:, 0], data[:, 1], frm, label=dataName)
+
         self.fig.legend(loc='best')
         self.canvas.draw()
 
@@ -368,20 +389,36 @@ class SolenoidWidget(QWidget):
         self.createSolenoidButtons(self.solenoidList)
 
         ## Create test ducer button
-        self.ducerButton1 = PlotButton("Test1", 'data.csv', 'Pressure', self)
+        self.ducerButton1 = PlotButton("Press1", 'data.csv', 'Pressure', self)
         self.ducerButton1.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ducerButton1.customContextMenuRequested.connect(
             lambda *args, button=self.ducerButton1: self.plot_menu(*args, button)
         )
         self.ducerButton1.show()
 
-        self.ducerButton2 = PlotButton("Test2", 'data1.csv', 'Temperature', self)
+        self.ducerButton2 = PlotButton("Temp1", 'data1.csv', 'Temperature', self)
         self.ducerButton2.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ducerButton2.customContextMenuRequested.connect(
             lambda *args, button=self.ducerButton2: self.plot_menu(*args, button)
         )
         self.ducerButton2.move(100,0)
         self.ducerButton2.show()
+
+        self.ducerButton3 = PlotButton("Press2", 'data2.csv', 'Pressure', self)
+        self.ducerButton3.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ducerButton3.customContextMenuRequested.connect(
+            lambda *args, button=self.ducerButton3: self.plot_menu(*args, button)
+        )
+        self.ducerButton3.move(200, 0)
+        self.ducerButton3.show()
+
+        self.ducerButton4 = PlotButton("Force1", 'data3.csv', 'Force', self)
+        self.ducerButton4.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ducerButton4.customContextMenuRequested.connect(
+            lambda *args, button=self.ducerButton4: self.plot_menu(*args, button)
+        )
+        self.ducerButton4.move(300, 0)
+        self.ducerButton4.show()
 
     def plot_menu(self, event, button):
         """
