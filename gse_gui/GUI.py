@@ -37,7 +37,7 @@ class PlotWindow(QMainWindow):
         self.title = 'Plot View'
         self.left = 300
         self.top = 100
-        self.width = 1100
+        self.width = 1200
         self.height = 800
 
         self.setWindowTitle(self.title)
@@ -148,8 +148,8 @@ class Plot(QWidget):
         """
         super().__init__(parent)
         self.parent = parent
-        self.dataTuples = [] #Actual data storage
-        self.dataTypes = [] #DataTypes on plot
+        self.dataTuples = [] #Actual data storage, (dataFile, dataType, name, color)
+        self.dataTypes = [] #DataTypes on plot (used for axes naming)
         self.openBool = True
         self.name = name
 
@@ -183,7 +183,8 @@ class Plot(QWidget):
 
         if button.dataType not in self.dataTypes:
             self.dataTypes.append(button.dataType)
-        self.dataTuples.append((button.dataFile,button.dataType, button.name))
+
+        self.dataTuples.append((button.dataFile, button.dataType, button.name, np.random.rand(3,)))
 
     def read_data(self):
         """
@@ -199,10 +200,12 @@ class Plot(QWidget):
                     dataArray = []
                     dataTypes = []
                     dataNames = []
+                    dataColors = []
                     for indx, dataTuple in enumerate(self.dataTuples):
                         dataFile = dataTuple[0]
                         dataType = dataTuple[1]
                         dataName = dataTuple[2]
+                        dataColor = dataTuple[3]
 
                         data = []
                         with open(dataFile, 'r') as f:
@@ -213,8 +216,9 @@ class Plot(QWidget):
                         dataArray.append(data)
                         dataTypes.append(dataType)
                         dataNames.append(dataName)
+                        dataColors.append(dataColor)
 
-                    self.plot_data(dataArray, dataTypes, dataNames)
+                    self.plot_data(dataArray, dataTypes, dataNames, dataColors)
                 except FileNotFoundError:
                     print('Could not find {}'.format(dataFile))
                     pass
@@ -224,12 +228,13 @@ class Plot(QWidget):
                     pass
             time.sleep(self.parent.update_rate)
 
-    def plot_data(self, dataArray, dataTypes, dataNames):
+    def plot_data(self, dataArray, dataTypes, dataNames, dataColors):
         """
         Plot data on the figure
         :param data: data to plot [[[x,y],[x2,y2]...]]
         :param dataTypes: types of data to plot (array)
         :param dataNames: names of the line (array)
+        :param dataColors: colors of lines
         :return:
         """
         self.message('plotting')
@@ -244,25 +249,21 @@ class Plot(QWidget):
             data = np.array(dataArray[i])
             dataType = dataTypes[i]
             dataName = dataNames[i]
+            dataColor = dataColors[i]
 
-            ##TODO: Assign each series a color when it is linked
             if dataType == 'Force':
                 ylabel = "Force (N)"
-                frm = 'b'
             elif dataType == 'Pressure':
                 ylabel = "Pressure (psi)"
-                frm = 'g'
             elif dataType == "Temperature":
                 ylabel = 'Temperature (C)'
-                frm = 'r'
             else:
                 ylabel = 'State'
-                frm = 'k'
 
             indx = self.dataTypes.index(dataType)
 
             self.axes[indx].set(ylabel=ylabel)
-            self.axes[indx].plot(data[:, 0], data[:, 1], frm, label=dataName)
+            self.axes[indx].plot(data[:, 0], data[:, 1], c=dataColor, label=dataName)
 
         self.fig.legend(loc='best')
         self.canvas.draw()
