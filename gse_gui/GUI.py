@@ -314,15 +314,20 @@ class PlotButton(QPushButton):
 
     ## Allowed data types, including solenoid state (0 or 1)
     allowed_data_types = ['Force','Temperature','Pressure','State']
-    def __init__(self, name, dataFile, dataType, parent=None):
+    def __init__(self, name, dataFile, dataType, parent=None, visibleLabel=True):
         """
         Init for PlotButton
         :param name: name on button
         :param dataFile: data file tied to button
         :param dataType: type of data in [Force, Temperature, Pressure, State]
         :param parent: parent window
+        :param visibleLabel: bool, if False, don't put a name on the button
         """
-        super().__init__(name,parent)
+        if visibleLabel:
+            super().__init__(name,parent)
+        else:
+            super().__init__(parent=parent)
+
         self.parent = parent
         self.name = name
         self.dataFile = dataFile
@@ -434,7 +439,6 @@ class SolenoidWidget(QWidget):
             action = QAction(plot.name)
             self.plotMenuActions.append(action)
 
-            link_plot_wrapper = lambda : self.link_plot(plot)
             self.plotMenuActions[-1].triggered.connect(
                 lambda *args, p=plot: self.link_plot(p, button)
             )
@@ -517,7 +521,7 @@ class SolenoidWidget(QWidget):
         # is important for getting the sender when thenbutton is clicked
         for i in range(len(list)):
             # Create button and add it to first index in its list.
-            button = QPushButton(self)
+            button = PlotButton(list[i][1],'data.csv','State',self,False)
             list[i].insert(0, button)
             # Do all the graphics stuff
             button.move(list[i][5][0], list[i][5][1])
@@ -531,7 +535,11 @@ class SolenoidWidget(QWidget):
             else:
                 button.resize(height, width)
             button.clicked.connect(self.on_click)
-            button.setContextMenuPolicy(Qt.DefaultContextMenu)
+
+            button.setContextMenuPolicy(Qt.CustomContextMenu)
+            button.customContextMenuRequested.connect(
+                lambda *args, button=button: self.plot_menu(*args, button)
+            )
             button.show()
 
             label = QLabel(self)
