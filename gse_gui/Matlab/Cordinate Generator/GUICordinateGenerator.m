@@ -39,6 +39,19 @@ objectQuantity = [11, 7, 3, 2, 2];
 
 originPosArray = [0, 0, 1, 1, 1];
 
+%While the best origin is auto detected by the computer, a user specified
+%one is provided graphically for drawing later in python. This info will
+%save and only be refreshed when the user desires.
+
+
+shouldPullFromSave = input("Load Previous Object Origin Data? 1 OR 0: ");
+if shouldPullFromSave == 1
+    load('OriginData.mat');
+else
+    userOriginRowPosArray = [];
+    userOriginColPosArray = [];
+end
+
 %Since the object might not be centered when only setting the origin to the
 %topmost pixel, this array keeps track of the col offset. -1 means the
 %object is set to topmost-leftmost.
@@ -72,15 +85,32 @@ for s = 1:objectImgQuantity
     
     %Displays image with above cuttoff applied
     imshow(logicalObjPosArray)
-    title(strcat("Edited:  ", objects(s), "  **PRESS ENTER TO CONTINUE OR 0 TO END** "));
-    %[r , c, p] = impixel()
-    goOn = input("Continue Execution? 1 or 0 ");
-    if goOn == 0
-        close all;
-        return
-    end
-    close all;
     
+    if shouldPullFromSave == 1
+        title(strcat("Edited:  ", objects(s), "  **PRESS ENTER TO CONTINUE OR 0 TO END** "));
+        goOn = input("Continue Execution? 1 or 0 ");
+        if goOn == 0
+            close all;
+            return
+        end
+        close all;
+    else
+        title(strcat("Edited:  ", objects(s), "  **ZOOM IN. PRESS ENTER WHEN READY**"));
+        zoom on;
+        input("ZOOM IN. PRESS ENTER WHEN READY");
+        zoom off;
+        title(strcat("Edited:  ", objects(s), "  **SELECT PIXEL. ENTER x2 WHEN READY OR 0**"));
+        %User zooms in image then picks pixel
+        [colPix , rowPix, p] = impixel()
+        userOriginRowPosArray(s) = rowPix(1);
+        userOriginColPosArray(s) = colPix(1);
+        goOn = input("Continue Execution? 1 or 0 ");
+        if goOn == 0
+            close all;
+            return
+        end
+        close all;
+    end
     %Gets the [row, column] cord of the topmost-leftmost pixel of the
     %object
     [rowOffset, columnOffset] = find(logicalObjPosArray(:, :) == 0);
@@ -98,10 +128,17 @@ for s = 1:objectImgQuantity
     if originPosArray(s) == 0
         logicalObjPosArray = circshift(logicalObjPosArray, [-rowMinOffset + 1, -columnMinOffset + 1]);
         originColOffset(s) = -1;
+        if shouldPullFromSave == 0
+            userOriginRowPosArray(s) = -(rowMinOffset - userOriginRowPosArray(s))
+            userOriginColPosArray(s) = -(columnMinOffset - userOriginColPosArray(s))
+        end
     elseif originPosArray(s) == 1
         logicalObjPosArray = circshift(logicalObjPosArray, [-rowMinOffset + 1, -columnOffset(rowI) + 1]);
         originColOffset(s) = columnOffset(rowI) - columnMinOffset;
-        originColOffset(s)
+        if shouldPullFromSave == 0
+            userOriginRowPosArray(s) = -(rowMinOffset - userOriginRowPosArray(s))
+            userOriginColPosArray(s) = -(columnOffset(rowI) - userOriginColPosArray(s))
+        end
     end
     
     %Displays image with above cuttoff applied
@@ -119,6 +156,11 @@ for s = 1:objectImgQuantity
     
     %Adds HSV Object Image to the cell array.
     finalHSVObjImg{1, s} = hsvObjImg; 
+end
+
+%Save data if it is new
+if shouldPullFromSave == 0
+    save('OriginData.mat', 'userOriginRowPosArray', 'userOriginColPosArray');
 end
 
 
@@ -228,35 +270,37 @@ for row = 1:imgsRowSize
                 %presets. It then asigns that object a color id.
                 %It also marks the just found origin of the object with the
                 %color it found.
-                
                 objectColorId = -1;
+                
+                nrow = userOriginRowPosArray(s) + row;
+                ncol = userOriginColPosArray(s) + col;
                 
                 if hsvColoredObjImg(row,col,1) == 0 && hsvColoredObjImg(row, col,2) == 0
                     objectColorId = 0;
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
-                    hsvColoredObjImg(row-3: row+3,col-4: col+3 , 2) = 0;
-                    hsvColoredObjImg(row-3: row+3,col-4: col+3 , 3) = 0;
-                elseif hsvColoredObjImg(row,col,1) == 0 && hsvColoredObjImg(row,col,2) > .1
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 1) = hsvColoredObjImg(nrow,ncol,1);
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 2) = 0;
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 3) = 0;
+                elseif hsvColoredObjImg(row,ncol,1) == 0 && hsvColoredObjImg(row,ncol,2) > .1
                     objectColorId = 1;
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 1) = hsvColoredObjImg(nrow,ncol,1);
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 2) = 1;
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 3) = hsvColoredObjImg(nrow,ncol,3);
                 elseif hsvColoredObjImg(row,col,1) == .5
                     objectColorId = 2;
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 1) = hsvColoredObjImg(nrow,ncol,1);
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 2) = 1;
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 3) = hsvColoredObjImg(nrow,ncol,3);
                 elseif hsvColoredObjImg(row,col,1) > .25 && hsvColoredObjImg(row,col,1) < .29
                     objectColorId = 3;
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 1) = hsvColoredObjImg(row,col,1);
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 2) = 1;
-                    hsvColoredObjImg(row-3: row+3,col-3: col+3 , 3) = hsvColoredObjImg(row,col,3);
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 1) = hsvColoredObjImg(nrow,ncol,1);
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 2) = 1;
+                    hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 3) = hsvColoredObjImg(nrow,ncol,3);
                 end
               
                 
                 %Add Cord to arrays and set object type value
-                xCord = [xCord col];
-                yCord = [yCord row];
+                xCord = [xCord ncol];
+                yCord = [yCord nrow];
                 objectType = [objectType, s];
                 objectColor = [objectColor, objectColorId];
                 
