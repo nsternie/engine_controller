@@ -289,7 +289,7 @@ int main(void)
         	}
         }
         for(uint n = 0; n < 16; n++){
-        	read_tc(tc0 + n);
+        	read_tc(&hspi2, tc0 + n);
         }
 		scale_readings();
 		pack_telem(telem_unstuffed);
