@@ -252,51 +252,80 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+
+
  	uint32_t last_motor_millis = 0;
 
+ 	uint32_t main_auto_start_time;
 
   while (1)
   {
 
- //Check if packet is in from downstream engine controller
-//    for(uint8_t n = 0; n < 255; n++){
-//        if(upstream_buffer.data[n] == (uint8_t) '\n'){
-//        	command(led1, 1);
-//        	HAL_Delay(0);
-//            HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
-//            command(led1, 0);
-//            upstream_buffer.filled = 0;
-//            for(int j = 0; j < 255; j++){
-//                upstream_buffer.data[j] = 0;
-//            }
-//            break;
-//        }
-//    }
+	if(STATE == IGNITION){
+		main_auto_start_time = millis;
+		STATE = FIRING;
+	}
+	if(STATE == FIRING){
+		uint32_t T = millis - main_auto_start_time;
+		if(T > 1500){
+			// Stop purge and de engergize MPVC
 
-    if(read_adc_now){
-    	read_adc_now = 0;
-    }
+			command(vlv6, 0);	// Ox MPVC
+			command(vlv25, 0);	// Fuel MPVC
+			command(vlv1, 0);	// Fuel purge
+			command(vlv15, 0);	// Ox Purge
 
-    if(send_rs422_now && TELEM_ACTIVE){
-        send_rs422_now = 0;
-        command(led0, 1);
-        for(uint8_t n = 0; n < 7; n++){
-        	if(n == 4){
-        		read_adc(&hspi2, n);
-        	}
-        	else{
-        		read_adc(&hspi1, n);
-        	}
-        }
-        for(uint n = 0; n < 16; n++){
-        	read_tc(&hspi2, tc0 + n);
-        }
+			STATE = FULL_DURATION_SAFE;
+		}
+		else if(T > 1000){
+			// Energize MPVC and start purge
+			command(vlv6, 1);	// Ox MPVC
+			command(vlv25, 1);	// Fuel MPVC
+			command(vlv1, 1);	// Fuel purge
+			command(vlv15, 1);	// Ox Purge
+		}
+		else if(T > 500){
+			// De-energize MPV
+			command(vlv30, 0);	// Ox
+			command(vlv4, 0);	// Fuel
+		}
+		else if(T > 0){
+			// Energize MPV
+			command(vlv30, 1);	// Ox
+			command(vlv4, 1);	// Fuel
+		}
+//		else if(T > 500){
+//			// turn off igniter
+//			command(vlv26, 0);
+//		}
+//		else if(T > 0){
+//			// Turn on igniter
+//			command(vlv26, 1);
+//		}
+	}
+	if(read_adc_now){
+		read_adc_now = 0;
+	}
+	if(send_rs422_now && TELEM_ACTIVE){
+		send_rs422_now = 0;
+		command(led0, 1);
+		for(uint8_t n = 0; n < 7; n++){
+			if(n == 4){
+				read_adc(&hspi2, n);
+			}
+			else{
+				read_adc(&hspi1, n);
+			}
+		}
+		for(uint n = 0; n < 16; n++){
+			read_tc(&hspi2, tc0 + n);
+		}
 		scale_readings();
 		pack_telem(telem_unstuffed);
 		stuff_telem(telem_unstuffed, telem_stuffed);
 		send_telem(rs422_com, gui_byte_packet);
 		command(led0, 0);
-    }
+	}
 
 if(p.buffer[p.filled - 1] == 0){
 run_parser(&p);

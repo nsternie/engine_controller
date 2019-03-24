@@ -277,16 +277,16 @@ for line in cal_file:
 
 # Try to open the serial port
 ser = serial.Serial(port=None, baudrate=int(alias["BAUDRATE"]), timeout=1.5)
-# ser.port = alias["COM_PORT"]
-# try:
-#     ser.open()
-#     if(ser.is_open):
-#         ser.readline()
-#         print("Port active on "+ser.port)
-#     else:
-#         print("Serial port is not open")
-# except:
-#     print("Could not open Serial Port")
+ser.port = alias["COM_PORT"]
+try:
+    ser.open()
+    if(ser.is_open):
+        ser.readline()
+        print("Port active on "+ser.port)
+    else:
+        print("Serial port is not open")
+except:
+    print("Could not open Serial Port")
 
 ###############################################################################
 #  END APPLICATION INITILIZATION ##############################################
@@ -324,8 +324,10 @@ def parse_serial():
                 unstuffed = unstuffed + temp
             packet = unstuffed
 
-            parser.parse_packet(packet)
-
+            try:
+                parser.parse_packet(packet)
+            except:
+                print("Packet lost")
 
             ###################################################################
             ### END GROUND DATA UPDATE ########################################
