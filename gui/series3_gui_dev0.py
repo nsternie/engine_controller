@@ -405,7 +405,7 @@ def parse_serial():
                 # flight_samplerate_send.setText("Samplerate: "+str(parser.samplerate)+"hz")
                 # flight_telemrate_send.setText("Telemrate: "+str(parser.telemetry_rate)+"hz")
 
-                # state_label.setText("STATE = "+state_dict[parser.STATE])
+                state_label.setText("STATE = "+state_dict[parser.STATE])
 
                 # kpfb.setText(str(parser.motor_control_gain[0]))
                 # kifb.setText(str(parser.motor_control_gain[1]))

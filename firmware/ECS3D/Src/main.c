@@ -283,16 +283,21 @@ int main(void)
 			command(vlv25, 1);	// Fuel MPVC
 			command(vlv1, 1);	// Fuel purge
 			command(vlv15, 1);	// Ox Purge
+
+			command(vlv2, 0);
+			command(vlv3, 0);
 		}
 		else if(T > 500){
-			// De-energize MPV
+			// De-energize MPVO
 			command(vlv30, 0);	// Ox
 			command(vlv4, 0);	// Fuel
 		}
 		else if(T > 0){
-			// Energize MPV
+			// Energize MPVO
 			command(vlv30, 1);	// Ox
 			command(vlv4, 1);	// Fuel
+			command(vlv2, 1);
+			command(vlv3,1);
 		}
 //		else if(T > 500){
 //			// turn off igniter
