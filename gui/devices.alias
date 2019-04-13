@@ -41,7 +41,7 @@ fvlv26	IGNITER
 fvlv27	.
 fvlv28	.
 fvlv29	.
-fvlv30	HE-SN-F10-CLOSED
+fvlv30	.
 fvlv31	.
 gpressure0	N2 Fill Hose
 gpressure1	Ox Mother
@@ -51,13 +51,13 @@ gpressure4	.
 gpressure5	.
 gpressure6	.
 gpressure7	.
-fpressure0	-
+fpressure0	HE-PT-G01..OX-PT-F02
 fpressure1	.
-fpressure2	OX-PT-F02
-fpressure3	HE-PT-G01
+fpressure2	.
+fpressure3	.
 fpressure4	.
 fpressure5	.
-fpressure6	-
+fpressure6	HE-PT-G01
 fpressure7	EX-PT-F01
 fpressure8	ET-PT-F03
 fpressure9	OX-PT-F01
@@ -69,7 +69,7 @@ fpressure14	HE-PT-G03
 fpressure15	NI-PT-G01
 fpressure16	NI-PT-G02
 fpressure17	OX-PT-G01
-fpressure18	.
+fpressure18	NI-PT-G00
 fpressure19	.
 fpressure20	.
 fpressure21	.
@@ -86,5 +86,5 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM9
+COM_PORT	COM3
 BAUDRATE	115200

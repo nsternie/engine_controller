@@ -269,9 +269,7 @@ int main(void)
 		uint32_t T = millis - main_auto_start_time;
 		if(T > 1500){
 			// Stop purge and de engergize MPVC
-
-			command(vlv6, 0);	// Ox MPVC
-			command(vlv25, 0);	// Fuel MPVC
+			command(vlv24, 0);	// Fuel MPVC
 			command(vlv1, 0);	// Fuel purge
 			command(vlv15, 0);	// Ox Purge
 
@@ -279,25 +277,24 @@ int main(void)
 		}
 		else if(T > 1000){
 			// Energize MPVC and start purge
-			command(vlv6, 1);	// Ox MPVC
-			command(vlv25, 1);	// Fuel MPVC
-			command(vlv1, 1);	// Fuel purge
+			command(vlv5, 0);	// Ox MPV
+			command(vlv24, 1);	// Fuel MPV Close
+			command(vlv1, 1);	// Fuel Purge
 			command(vlv15, 1);	// Ox Purge
 
-			command(vlv2, 0);
-			command(vlv3, 0);
+			command(vlv2, 0);   // LOX Tank Press
+			command(vlv3, 0);   // Fuel Tank Press
 		}
 		else if(T > 500){
-			// De-energize MPVO
-			command(vlv30, 0);	// Ox
-			command(vlv4, 0);	// Fuel
+			// De-energize Fuel MPVO
+			command(vlv4, 0);	// Fuel MPV Open
 		}
 		else if(T > 0){
 			// Energize MPVO
-			command(vlv30, 1);	// Ox
-			command(vlv4, 1);	// Fuel
-			command(vlv2, 1);
-			command(vlv3,1);
+			command(vlv5, 1);   // Ox MPV Open
+			command(vlv4, 1);   // Fuel MPV Open
+			command(vlv2, 1);   // LOX Tank Press
+			command(vlv3, 1);   // Fuel Tank Press
 		}
 //		else if(T > 500){
 //			// turn off igniter
