@@ -288,6 +288,25 @@ try:
 except:
     print("Could not open Serial Port")
 
+# ambientize init
+f_press = [0]*22
+f_ambient = [0]*22
+
+def write_ambient():
+    with open('ambient.txt', 'w') as f:
+        for p in f_press:
+            f.write(str(p) + "\n")
+
+def read_ambient():
+    with open('ambient.txt') as f:
+        f_ambient = f.read().splitlines()
+
+def ambientize():
+    write_ambient()
+    read_ambient()
+      
+
+
 ###############################################################################
 #  END APPLICATION INITILIZATION ##############################################
 ###############################################################################
@@ -373,12 +392,13 @@ def parse_serial():
                     flight_valve_buttons[n][0].setText(vlv_id+" is "+str(state))
                     flight_valve_buttons[n][3].setText(str(parser.ivlv[n])+"A / "+str(parser.evlv[n])+"V")
                     mask = mask << 1
-                for n in range(0, 22):
-
+                for n in range(0, 22): # update pressures
                     this_press = parser.pressure[n]
                     if(alias['fpressure'+str(n)] in cal_offset.keys()):
                         this_press -= cal_offset[alias['fpressure'+str(n)]]
                         this_press *= cal_slope[alias['fpressure'+str(n)]]
+                    f_press[n] = this_press
+                    this_press -= f_ambient[n]
                     this_press = int(this_press)
                     flight_pressure_labels[n][1].setText(str(this_press)+"psi")
 
@@ -428,7 +448,6 @@ def parse_serial():
 
 
 flight_valve_buttons = []
-
 flight_pressure_labels = []
 
 # lol
@@ -458,18 +477,18 @@ for valve_buttons, pressure_labels, abbrev in [(flight_valve_buttons, flight_pre
             press_id = str(n) + ': ' + alias[press_id]
         pressure_labels[n][0].setText(press_id+":")
         pressure_labels[n][1].setText(str(0)+"psi")
-    for n in range(0, 4):
+    #for n in range(0, 4):
         # Valve wdgets init
-        temp = []
-        vlv_id = abbrev+'vlv'+str(n+8)
-        if vlv_id in alias.keys():
-            vlv_id = alias[vlv_id]
-        temp.append(QtGui.QPushButton(str(vlv_id)+' = OFF'))
-        temp.append(QtGui.QPushButton(str(vlv_id)+' = ON'))
-        temp.append(QtGui.QLabel())
-        temp.append(QtGui.QLabel())
-        temp.append(QtGui.QLabel())
-        valve_buttons.append(temp)
+        #temp = []
+        #vlv_id = abbrev+'vlv'+str(n+8)
+        #if vlv_id in alias.keys():
+            #vlv_id = alias[vlv_id]
+        #temp.append(QtGui.QPushButton(str(vlv_id)+' = OFF'))
+        #temp.append(QtGui.QPushButton(str(vlv_id)+' = ON'))
+        #temp.append(QtGui.QLabel())
+        #temp.append(QtGui.QLabel())
+        #temp.append(QtGui.QLabel())
+        #valve_buttons.append(temp)
 
 
 
@@ -555,27 +574,23 @@ def layout_common_widgets(layout, vlv_buttons, p_labels):
     for n in range(0, 22):
         layout.addWidget(p_labels[n][0], zr+n+1, zc+0)
         layout.addWidget(p_labels[n][1], zr+n+1, zc+1)
-    for n in range(0, 4):
-        layout.addWidget(vlv_buttons[n+32][0], zr+n+1+32, zc+0-2)
-        layout.addWidget(vlv_buttons[n+32][1], zr+n+1+32, zc+1-2)
-        layout.addWidget(vlv_buttons[n+32][2], zr+n+1+32, zc+2-2)
-        layout.addWidget(vlv_buttons[n+32][3], zr+n+1+32, zc+3-2)
-        layout.addWidget(vlv_buttons[n+32][4], zr+n+1+32, zc+4-2)
+    # for n in range(0, 4):
+    #     layout.addWidget(vlv_buttons[n+32][0], zr+n+1+32, zc+0-2)
+    #     layout.addWidget(vlv_buttons[n+32][1], zr+n+1+32, zc+1-2)
+    #     layout.addWidget(vlv_buttons[n+32][2], zr+n+1+32, zc+2-2)
+    #     layout.addWidget(vlv_buttons[n+32][3], zr+n+1+32, zc+3-2)
+    #     layout.addWidget(vlv_buttons[n+32][4], zr+n+1+32, zc+4-2)
 
 
 
 layout_common_widgets(flight_layout, flight_valve_buttons, flight_pressure_labels)
 
-qd_ox_release = QtGui.QPushButton("Release Ox")
-qd_ox_connect = QtGui.QPushButton("Connect Ox")
-qd_ox_off = QtGui.QPushButton("OFF Ox")
-qd_fuel_release = QtGui.QPushButton("Release Fuel")
-qd_fuel_connect = QtGui.QPushButton("Connect Fuel")
-qd_fuel_off = QtGui.QPushButton("OFF Fuel")
-
-
-
-
+#qd_ox_release = QtGui.QPushButton("Release Ox")
+#qd_ox_connect = QtGui.QPushButton("Connect Ox")
+#qd_ox_off = QtGui.QPushButton("OFF Ox")
+#qd_fuel_release = QtGui.QPushButton("Release Fuel")
+#qd_fuel_connect = QtGui.QPushButton("Connect Fuel")
+#qd_fuel_off = QtGui.QPushButton("OFF Fuel")
 
 ### GROUND ###
 # init_fs = QtGui.QPushButton("Init Filesystem")
@@ -584,8 +599,6 @@ qd_fuel_off = QtGui.QPushButton("OFF Fuel")
 # telem_pause = QtGui.QPushButton("Pause Telemetry")
 # telem_resume = QtGui.QPushButton("Resume Telemetry")
 # file_download = QtGui.QPushButton("Download file")
-
-
 
 # ### Flight ###
 # init_fs = QtGui.QPushButton("Init Filesystem")
@@ -609,11 +622,6 @@ qd_fuel_off = QtGui.QPushButton("OFF Fuel")
 # telem_resume.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_TELEM_RESUME, 0, []))
 # file_download.clicked.connect(lambda: get_file(TARGET_ADDRESS_FLIGHT));
 
-
-
-
-
-
 # flight_layout.addWidget(kp_set, zr+9-2, zc+5)
 # flight_layout.addWidget(ki_set, zr+10-2, zc+5)
 # flight_layout.addWidget(kd_set, zr+11-2, zc+5)
@@ -624,23 +632,30 @@ qd_fuel_off = QtGui.QPushButton("OFF Fuel")
 # flight_layout.addWidget(kifb, zr+10-2, zc+7)
 # flight_layout.addWidget(kdfb, zr+11-2, zc+7)
 
-
-
 # Bridge current
-flight_ibridge0 = QtGui.QLabel("flight_ibridge0")
-flight_ibridge1 = QtGui.QLabel("flight_ibridge1")
+#flight_ibridge0 = QtGui.QLabel("flight_ibridge0")
+#flight_ibridge1 = QtGui.QLabel("flight_ibridge1")
 # flight_layout.addWidget(flight_ibridge0, zr+24, zc-2, 1, 2)
 # flight_layout.addWidget(flight_ibridge1, zr+25, zc-2, 1, 2)
+
+# ambientize buttons
+ambientize_button = QtGui.QPushButton("Ambientize")
+flight_layout.addWidget(ambientize_button, zr+23, zc+0)
+ambientize_button.clicked.connect(ambientize)
+
+load_ambients_button = QtGui.QPushButton("Load Ambients")
+flight_layout.addWidget(load_ambients_button, zr+24, zc-0)
+load_ambients_button.clicked.connect(read_ambient)
 
 # State Feedback
 state_label = QtGui.QLabel("STATE = N/A")
 arm_button = QtGui.QPushButton("ARM")
 disarm_button = QtGui.QPushButton("DISARM")
 hotfire_button = QtGui.QPushButton("HOTFIRE")
-flight_layout.addWidget(state_label, zr+24, zc+0)
-flight_layout.addWidget(arm_button, zr+25, zc+0)
-flight_layout.addWidget(disarm_button, zr+26, zc+0)
-flight_layout.addWidget(hotfire_button, zr+27, zc+0)
+flight_layout.addWidget(state_label, zr+26, zc+0)
+flight_layout.addWidget(arm_button, zr+27, zc+0)
+flight_layout.addWidget(disarm_button, zr+28, zc+0)
+flight_layout.addWidget(hotfire_button, zr+29, zc+0)
 
 # Loop times
 LOOP_RATE_LABEL = QtGui.QLabel("Loop rates (hz)")
@@ -653,7 +668,7 @@ main_cycle_rate_label = QtGui.QLabel("Main:")
 adc_cycle_rate_label = QtGui.QLabel("ADC")
 telemetry_cycle_rate_label = QtGui.QLabel("Telem")
 
-
+#kill runt
 def death():
     flight_command_log.close()
     flight_info_log.close()
