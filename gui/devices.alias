@@ -1,16 +1,16 @@
 Device	Alias
-gvlv0	OX QD BREAKWIRE
-gvlv1	FUEL QD BREAKWIRE
-gvlv2	OX QD
-gvlv3	FUEL QD
-gvlv4	N2 FILL
-gvlv5	N2 VENT
-gvlv6	OX FILL
-gvlv7	OX DRAIN
-gvlv8	LED 0
-gvlv9	LED 1
-gvlv10	LED 2
-gvlv11	LED 3
+gvlv0	.
+gvlv1	.
+gvlv2	.
+gvlv3	.
+gvlv4	.
+gvlv5	.
+gvlv6	.
+gvlv7	.
+gvlv8	.
+gvlv9	.
+gvlv10	.
+gvlv11	.
 fvlv0	OX-SN-F01
 fvlv1	HE-SN-F11
 fvlv2	HE-SN-F07
@@ -43,10 +43,10 @@ fvlv28	.
 fvlv29	.
 fvlv30	.
 fvlv31	.
-gpressure0	N2 Fill Hose
-gpressure1	Ox Mother
-gpressure2	Ox Fill Hose
-gpressure3	N2 Mother
+gpressure0	.
+gpressure1	.
+gpressure2	.
+gpressure3	.
 gpressure4	.
 gpressure5	.
 gpressure6	.
@@ -57,8 +57,8 @@ fpressure2	.
 fpressure3	.
 fpressure4	.
 fpressure5	.
-fpressure6	HE-PT-G01
-fpressure7	EX-PT-F01
+fpressure6	.
+fpressure7	OX-PT-F02
 fpressure8	ET-PT-F03
 fpressure9	OX-PT-F01
 fpressure10	HE-PT-F02
@@ -70,11 +70,11 @@ fpressure15	NI-PT-G01
 fpressure16	NI-PT-G02
 fpressure17	OX-PT-G01
 fpressure18	NI-PT-G00
-fpressure19	.
-fpressure20	.
-fpressure21	.
-mtr0	OX VALVE
-mtr1	FUEL VALVE
+fpressure19	EX-PT-F01
+fpressure20	HE-PT-F03
+fpressure21	HE-PT-G01
+mtr0	.
+mtr1	.
 mtr2	.
 mtr3	.
 STATE0	ERROR
@@ -86,5 +86,5 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM3
+COM_PORT	COM8
 BAUDRATE	115200

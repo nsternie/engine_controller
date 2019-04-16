@@ -424,7 +424,7 @@ void scale_readings(){
 	load[2] = adc_data[6][7];
 	load[3] = adc_data[6][6];
 	load[4] = adc_data[6][5];
-	thrust_load = load[0]+load[1]+load[2]+load[3]+load[4];
+	thrust_load = load[0]+load[1]+load[2];
 
 
 }

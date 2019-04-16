@@ -186,8 +186,6 @@ flight_active_plots = [0]*parser.num_items
 
 
 
-
-
 def flight_plots_update(item_clicked):
     if(not item_clicked.column() == 2):
         return
@@ -291,6 +289,9 @@ except:
 # ambientize init
 f_press = [0]*22
 f_ambient = [0]*22
+lc_tare = [0]*5
+lc_load = [0]*5
+
 
 def write_ambient():
     with open('ambient.txt', 'w') as f:
@@ -298,13 +299,18 @@ def write_ambient():
             f.write(str(p) + "\n")
 
 def read_ambient():
+    global f_ambient
     with open('ambient.txt') as f:
         f_ambient = f.read().splitlines()
 
 def ambientize():
     write_ambient()
     read_ambient()
-      
+
+# Tare
+def tare():
+    global lc_tare
+    lc_tare = lc_load
 
 
 ###############################################################################
@@ -343,10 +349,13 @@ def parse_serial():
                 unstuffed = unstuffed + temp
             packet = unstuffed
 
+            #parser.parse_packet(packet)
             try:
                 parser.parse_packet(packet)
             except:
                 print("Packet lost")
+            #except Exception as e: 
+                #print(e)
 
             ###################################################################
             ### END GROUND DATA UPDATE ########################################
@@ -398,9 +407,21 @@ def parse_serial():
                         this_press -= cal_offset[alias['fpressure'+str(n)]]
                         this_press *= cal_slope[alias['fpressure'+str(n)]]
                     f_press[n] = this_press
-                    this_press -= f_ambient[n]
+                    this_press -= float(f_ambient[n])
                     this_press = int(this_press)
-                    flight_pressure_labels[n][1].setText(str(this_press)+"psi")
+                    flight_pressure_labels[n][1].setText(str(this_press)+" psi")
+                total_thrust = 0
+                for n in range(0, 3): # update loadcells
+                    this_load = parser.load[n]
+                    if('LOADCELL-'+str(n) in cal_offset.keys()):
+                        this_load -= cal_offset['LOADCELL-'+str(n)]
+                        this_load *= cal_slope['LOADCELL-'+str(n)]
+                    lc_load[n] = this_load
+                    this_load -= float(lc_tare[n])
+                    total_thrust += this_load
+                    this_load = int(this_load)
+                    flight_load_cell_labels[n][1].setText(str(this_load)+" kg")
+                flight_total_load_label[1].setText(str(int(total_thrust))+" kg")
 
                 # # Board health
                 # flight_ebatt_value.setText(str(parser.ebatt))
@@ -449,9 +470,10 @@ def parse_serial():
 
 flight_valve_buttons = []
 flight_pressure_labels = []
+flight_load_cell_labels = []
 
 # lol
-for valve_buttons, pressure_labels, abbrev in [(flight_valve_buttons, flight_pressure_labels, 'f')]:
+for valve_buttons, pressure_labels, load_labels, abbrev in [(flight_valve_buttons, flight_pressure_labels, flight_load_cell_labels, 'f')]:
     for n in range(0, 32):
 
         # Valve wdgets init
@@ -477,6 +499,16 @@ for valve_buttons, pressure_labels, abbrev in [(flight_valve_buttons, flight_pre
             press_id = str(n) + ': ' + alias[press_id]
         pressure_labels[n][0].setText(press_id+":")
         pressure_labels[n][1].setText(str(0)+"psi")
+ 
+ # Load cell reading widgets init
+    for n in range(0, 3):
+        ltemp = []
+        ltemp.append(QtGui.QLabel())
+        ltemp.append(QtGui.QLabel())
+        load_labels.append(ltemp)
+        load_id = "Load Cell "+str(n)
+        load_labels[n][0].setText(load_id+":")
+        load_labels[n][1].setText(str(0)+" kg")
     #for n in range(0, 4):
         # Valve wdgets init
         #temp = []
@@ -490,6 +522,11 @@ for valve_buttons, pressure_labels, abbrev in [(flight_valve_buttons, flight_pre
         #temp.append(QtGui.QLabel())
         #valve_buttons.append(temp)
 
+flight_total_load_label = []
+flight_total_load_label.append(QtGui.QLabel())
+flight_total_load_label.append(QtGui.QLabel())
+flight_total_load_label[0].setText("Total Thrust:")
+flight_total_load_label[1].setText(str(0)+" kg")
 
 
 # Board Health
@@ -543,8 +580,9 @@ for n in range(30):
 ############ COLUMN WIDTH FORMATTING
 flight_layout.setColumnStretch(0, 10)
 flight_layout.setColumnStretch(1, 10)
-flight_layout.setColumnStretch(2, 10)
-flight_layout.setColumnStretch(3, 10)
+flight_layout.setColumnStretch(2, 20)
+flight_layout.setColumnStretch(2, 20)
+flight_layout.setColumnStretch(3, 20)
 flight_layout.setColumnStretch(4, 10)
 flight_layout.setColumnStretch(5, 10)
 flight_layout.setColumnStretch(6, 10)
@@ -584,6 +622,18 @@ def layout_common_widgets(layout, vlv_buttons, p_labels):
 
 
 layout_common_widgets(flight_layout, flight_valve_buttons, flight_pressure_labels)
+
+for n in range(0, 3):
+        flight_layout.addWidget(flight_load_cell_labels[n][0], zr+n+26, zc+0)
+        flight_layout.addWidget(flight_load_cell_labels[n][1], zr+n+26, zc+1)
+
+flight_layout.addWidget(flight_total_load_label[0], zr+29, zc+0)
+flight_layout.addWidget(flight_total_load_label[1], zr+29, zc+1)
+
+# tare button
+tare_button = QtGui.QPushButton("Tare")
+flight_layout.addWidget(tare_button, zr+30, zc+0, 1, 2)
+tare_button.clicked.connect(tare)
 
 #qd_ox_release = QtGui.QPushButton("Release Ox")
 #qd_ox_connect = QtGui.QPushButton("Connect Ox")
@@ -652,21 +702,21 @@ state_label = QtGui.QLabel("STATE = N/A")
 arm_button = QtGui.QPushButton("ARM")
 disarm_button = QtGui.QPushButton("DISARM")
 hotfire_button = QtGui.QPushButton("HOTFIRE")
-flight_layout.addWidget(state_label, zr+26, zc+0)
-flight_layout.addWidget(arm_button, zr+27, zc+0)
-flight_layout.addWidget(disarm_button, zr+28, zc+0)
-flight_layout.addWidget(hotfire_button, zr+29, zc+0)
+flight_layout.addWidget(state_label, zr+26, zc+5, 1, 3)
+flight_layout.addWidget(arm_button, zr+27, zc+5, 1, 3)
+flight_layout.addWidget(disarm_button, zr+28, zc+5, 1, 3)
+flight_layout.addWidget(hotfire_button, zr+29, zc+5, 1, 3)
 
 # Loop times
-LOOP_RATE_LABEL = QtGui.QLabel("Loop rates (hz)")
-motor_cycle_rate = QtGui.QLabel("MCR")
-main_cycle_rate = QtGui.QLabel("MCR")
-adc_cycle_rate = QtGui.QLabel("ACR")
-telemetry_cycle_rate = QtGui.QLabel("TCR")
-motor_cycle_rate_label = QtGui.QLabel("Motor:")
-main_cycle_rate_label = QtGui.QLabel("Main:")
-adc_cycle_rate_label = QtGui.QLabel("ADC")
-telemetry_cycle_rate_label = QtGui.QLabel("Telem")
+# LOOP_RATE_LABEL = QtGui.QLabel("Loop rates (hz)")
+# motor_cycle_rate = QtGui.QLabel("MCR")
+# main_cycle_rate = QtGui.QLabel("MCR")
+# adc_cycle_rate = QtGui.QLabel("ACR")
+# telemetry_cycle_rate = QtGui.QLabel("TCR")
+# motor_cycle_rate_label = QtGui.QLabel("Motor:")
+# main_cycle_rate_label = QtGui.QLabel("Main:")
+# adc_cycle_rate_label = QtGui.QLabel("ADC")
+# telemetry_cycle_rate_label = QtGui.QLabel("Telem")
 
 #kill runt
 def death():
@@ -824,6 +874,7 @@ flight_valve_buttons[31][1].clicked.connect(lambda: toggle_valve('flight', 31))
 
 # Start
 flight_window.showMaximized()
+flight_window.setFixedSize(flight_window.size())
 
 
 

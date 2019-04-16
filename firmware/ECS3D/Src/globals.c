@@ -36,7 +36,7 @@ float e28v, e5v, e3v;
 float i5v, i3v;
 float tbrd, tvlv, tmtr;
 float pressure[22];
-float load[5];
+uint16_t load[5];
 float thrust_load;
 float tc[16];
 uint8_t temp = 0;
