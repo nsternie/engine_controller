@@ -1,0 +1,12 @@
+valve cal 
+
+<- 220  Open
+<- 115  Closed
+<- 40   Open
+-> 40   Closed
+-> 120  Open
+-> 230  Closed
+<- 220  Open
+
+77 Closed
+175 Open

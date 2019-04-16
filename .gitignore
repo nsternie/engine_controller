@@ -2,7 +2,7 @@
 *.o
 *.elf
 *.bin
-*.hex
+.hex
 *log.*
 *.map
 
@@ -19,6 +19,5 @@
 *.pyc
 
 *.pdf
-*data.csv
 
-/gui/*Data*/*
+/gui/data/*

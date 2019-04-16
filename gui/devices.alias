@@ -1,48 +1,82 @@
 Device	Alias
-gvlv0	GND 0
-gvlv1	GND 1
-gvlv2	GND 2
-gvlv3	GND 3
-gvlv4	GND 4
-gvlv5	GND 5
-gvlv6	GND 6
-gvlv7	GND 7
-gvlv8	GND LED 0
-gvlv9	GND LED 1
-gvlv10	GND LED 2
-gvlv11	GND LED 3
-fvlv0	FLIGHT 0
-fvlv1	FLIGHT 1
-fvlv2	FLIGHT 2
-fvlv3	FLIGHT 3
-fvlv4	FLIGHT 4
-fvlv5	FLIGHT 5
-fvlv6	FLIGHT 6
-fvlv7	FLIGHT 7
-fvlv8	FLIGHT LED 0
-fvlv9	FLIGHT LED 1
-fvlv10	FLIGHT LED 2
-fvlv11	FLIGHT LED 3
-gpressure0	Ground press 0
-gpressure1	Ground press 1
-gpressure2	Ground press 2
-gpressure3	Ground press 3
-gpressure4	Ground press 4
-gpressure5	Ground press 5
-gpressure6	Ground press 6
-gpressure7	Ground press 7
-fpressure0	Flight press 0
-fpressure1	Flight press 1
-fpressure2	Flight press 2
-fpressure3	Flight press 3
-fpressure4	Flight press 4
-fpressure5	Flight press 5
-fpressure6	Flight press 6
-fpressure7	Flight press 7
-mtr0	OX VALVE
-mtr1	FUEL VALVE
-mtr2	unused
-mtr3	unused
+gvlv0	.
+gvlv1	.
+gvlv2	.
+gvlv3	.
+gvlv4	.
+gvlv5	.
+gvlv6	.
+gvlv7	.
+gvlv8	.
+gvlv9	.
+gvlv10	.
+gvlv11	.
+fvlv0	OX-SN-F01
+fvlv1	HE-SN-F11
+fvlv2	HE-SN-F07
+fvlv3	HE-SN-F08
+fvlv4	HE-SN-F09-OPEN
+fvlv5	HE-SN-F10-OPEN
+fvlv6	ET-SN-F02
+fvlv7	ET-SN-F01
+fvlv8	OX-SN-G01
+fvlv9	OX-SN-G02
+fvlv10	OX-SN-G03
+fvlv11	HE-SN-G01
+fvlv12	HE-SN-G02
+fvlv13	.
+fvlv14	HE-SN-G03
+fvlv15	HE-SN-G04
+fvlv16	HE-SN-G05
+fvlv17	HE-SN-G06
+fvlv18	.
+fvlv19	NI-SN-G01
+fvlv20	NI-SN-G02
+fvlv21	.
+fvlv22	.
+fvlv23	.
+fvlv24	HE-SN-F09-CLOSED
+fvlv25	.
+fvlv26	IGNITER
+fvlv27	.
+fvlv28	.
+fvlv29	.
+fvlv30	.
+fvlv31	.
+gpressure0	.
+gpressure1	.
+gpressure2	.
+gpressure3	.
+gpressure4	.
+gpressure5	.
+gpressure6	.
+gpressure7	.
+fpressure0	.
+fpressure1	.
+fpressure2	.
+fpressure3	.
+fpressure4	.
+fpressure5	.
+fpressure6	.
+fpressure7	OX-PT-F02
+fpressure8	ET-PT-F03
+fpressure9	OX-PT-F01
+fpressure10	HE-PT-F02
+fpressure11	ET-PT-F01
+fpressure12	ET-PT-F02
+fpressure13	OX-PT-G02
+fpressure14	HE-PT-G03
+fpressure15	NI-PT-G01
+fpressure16	NI-PT-G02
+fpressure17	OX-PT-G01
+fpressure18	NI-PT-G00
+fpressure19	EX-PT-F01
+fpressure20	HE-PT-F03
+fpressure21	HE-PT-G01
+mtr0	.
+mtr1	.
+mtr2	.
+mtr3	.
 STATE0	ERROR
 STATE1	MANUAL
 STATE2	ARMED
@@ -52,5 +86,5 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM4
-BAUDRATE	921600
+COM_PORT	COM8
+BAUDRATE	115200

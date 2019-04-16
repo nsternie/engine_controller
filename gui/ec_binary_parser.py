@@ -21,9 +21,10 @@ while True:
 	else:
 		this_line += b
 
+print(n)
 
 for packet in packets:
-	# print(packet)
+	# print(len(packet))
 	packet = list(packet)
 	unstuffed = b''
 	index = int(packet[0])
@@ -35,5 +36,9 @@ for packet in packets:
 		unstuffed = unstuffed + temp
 	packet = unstuffed
 	# print(list(unstuffed))
-	parser.parse_packet(packet)
-	datalog.write(parser.log_string+'\n')
+	try:
+		parser.parse_packet(packet)
+	except:
+		pass
+	if not(parser.valve_states == 65535):
+		datalog.write(parser.log_string+'\n')

@@ -1,0 +1,42 @@
+Index	varaible	printf format	units	python type	device name	python override name	python globals list	newline buffer
+0	valve_states	%u	STATE	int	valve_states		valve_states	1
+1	pressure[0]	%.1f	psi	float	pressure0		pressure	1
+2	pressure[1]	%.1f	psi	float	pressure1		samplerate	1
+3	pressure[2]	%.1f	psi	float	pressure2		motor_setpoint	1
+4	pressure[3]	%.1f	psi	float	pressure3		main_cycle_time	1
+5	pressure[4]	%.1f	psi	float	pressure4		motor_cycle_time	1
+6	pressure[5]	%.1f	psi	float	pressure5		adc_cycle_time	1
+7	pressure[6]	%.1f	psi	float	pressure6		telemetry_cycle_time	1
+8	pressure[7]	%.1f	psi	float	pressure7		ebatt	1
+9	samplerate	%d	hz	int	samplerate		ibus	1
+10	motor_setpoint[0]	%.2f	deg	float	motor_setpoint[0]		telemetry_rate	1
+11	motor_setpoint[1]	%.2f	deg	float	motor_setpoint[1]		motor_control_gain	1
+12	main_cycle_time[0]	%u	us	int	main_cycle_time	main_cycle_time	motor_position	1
+13	motor_cycle_time[0]	%u	us	int	motor_cycle_time	motor_cycle_time	motor_pwm	1
+14	adc_cycle_time[0]	%u	us	int	adc_cycle_time	adc_cycle_time	count1	1
+15	telemetry_cycle_time[0]	%u	us	int	telemetry_cycle_time	telemetry_cycle_time	count2	1
+16	ebatt	%.2f	V	float	ebatt		count3	1
+17	ibus	%.2f	A	float	ibus		STATE	1
+18	telemetry_rate[0]	%u	hz	int	telemetry_rate	telemetry_rate	load	1
+19	motor_control_gain[0]	%.3f	x	float	motor_control_gain[0]		thrust_load	1
+20	motor_control_gain[1]	%.3f	x	float	motor_control_gain[1]		thermouple	1
+21	motor_control_gain[2]	%.3f	x	float	motor_control_gain[2]		AUTOSTRING	1
+22	motor_position[0]	%.2f	deg	float	motor_position[0]		auto_states	1
+23	motor_position[1]	%.2f	deg	float	motor_position[1]			1
+24	motor_pwm[0]	%d	%	int	motor_pwm[0]			
+25	motor_pwm[1]	%d	%	int	motor_pwm[1]			
+26	count1	%u	x	int	count1			
+27	count2	%u	x	int	count2			
+28	count3	%u	x	int	count3			
+29	STATE	%u	x	int	STATE			
+30	load[0]	%.1f	lbs	float	load[0]			
+31	load[1]	%.1f	lbs	float	load[1]			
+32	load[2]	%.1f	lbs	float	load[2]			
+33	load[3]	%.1f	lbs	float	load[3]			
+34	thrust_load	%.1f	lbs	float	thrust_load			
+35	thermocouple[0]	%.0f	degC	int	thermocouple[0]			
+36	thermocouple[1]	%.0f	degC	int	thermocouple[1]			
+37	thermocouple[2]	%.0f	degC	int	thermocouple[2]			
+38	thermocouple[3]	%.0f	degC	int	thermocouple[3]			
+39	auto_states	%d	x	int	auto_states			
+40	AUTOSTRING	%s	x	str	AUTOSTRING			

@@ -51,9 +51,12 @@
 #include "hardware.h"
 #include "flash.h"
 #include "config.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+IWDG_HandleTypeDef hiwdg;
+
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi4;
 
@@ -70,20 +73,28 @@ TIM_HandleTypeDef htim10;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart6;
+DMA_HandleTypeDef hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 #define millis	((__HAL_TIM_GET_COUNTER(&htim2))/1000)
+
+#define DMA_RX_BUFFER_SIZE          (PACKET_SIZE + 2)
+uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];
+//
+#define UART_BUFFER_SIZE            256
+uint8_t UART_Buffer[UART_BUFFER_SIZE];
+
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM5_Init(void);
 static void MX_TIM9_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
@@ -94,6 +105,8 @@ static void MX_TIM6_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM10_Init(void);
+static void MX_IWDG_Init(void);
+static void MX_TIM5_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -120,15 +133,13 @@ void start_auto(struct autosequence *a);
 void stop_auto(struct autosequence *a);
 void kill_auto(struct autosequence *a);
 
+
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-{
-	HAL_UART_DeInit(huart);
-	HAL_UART_Init(huart);
-}
+
 
 void system_init(){
 	// Start the timers
@@ -141,12 +152,15 @@ void system_init(){
 	HAL_TIM_PWM_Start(&htim9, TIM_CHANNEL_1); 	// mtr0
 	HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);	// mtr1
 
+	prime_bridge();
+
 	for(uint8_t n = 0; n < 255; n++){
 		upstream_buffer.data[n] = 0;
 	}
 
 	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
 	HAL_UART_Receive_IT(&huart6, &uart6_in, 1);
+	//HAL_UART_Receive_DMA(&huart6, &uart6_in, PACKET_SIZE+2);
 
 
 	for(int n = 0; n < 4; n++){
@@ -175,7 +189,6 @@ void system_init(){
 	add_command(&p, COMMAND_TARE, 			tare);
 	add_command(&p, COMMAND_AMBIENTIZE, 	ambientize);
 	add_command(&p, COMMAND_LOGRATE_SET, 	lograte_set);
-
 	add_command(&p, COMMAND_PRINT_FILE, 	print_file);
 	add_command(&p, COMMAND_NUMFILES, 		numfiles);
 	add_command(&p, COMMAD_LOG_START, 		log_start);
@@ -183,6 +196,13 @@ void system_init(){
 	add_command(&p, COMMAD_INIT_FS, 		init_fs);
 	add_command(&p, COMMAND_TELEM_PAUSE, 		telem_pause);
 	add_command(&p, COMMAND_TELEM_RESUME, 		telem_resume);
+	add_command(&p, COMMAND_PRIME_BRIDGE,		prime_bridge_wrapper);
+
+	release_device(adc0);
+	release_device(adc1);
+	release_device(adc2);
+	release_device(flash);
+
 
   unlock_all(); // Flash init
 
@@ -221,10 +241,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI1_Init();
   MX_SPI4_Init();
   MX_TIM2_Init();
-  MX_TIM5_Init();
   MX_TIM9_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
@@ -235,61 +255,87 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM8_Init();
   MX_TIM10_Init();
+  MX_IWDG_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
 
  	system_init();
  	read_flash_id();
 
-//	setpwm(htim5, TIM_CHANNEL_1, 32768, 0);
-//	setpwm(htim9, TIM_CHANNEL_1, 32768, 16535);
-//
-//	HAL_GPIO_WritePin(inb_mtr0_GPIO_Port, inb_mtr0_Pin, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
- 	uint32_t last_time = 0;
+
+ 	uint32_t last_motor_millis = 0;
+
+while(1){
+	HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, 1);
+	HAL_Delay(1000);
+	HAL_GPIO_WritePin(led0_GPIO_Port, led0_Pin, 0);
+		HAL_Delay(1000);
+
+}
   while (1)
   {
 
-// Check if packet is in from downstream engine controller
+#if BOARD_ID == TARGET_ADDRESS_FLIGHT
+	  if(STATE == FIRING){
+		  run_auto(millis);
+		  __HAL_IWDG_RELOAD_COUNTER(&hiwdg);
+	  }
+#endif
+ //Check if packet is in from downstream engine controller
     for(uint8_t n = 0; n < 255; n++){
         if(upstream_buffer.data[n] == (uint8_t) '\n'){
         	command(led1, 1);
+        	//__disable_irq();
+        	HAL_Delay(0);
+//        	while(millis - xmit_counter < xmit_delay);
             HAL_UART_Transmit(&huart1, upstream_buffer.data, n+1, 0xffff);
+//            xmit_counter = millis;
             command(led1, 0);
-            __disable_irq();
+//            send_rs422_now = 1;
+//            pack_telem(telem_unstuffed);
+//			stuff_telem(telem_unstuffed, telem_stuffed);
+//			send_telem(rs422_com, gui_byte_packet);
+//			TIME(telemetry_cycle_time);
+//			__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
+
             upstream_buffer.filled = 0;
             for(int j = 0; j < 255; j++){
                 upstream_buffer.data[j] = 0;
             }
-            __enable_irq();
+            //__enable_irq();
             break;
         }
     }
-
 
     if(read_adc_now){
         read_adc_now = 0;
         read_adc(&hspi1);
         scale_readings();
+        pack_telem(telem_unstuffed);
+		stuff_telem(telem_unstuffed, telem_stuffed);
         TIME(adc_cycle_time);
         if(LOGGING_ACTIVE){
-        	// Log
+        	save_telem(logfile);
         }
-
-        motor_control();
     }
+#if BOARD_ID == TARGET_ADDRESS_FLIGHT
+    if((millis - last_motor_millis) > 10){
+        motor_control();
+        last_motor_millis = millis;
+    }
+#endif
 
     if(send_rs422_now && TELEM_ACTIVE){
         send_rs422_now = 0;
-        pack_telem(telem_unstuffed);
-		stuff_telem(telem_unstuffed, telem_stuffed);
-		if(LOGGING_ACTIVE){
-			save_telem(logfile);
-		}
-        send_telem(rs422_com, gui_byte_packet);
+
+		send_telem(rs422_com, gui_byte_packet);
+        //xmit_counter = millis;
+
         TIME(telemetry_cycle_time);
         //__HAL_IWDG_RELOAD_COUNTER(&hiwdg);
     }
@@ -325,9 +371,10 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
@@ -370,7 +417,21 @@ void SystemClock_Config(void)
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, 1, 0);
+}
+
+/* IWDG init function */
+static void MX_IWDG_Init(void)
+{
+
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_16;
+  hiwdg.Init.Reload = 4095;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
 }
 
 /* SPI1 init function */
@@ -385,7 +446,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
   hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -409,7 +470,7 @@ static void MX_SPI4_Init(void)
   hspi4.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi4.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi4.Init.NSS = SPI_NSS_SOFT;
-  hspi4.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+  hspi4.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   hspi4.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi4.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi4.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -530,9 +591,9 @@ static void MX_TIM5_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim5.Instance = TIM5;
-  htim5.Init.Prescaler = 2;
+  htim5.Init.Prescaler = 0;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim5.Init.Period = 32768;
+  htim5.Init.Period = 0;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_PWM_Init(&htim5) != HAL_OK)
   {
@@ -647,7 +708,7 @@ static void MX_TIM9_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim9.Instance = TIM9;
-  htim9.Init.Prescaler = 4;
+  htim9.Init.Prescaler = 0;
   htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim9.Init.Period = 32768;
   htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -739,6 +800,21 @@ static void MX_USART6_UART_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+}
+
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Stream1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
 
 }
 

@@ -1,57 +1,144 @@
 name	firmware_variable	min_val	max_val	unit	firmware_type	printf_format	type_cast	xmit_scale	device	python_variable_override	python_type	python_globals	python_init	|
-Valve State Feedback	valve_states				uint16_t	%u	uint16_t	1			int	valve_states	0	|
-Pressure 0	pressure[0]	-100	3000	psi	float	%.1f	int16_t	1	pressure0		float	pressure	[0]*16	|
-Pressure 1	pressure[1]	-100	3000	psi	float	%.1f	int16_t	1	pressure1		float	samplerate	0	|
-Pressure 2	pressure[2]	-100	3000	psi	float	%.1f	int16_t	1	pressure2		float	motor_setpoint	[0]*4	|
-Pressure 3	pressure[3]	-100	3000	psi	float	%.1f	int16_t	1	pressure3		float	main_cycle_time	0	|
-Pressure 4	pressure[4]	-100	3000	psi	float	%.1f	int16_t	1	pressure4		float	motor_cycle_time	0	|
-Pressure 5	pressure[5]	-100	3000	psi	float	%.1f	int16_t	1	pressure5		float	adc_cycle_time	0	|
-Pressure 6	pressure[6]	-100	3000	psi	float	%.1f	int16_t	1	pressure6		float	telemetry_cycle_time	0	|
-Pressure 7	pressure[7]	-100	3000	psi	float	%.1f	int16_t	1	pressure7		float	ebatt	0	|
-ADC rate	samplerate	0	1000000	Hz		%d	uint32_t	1			int	ibus	0	|
-motor_setpoint[0]	motor_setpoint[0]	-500	500	degrees		%.2f	int32_t	1000			float	telemetry_rate	0	|
-motor_setpoint[1]	motor_setpoint[1]	-500	500	degrees		%.2f	int32_t	1000			float	motor_control_gain	[0]*4	|
-main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int	motor_position	[0]*4	|
-motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int	motor_pwm	[0]*4	|
-adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int	count1	0	|
-telemetry_cycle_time[0]	telemetry_cycle_time[0]	0	1000000	microseconds		%u	uint32_t	1		telemetry_cycle_time	int	count2	0	|
-ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	count3	0	|
-Bus Current	ibus	-10	150	Amps		%.2f	int16_t	100			float	STATE	0	|
-telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	int	load	[0]*4	|
-motor_control_gain[0]	motor_control_gain[0]					%.3f	uint16_t	1			float	thrust_load	0	|
-motor_control_gain[1]	motor_control_gain[1]					%.3f	uint16_t	1			float	thermocouple	[0]*4	|
-motor_control_gain[2]	motor_control_gain[2]					%.3f	uint16_t	1			float	ivlv	[0]*16	|
-motor_position[0]	motor_position[0]					%.2f	int32_t	1000			float	evlv	[0]*16	|
-motor_position[1]	motor_position[1]					%.2f	int32_t	1000			float	LOG_TO_AUTO	0	|
-motor_pwm[0]	motor_pwm[0]					%d	int16_t	1			int	auto_states	0	|
-motor_pwm[1]	motor_pwm[1]					%d	int16_t	1			int	debug	[0]*8	|
-STATE	STATE					%u	uint8_t	1			int	e5v	0	|
-ivlv[0]	ivlv[0]	-1	20	Amps		%.1f	int16_t	100			float	e3v	0	|
-ivlv[1]	ivlv[1]	-1	20	Amps		%.1f	int16_t	100			float	BOARD_ID	0	|
-ivlv[2]	ivlv[2]	-1	20	Amps		%.1f	int16_t	100			float	last_packet_number	-1	|
-ivlv[3]	ivlv[3]	-1	20	Amps		%.1f	int16_t	100			float	last_command_id	-1	|
-ivlv[4]	ivlv[4]	-1	20	Amps		%.1f	int16_t	100			float	imtr	[0]*2	|
-ivlv[5]	ivlv[5]	-1	20	Amps		%.1f	int16_t	100			float	tbrd	0	|
-ivlv[6]	ivlv[6]	-1	20	Amps		%.1f	int16_t	100			float	tvlv	0	|
-ivlv[7]	ivlv[7]	-1	20	Amps		%.1f	int16_t	100			float	tmtr	0	|
-evlv[0]	evlv[0]	-5	15	Volts		%.1f	int16_t	100			float	error_code	0	|
-evlv[1]	evlv[1]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[2]	evlv[2]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[3]	evlv[3]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[4]	evlv[4]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[5]	evlv[5]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[6]	evlv[6]	-5	15	Volts		%.1f	int16_t	100			float			|
-evlv[7]	evlv[7]	-5	15	Volts		%.1f	int16_t	100			float			|
-LOG_TO_AUTO	LOG_TO_AUTO					%d	int16_t	1			int			|
-auto_states	auto_states					%u	uint16_t	1			int			|
-e3v	e3v					%.2f	int32_t	100			float			|
-e5v	e5v					%.2f	int32_t	100			float			|
-BOARD_ID	BOARD_ID					%d	uint16_t	1			int			|
-last_packet_number	last_packet_number					%d	uint16_t	1			int			|
-last_command_id	last_command_id					%d	uint16_t	1			int			|
-imtr[0]	imtr[0]			Amps		%.2f	uint16_t	1000			float			|
-imtr[1]	imtr[1]			Amps		%.2f	uint16_t	1000			float			|
+Valve State Feedback	valve_states				uint32_t	%u	uint32_t	1			int	valve_states	0	|
+Pressure 0	pressure[0]	-100	3000	counts	float	%.1f	int16_t	1	pressure0		float	pressure	[0]*22	|
+Pressure 1	pressure[1]	-100	3000	counts	float	%.1f	int16_t	1	pressure1		float	samplerate	0	|
+Pressure 2	pressure[2]	-100	3000	counts	float	%.1f	int16_t	1	pressure2		float	motor_setpoint	[0]*4	|
+Pressure 3	pressure[3]	-100	3000	counts	float	%.1f	int16_t	1	pressure3		float	main_cycle_time	0	|
+Pressure 4	pressure[4]	-100	3000	counts	float	%.1f	int16_t	1	pressure4		float	motor_cycle_time	0	|
+Pressure 5	pressure[5]	-100	3000	counts	float	%.1f	int16_t	1	pressure5		float	adc_cycle_time	0	|
+Pressure 6	pressure[6]	-100	3000	counts	float	%.1f	int16_t	1	pressure6		float	telemetry_cycle_time	0	|
+Pressure 7	pressure[7]	-100	3000	counts	float	%.1f	int16_t	1	pressure7		float	ebatt	0	|
+Pressure 8	pressure[8]	-100	3000	counts	float	%.1f	int16_t	1	pressure8		float	ibus	0	|
+Pressure 9	pressure[9]	-100	3000	counts	float	%.1f	int16_t	1	pressure9		float	telemetry_rate	0	|
+Pressure 10	pressure[10]	-100	3000	counts	float	%.1f	int16_t	1	pressure10		float	motor_control_gain	[0]*4	|
+Pressure 11	pressure[11]	-100	3000	counts	float	%.1f	int16_t	1	pressure11		float	motor_position	[0]*4	|
+Pressure 12	pressure[12]	-100	3000	counts	float	%.1f	int16_t	1	pressure12		float	motor_pwm	[0]*4	|
+Pressure 13	pressure[13]	-100	3000	counts	float	%.1f	int16_t	1	pressure13		float	count1	0	|
+Pressure 14	pressure[14]	-100	3000	counts	float	%.1f	int16_t	1	pressure14		float	count2	0	|
+Pressure 15	pressure[15]	-100	3000	counts	float	%.1f	int16_t	1	pressure15		float	count3	0	|
+Pressure 16	pressure[16]	-100	3000	counts	float	%.1f	int16_t	1	pressure16		float	STATE	0	|
+Pressure 17	pressure[17]	-100	3000	counts	float	%.1f	int16_t	1	pressure17		float	load	[0]*5	|
+Pressure 18	pressure[18]	-100	3000	counts	float	%.1f	int16_t	1	pressure18		float	thrust_load	0	|
+Pressure 19	pressure[19]	-100	3000	counts	float	%.1f	int16_t	1	pressure19		float	thermocouple	[0]*4	|
+Pressure 20	pressure[20]	-100	3000	counts	float	%.1f	int16_t	1	pressure20		float	ivlv	[0]*32	|
+Pressure 21	pressure[21]	-100	3000	count	float	%.1f	int16_t	1	pressure21		float	evlv	[0]*32	|
+ADC rate	samplerate	0	1000000	Hz		%d	uint32_t	1			float	LOG_TO_AUTO	0	|
+main_cycle_time[0]	main_cycle_time[0]			microseconds		%u	uint16_t	1		main_cycle_time	int	auto_states	0	|
+motor_cycle_time[0]	motor_cycle_time[0]			microseconds		%u	uint16_t	1		motor_cycle_time	int	debug	[0]*8	|
+adc_cycle_time[0]	adc_cycle_time[0]			microseconds		%u	uint16_t	1		adc_cycle_time	int	e5v	0	|
+telemetry_cycle_time[0]	telemetry_cycle_time[0]	0	1000000	microseconds		%u	uint32_t	1		telemetry_cycle_time	float	e3v	0	|
+ebatt	ebatt	-20	20	Volts		%.2f	int16_t	1000			float	BOARD_ID	0	|
+Bus Current	ibus	-10	150	Amps		%.2f	int16_t	100			float	last_packet_number	-1	|
+telemetry_rate[0]	telemetry_rate[0]	0	5000	Hz		%u	uint16_t	1		telemetry_rate	float	last_command_id	-1	|
+STATE	STATE					%u	uint8_t	1			float	imtr	[0]*2	|
+load[0]	load[0]			counts	float	%.1f	uint16_t	1			float	tbrd	0	|
+load[1]	load[1]			counts	float	%.1f	uint16_t	1			float	tvlv	0	|
+load[2]	load[2]			counts	float	%.1f	uint16_t	1			float	tmtr	0	|
+load[3]	load[3]			counts	float	%.1f	uint16_t	1			float	error_code	0	|
+load[4]	load[4]			counts	float	%.1f	uint16_t	1			float	LOGGING_ACTIVE	0	|
+ivlv[0]	ivlv[0]	0	20	Amps		%.1f	uint8_t	10			float	current_page	-1	|
+ivlv[1]	ivlv[1]	0	20	Amps		%.1f	uint8_t	10			float	zero	0	|
+ivlv[2]	ivlv[2]	0	20	Amps		%.1f	uint8_t	10			float	e28v	0	|
+ivlv[3]	ivlv[3]	0	20	Amps		%.1f	uint8_t	10			float	i3v	0	|
+ivlv[4]	ivlv[4]	0	20	Amps		%.1f	uint8_t	10			float	i5v	0	|
+ivlv[5]	ivlv[5]	0	20	Amps		%.1f	uint8_t	10			float	tc	[0]*16	|
+ivlv[6]	ivlv[6]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[7]	ivlv[7]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[8]	ivlv[8]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[9]	ivlv[9]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[10]	ivlv[10]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[11]	ivlv[11]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[12]	ivlv[12]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[13]	ivlv[13]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[14]	ivlv[14]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[15]	ivlv[15]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[16]	ivlv[16]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[17]	ivlv[17]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[18]	ivlv[18]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[19]	ivlv[19]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[20]	ivlv[20]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[21]	ivlv[21]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[22]	ivlv[22]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[23]	ivlv[23]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[24]	ivlv[24]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[25]	ivlv[25]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[26]	ivlv[26]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[27]	ivlv[27]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[28]	ivlv[28]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[29]	ivlv[29]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[30]	ivlv[30]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[31]	ivlv[31]	0	20	Amps		%.1f	uint8_t	10			float			|
+evlv[0]	evlv[0]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[1]	evlv[1]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[2]	evlv[2]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[3]	evlv[3]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[4]	evlv[4]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[5]	evlv[5]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[6]	evlv[6]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[7]	evlv[7]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[8]	evlv[8]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[9]	evlv[9]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[10]	evlv[10]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[11]	evlv[11]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[12]	evlv[12]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[13]	evlv[13]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[14]	evlv[14]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[15]	evlv[15]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[16]	evlv[16]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[17]	evlv[17]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[18]	evlv[18]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[19]	evlv[19]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[20]	evlv[20]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[21]	evlv[21]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[22]	evlv[22]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[23]	evlv[23]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[24]	evlv[24]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[25]	evlv[25]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[26]	evlv[26]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[27]	evlv[27]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[28]	evlv[28]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[29]	evlv[29]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[30]	evlv[30]	0	15	Volts		%.1f	uint8_t	10			float			|
+evlv[31]	evlv[31]	0	15	Volts		%.1f	uint8_t	10			float			|
+e3v	e3v	0	5	Volts		%.2f	int32_t	100			float			|
+e5v	e5v	0	5	Volts		%.2f	int32_t	100			float			|
+e28v	e28v	0	30	Volts		%.3f	int16_t	100			float			|
+i5v	i5v	0	2	amps		%.1f	uint8_t	100			float			|
+i3v	i3v	0	2	amps		%.1f	uint8_t	100			float			|
+BOARD_ID	BOARD_ID					%d	uint16_t	1			float			|
+last_packet_number	last_packet_number					%d	uint16_t	1			float			|
+last_command_id	last_command_id					%d	uint16_t	1			float			|
 tbrd	tbrd					%.2f	uint16_t	10			float			|
 tvlv	tvlv					%.2f	uint16_t	10			float			|
 tmtr	tmtr					%.2f	uint16_t	10			float			|
-error_code	error_code					%d	uint8_t	1			int			|
+error_code	error_code					%d	uint8_t	1			float			|
+LOGGING_ACTIVE	LOGGING_ACTIVE					%d	uint8_t	1			float			|
+logfile->current_page	logfile->current_page					%d	uint16_t	1		current_page	float			|
+tc[0]	tc[0]			K		%d	int16_t	1			float			|
+tc[1]	tc[1]			K		%d	uint16_t	1			float			|
+tc[2]	tc[2]			K		%d	uint16_t	1			float			|
+tc[3]	tc[3]			K		%d	uint16_t	1			float			|
+tc[4]	tc[4]			K		%d	uint16_t	1			float			|
+tc[5]	tc[5]			K		%d	uint16_t	1			float			|
+tc[6]	tc[6]			K		%d	uint16_t	1			float			|
+tc[7]	tc[7]			K		%d	uint16_t	1			float			|
+tc[8]	tc[8]			K		%d	uint16_t	1			float			|
+tc[9]	tc[9]			K		%d	uint16_t	1			float			|
+tc[10]	tc[10]			K		%d	uint16_t	1			float			|
+tc[11]	tc[11]			K		%d	uint16_t	1			float			|
+tc[12]	tc[12]			K		%d	uint16_t	1			float			|
+tc[13]	tc[13]			K		%d	uint16_t	1			float			|
+tc[14]	tc[14]			K		%d	uint16_t	1			float			|
+tc[15]	tc[15]			K		%d	uint16_t	1			float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
+0	0					%d	uint8_t	1		zero	float			|
