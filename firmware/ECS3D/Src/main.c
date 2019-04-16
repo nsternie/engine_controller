@@ -196,6 +196,16 @@ void system_init(){
 	release_device(flash);
 	unlock_all(); // Flash init
 
+	// init RTDs
+	for(uint n = 0; n < 8; n++){
+		uint8_t tx[2] = {0b10000000, 0b11010000};
+		uint8_t rx[2] = {0b00000000, 0b00000000};
+
+		select_device(rtd0 + n);
+		if(HAL_SPI_TransmitReceive(&hspi2, tx, rx, 2, 1) ==  HAL_TIMEOUT){}
+		release_device(rtd0 + n);
+	}
+
 }
 
 
@@ -321,6 +331,9 @@ int main(void)
 		}
 		for(uint n = 0; n < 16; n++){
 			read_tc(&hspi2, tc0 + n);
+		}
+		for(uint n = 0; n < 8; n++){
+			read_rtd(&hspi2, rtd0 + n);
 		}
 		scale_readings();
 		pack_telem(telem_unstuffed);

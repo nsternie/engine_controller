@@ -194,6 +194,7 @@ extern float i5v, i3v;
 extern float tbrd, tvlv, tmtr;
 extern float pressure[22];
 extern float tc[16];
+extern uint16_t rtd[8];
 extern uint16_t load[5];
 extern float thrust_load;
 extern uint8_t temp;

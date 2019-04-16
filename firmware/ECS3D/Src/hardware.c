@@ -297,6 +297,33 @@ const int16_t tempToMicroVolts_LUT[551] =
 
 	__enable_irq();
 }
+void read_rtd(SPI_HandleTypeDef* SPI_BUS, uint8_t device){
+
+	uint8_t tx[2] = {1, 0};
+	uint8_t rx[2] = {0, 0};
+
+	__disable_irq();
+	select_device(device);
+	if(HAL_SPI_TransmitReceive(SPI_BUS, tx, rx, 2, 1) ==  HAL_TIMEOUT){}
+	release_device(device);
+
+	uint8_t high = rx[1];
+
+	tx[0] = 2;
+
+	select_device(device);
+	if(HAL_SPI_TransmitReceive(SPI_BUS, tx, rx, 2, 1) ==  HAL_TIMEOUT){}
+	release_device(device);
+
+	__enable_irq();
+	uint8_t low = rx[1];
+
+	uint16_t value = (high << 8) | low;
+
+	rtd[device - rtd0] = value;
+
+
+}
 void set_device(uint8_t device, GPIO_PinState state){
 	switch(device){
 		case adc0:
