@@ -39,6 +39,7 @@ float pressure[22];
 uint16_t load[5];
 float thrust_load;
 float tc[16];
+uint16_t rtd[8];
 uint8_t temp = 0;
 int32_t count1;
 int32_t count2;
