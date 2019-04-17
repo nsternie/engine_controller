@@ -195,7 +195,7 @@ def flight_plots_update(item_clicked):
         temp_item.setBackground(QtGui.QColor(150, 250, 150))
         flight_table.setItem(item_clicked.row(), item_clicked.column(), temp_item)
         flight_active_plots[item_clicked.row()] = True
-        flight_curves[item_clicked.row()] = (flight_plots[0].plot(flight_x[n], flight_y[n], pen=(0,0,255)))
+        flight_curves[item_clicked.row()] = (flight_plots[0].plot(flight_x[n], [float(i) for i in flight_y[n]], pen=(0,0,255)))
 
 
 flight_clear_plot = QtGui.QPushButton("Clear plot")
