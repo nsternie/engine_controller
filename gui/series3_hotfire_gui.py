@@ -7,9 +7,15 @@ import struct
 import sys
 import time
 import os
+import ctypes
+import serial.tools.list_ports
 
 from hotfire_packet import ECParse
 from PlotDefinition import PlotDefinition
+
+#apparently I need to mess with process ids just to get the logo in the task bar
+myappid = 'MASA.LiveTelem.GroundStationUI.1' # arbitrary string
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 ###############################################################################
 ###   CONFIGURATION   #########################################################
@@ -169,9 +175,11 @@ flight_data_log.write(parser.csv_header)
 ###############################################################################
 app = QtGui.QApplication([])
 flight_window = QtGui.QWidget();
-flight_window.setWindowTitle("Flight")
+flight_window.setWindowTitle("MASA Engine Controller - Series 3")
 flight_layout = QtGui.QGridLayout()
 flight_window.setLayout(flight_layout)
+app.setWindowIcon(QtGui.QIcon('logos/logo2.png'))
+#flight_window.setStyleSheet(".QWidget{background-image: url(./logos/logo-greyed.png); background-repeat: no-repeat; background-position: center;}");
 
 zr = 2
 zc = 2
@@ -205,7 +213,7 @@ flight_clear_plot.clicked.connect(lambda: flight_reset_plot())
 pg.setConfigOption('background', 'w')
 flight_plots = []
 for n in range(flight_num_plots):
-    flight_plots.append(pg.PlotWidget(title='flight Plots '+str(n+1)))
+    flight_plots.append(pg.PlotWidget(title='Plot '+str(n+1)))
     flight_layout.addWidget(flight_plots[n], zr+(plot_area_height/flight_num_plots)*n, zc+10, int(plot_area_height/flight_num_plots), 7)
 
 
@@ -279,6 +287,29 @@ try:
         print("Serial port is not open")
 except:
     print("Could not open Serial Port")
+
+#scan ports
+ports = [p.device for p in serial.tools.list_ports.comports()]
+
+#connect to port
+def connect():
+    global ser, ports_box
+    if ser.isOpen():
+        ser.close()
+    try:
+        ser.port = str(ports_box.currentText())
+        ser.open()
+        ser.readline()
+        print("Connection established on %s" % str(ports_box.currentText()))
+    except:
+        print("Unable to connect to selected port or no ports available")
+
+#scan for com ports
+def scan():
+    global ports_box
+    ports = [p.device for p in serial.tools.list_ports.comports()]
+    ports_box.clear()
+    ports_box.addItems(ports)
 
 # ambientize init
 f_press = [0]*22
@@ -555,6 +586,20 @@ KILL2 = QtGui.QPushButton("End Run")
 flight_layout.addWidget(KILL2, zr+0, zc-2)
 KILL2.clicked.connect(death)
 
+#connection box (add to connection_layout)
+connection = QtGui.QGroupBox("Connection")
+flight_layout.addWidget(connection, zr+26, zc+8, 5, 1)
+connection_layout = QtGui.QGridLayout()
+connection.setLayout(connection_layout)
+scanButton = QtGui.QPushButton("Scan")
+scanButton.clicked.connect(scan)
+connection_layout.addWidget(scanButton, 1, 0)
+connectButton = QtGui.QPushButton("Connect")
+connectButton.clicked.connect(connect)
+connection_layout.addWidget(connectButton, 2, 0)
+ports_box = QtGui.QComboBox()
+connection_layout.addWidget(ports_box, 0, 0)
+
 if(1):
     # Add image
 
@@ -591,72 +636,6 @@ for n in range(0,32):
 	flight_valve_buttons[n][0].clicked.connect(lambda: toggle_valve('flight', n))
 	flight_valve_buttons[n][1].clicked.connect(lambda: toggle_valve('flight', n))
 
-# flight_valve_buttons[0][0].clicked.connect(lambda: toggle_valve('flight', 0))
-# flight_valve_buttons[1][0].clicked.connect(lambda: toggle_valve('flight', 1))
-# flight_valve_buttons[2][0].clicked.connect(lambda: toggle_valve('flight', 2))
-# flight_valve_buttons[3][0].clicked.connect(lambda: toggle_valve('flight', 3))
-# flight_valve_buttons[4][0].clicked.connect(lambda: toggle_valve('flight', 4))
-# flight_valve_buttons[5][0].clicked.connect(lambda: toggle_valve('flight', 5))
-# flight_valve_buttons[6][0].clicked.connect(lambda: toggle_valve('flight', 6))
-# flight_valve_buttons[7][0].clicked.connect(lambda: toggle_valve('flight', 7))
-# flight_valve_buttons[8][0].clicked.connect(lambda: toggle_valve('flight', 8))
-# flight_valve_buttons[9][0].clicked.connect(lambda: toggle_valve('flight', 9))
-# flight_valve_buttons[10][0].clicked.connect(lambda: toggle_valve('flight', 10))
-# flight_valve_buttons[11][0].clicked.connect(lambda: toggle_valve('flight', 11))
-# flight_valve_buttons[12][0].clicked.connect(lambda: toggle_valve('flight', 12))
-# flight_valve_buttons[13][0].clicked.connect(lambda: toggle_valve('flight', 13))
-# flight_valve_buttons[14][0].clicked.connect(lambda: toggle_valve('flight', 14))
-# flight_valve_buttons[15][0].clicked.connect(lambda: toggle_valve('flight', 15))
-# flight_valve_buttons[16][0].clicked.connect(lambda: toggle_valve('flight', 16))
-# flight_valve_buttons[17][0].clicked.connect(lambda: toggle_valve('flight', 17))
-# flight_valve_buttons[18][0].clicked.connect(lambda: toggle_valve('flight', 18))
-# flight_valve_buttons[19][0].clicked.connect(lambda: toggle_valve('flight', 19))
-# flight_valve_buttons[20][0].clicked.connect(lambda: toggle_valve('flight', 20))
-# flight_valve_buttons[21][0].clicked.connect(lambda: toggle_valve('flight', 21))
-# flight_valve_buttons[22][0].clicked.connect(lambda: toggle_valve('flight', 22))
-# flight_valve_buttons[23][0].clicked.connect(lambda: toggle_valve('flight', 23))
-# flight_valve_buttons[24][0].clicked.connect(lambda: toggle_valve('flight', 24))
-# flight_valve_buttons[25][0].clicked.connect(lambda: toggle_valve('flight', 25))
-# flight_valve_buttons[26][0].clicked.connect(lambda: toggle_valve('flight', 26))
-# flight_valve_buttons[27][0].clicked.connect(lambda: toggle_valve('flight', 27))
-# flight_valve_buttons[28][0].clicked.connect(lambda: toggle_valve('flight', 28))
-# flight_valve_buttons[29][0].clicked.connect(lambda: toggle_valve('flight', 29))
-# flight_valve_buttons[30][0].clicked.connect(lambda: toggle_valve('flight', 30))
-# flight_valve_buttons[31][0].clicked.connect(lambda: toggle_valve('flight', 31))
-
-# flight_valve_buttons[0][1].clicked.connect(lambda: toggle_valve('flight', 0))
-# flight_valve_buttons[1][1].clicked.connect(lambda: toggle_valve('flight', 1))
-# flight_valve_buttons[2][1].clicked.connect(lambda: toggle_valve('flight', 2))
-# flight_valve_buttons[3][1].clicked.connect(lambda: toggle_valve('flight', 3))
-# flight_valve_buttons[4][1].clicked.connect(lambda: toggle_valve('flight', 4))
-# flight_valve_buttons[5][1].clicked.connect(lambda: toggle_valve('flight', 5))
-# flight_valve_buttons[6][1].clicked.connect(lambda: toggle_valve('flight', 6))
-# flight_valve_buttons[7][1].clicked.connect(lambda: toggle_valve('flight', 7))
-# flight_valve_buttons[8][1].clicked.connect(lambda: toggle_valve('flight', 8))
-# flight_valve_buttons[9][1].clicked.connect(lambda: toggle_valve('flight', 9))
-# flight_valve_buttons[10][1].clicked.connect(lambda: toggle_valve('flight', 10))
-# flight_valve_buttons[11][1].clicked.connect(lambda: toggle_valve('flight', 11))
-# flight_valve_buttons[12][1].clicked.connect(lambda: toggle_valve('flight', 12))
-# flight_valve_buttons[13][1].clicked.connect(lambda: toggle_valve('flight', 13))
-# flight_valve_buttons[14][1].clicked.connect(lambda: toggle_valve('flight', 14))
-# flight_valve_buttons[15][1].clicked.connect(lambda: toggle_valve('flight', 15))
-# flight_valve_buttons[16][1].clicked.connect(lambda: toggle_valve('flight', 16))
-# flight_valve_buttons[17][1].clicked.connect(lambda: toggle_valve('flight', 17))
-# flight_valve_buttons[18][1].clicked.connect(lambda: toggle_valve('flight', 18))
-# flight_valve_buttons[19][1].clicked.connect(lambda: toggle_valve('flight', 19))
-# flight_valve_buttons[20][1].clicked.connect(lambda: toggle_valve('flight', 20))
-# flight_valve_buttons[21][1].clicked.connect(lambda: toggle_valve('flight', 21))
-# flight_valve_buttons[22][1].clicked.connect(lambda: toggle_valve('flight', 22))
-# flight_valve_buttons[23][1].clicked.connect(lambda: toggle_valve('flight', 23))
-# flight_valve_buttons[24][1].clicked.connect(lambda: toggle_valve('flight', 24))
-# flight_valve_buttons[25][1].clicked.connect(lambda: toggle_valve('flight', 25))
-# flight_valve_buttons[26][1].clicked.connect(lambda: toggle_valve('flight', 26))
-# flight_valve_buttons[27][1].clicked.connect(lambda: toggle_valve('flight', 27))
-# flight_valve_buttons[28][1].clicked.connect(lambda: toggle_valve('flight', 28))
-# flight_valve_buttons[29][1].clicked.connect(lambda: toggle_valve('flight', 29))
-# flight_valve_buttons[30][1].clicked.connect(lambda: toggle_valve('flight', 30))
-# flight_valve_buttons[31][1].clicked.connect(lambda: toggle_valve('flight', 31))
-
 
 ##############################################################################
 ### END FUNCTIONAL CONNECTIONS ###############################################
@@ -669,6 +648,9 @@ flight_window.setFixedSize(flight_window.size())
 timer2 = pg.QtCore.QTimer()
 timer2.timeout.connect(parse_serial)
 timer2.start(10) # 100hz for 10 as arg
+
+#scan at initialization
+scan()
 
 parity = True
 def reset_watchdog():
