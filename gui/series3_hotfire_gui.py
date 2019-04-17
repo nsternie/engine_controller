@@ -304,7 +304,7 @@ def ambientize():
 # Tare
 def tare():
     global lc_tare
-    lc_tare = lc_load
+    lc_tare = lc_load.copy()
 
 
 ###############################################################################

@@ -42,7 +42,7 @@ ivlv[2]	ivlv[2]	0	20	Amps		%.1f	uint8_t	10			float	e28v	0	|
 ivlv[3]	ivlv[3]	0	20	Amps		%.1f	uint8_t	10			float	i3v	0	|
 ivlv[4]	ivlv[4]	0	20	Amps		%.1f	uint8_t	10			float	i5v	0	|
 ivlv[5]	ivlv[5]	0	20	Amps		%.1f	uint8_t	10			float	tc	[0]*16	|
-ivlv[6]	ivlv[6]	0	20	Amps		%.1f	uint8_t	10			float			|
+ivlv[6]	ivlv[6]	0	20	Amps		%.1f	uint8_t	10			float	rtd	[0]*8	|
 ivlv[7]	ivlv[7]	0	20	Amps		%.1f	uint8_t	10			float			|
 ivlv[8]	ivlv[8]	0	20	Amps		%.1f	uint8_t	10			float			|
 ivlv[9]	ivlv[9]	0	20	Amps		%.1f	uint8_t	10			float			|
@@ -130,6 +130,14 @@ tc[12]	tc[12]			K		%d	uint16_t	1			float			|
 tc[13]	tc[13]			K		%d	uint16_t	1			float			|
 tc[14]	tc[14]			K		%d	uint16_t	1			float			|
 tc[15]	tc[15]			K		%d	uint16_t	1			float			|
+rtd[0]	rtd[0]			counts		%d	uint16_t	1			float			|
+rtd[1]	rtd[1]			counts		%d	uint16_t	1			float			|
+rtd[2]	rtd[2]			counts		%d	uint16_t	1			float			|
+rtd[3]	rtd[3]			counts		%d	uint16_t	1			float			|
+rtd[4]	rtd[4]			counts		%d	uint16_t	1			float			|
+rtd[5]	rtd[5]			counts		%d	uint16_t	1			float			|
+rtd[6]	rtd[6]			counts		%d	uint16_t	1			float			|
+rtd[7]	rtd[7]			counts		%d	uint16_t	1			float			|
 0	0					%d	uint8_t	1		zero	float			|
 0	0					%d	uint8_t	1		zero	float			|
 0	0					%d	uint8_t	1		zero	float			|
