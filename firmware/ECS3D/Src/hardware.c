@@ -320,7 +320,7 @@ void read_rtd(SPI_HandleTypeDef* SPI_BUS, uint8_t device){
 
 	uint16_t value = (high << 8) | low;
 
-	rtd[device - rtd0] = value;
+	rtd[device - rtd0] = (value/32)-256+273.15;
 
 
 }

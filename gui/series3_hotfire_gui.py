@@ -14,7 +14,7 @@ from hotfire_packet import ECParse
 from PlotDefinition import PlotDefinition
 
 #apparently I need to mess with process ids just to get the logo in the task bar
-myappid = 'MASA.LiveTelem.GroundStationUI.1' # arbitrary string
+myappid = 'MASA.EngineController.Series3.GUI' # arbitrary string
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 ###############################################################################
@@ -174,12 +174,26 @@ flight_data_log.write(parser.csv_header)
 # APPLICATION INITILIZATION ###################################################
 ###############################################################################
 app = QtGui.QApplication([])
+app.setWindowIcon(QtGui.QIcon('logos/logo2.png'))
 flight_window = QtGui.QWidget();
 flight_window.setWindowTitle("MASA Engine Controller - Series 3")
+tabs = QtGui.QTabWidget()
+control_widget = QtGui.QWidget()
+#temp_widget = QtGui.QWidget()
+pid_widget = QtGui.QWidget()
+tabs.addTab(control_widget, "Control")
+#tabs.addTab(temp_widget, "Temperatures")
+tabs.addTab(pid_widget, "P&ID")
+top_layout = QtGui.QGridLayout()
+top_layout.addWidget(tabs, 0, 1)
 flight_layout = QtGui.QGridLayout()
-flight_window.setLayout(flight_layout)
-app.setWindowIcon(QtGui.QIcon('logos/logo2.png'))
+control_widget.setLayout(flight_layout)
+flight_window.setLayout(top_layout)
+
+
+#interesting idea that didn't quite work out :(
 #flight_window.setStyleSheet(".QWidget{background-image: url(./logos/logo-greyed.png); background-repeat: no-repeat; background-position: center;}");
+pid_widget.setStyleSheet(".QWidget{background-image: url(./pid.png); background-repeat: no-repeat; background-position: center;}");
 
 zr = 2
 zc = 2
@@ -203,7 +217,7 @@ def flight_plots_update(item_clicked):
         temp_item.setBackground(QtGui.QColor(150, 250, 150))
         flight_table.setItem(item_clicked.row(), item_clicked.column(), temp_item)
         flight_active_plots[item_clicked.row()] = True
-        flight_curves[item_clicked.row()] = (flight_plots[0].plot(flight_x[n], [float(i) for i in flight_y[n]], pen=(0,0,255)))
+        flight_curves[item_clicked.row()] = (flight_plots[0].plot(flight_x[n], flight_y[n], pen=(0,0,255)))
 
 
 flight_clear_plot = QtGui.QPushButton("Clear plot")
@@ -346,120 +360,120 @@ def tare():
 write_csv_header = True
 def parse_serial():
     global ground_y, ground_x, ground_curves
-    # try:
-    if(True):
-        if(ser.is_open):
-            # Read a packet
-            packet = ser.readline()
-            # print(packet)
-            print(len(packet))
-            # if not(len(packet) == 139):
-            #      os.system("python G:\\Code\\python\\alert_bot.py \"Ivalid packet detected at"+time.ctime()+"\"")
-            #     # death()
-            #     # exit()
-            # if(len(packet) == 0):
-            #     os.system("python G:\\Code\\python\\alert_bot.py \"Zero packet detected. Exiting... at"+time.ctime()+"\"")
-            #     death()
-            #     exit()
-            
-            # Unstuff the packet
-            unstuffed = b''
-            index = int(packet[0])
-            for n in range(1, len(packet)):
-                temp = packet[n:n+1]
-                if(n == index):
-                    index = int(packet[n])+n
-                    temp = b'\n'
-                unstuffed = unstuffed + temp
-            packet = unstuffed
+    try:
+	    if(True):
+	        if(ser.is_open):
+	            # Read a packet
+	            packet = ser.readline()
+	            # print(packet)
+	            print(len(packet))
+	            # if not(len(packet) == 139):
+	            #      os.system("python G:\\Code\\python\\alert_bot.py \"Ivalid packet detected at"+time.ctime()+"\"")
+	            #     # death()
+	            #     # exit()
+	            # if(len(packet) == 0):
+	            #     os.system("python G:\\Code\\python\\alert_bot.py \"Zero packet detected. Exiting... at"+time.ctime()+"\"")
+	            #     death()
+	            #     exit()
+	            
+	            # Unstuff the packet
+	            unstuffed = b''
+	            index = int(packet[0])
+	            for n in range(1, len(packet)):
+	                temp = packet[n:n+1]
+	                if(n == index):
+	                    index = int(packet[n])+n
+	                    temp = b'\n'
+	                unstuffed = unstuffed + temp
+	            packet = unstuffed
 
-            #parser.parse_packet(packet)
-            try:
-                parser.parse_packet(packet)
-            except:
-                print("Packet lost")
-            #except Exception as e: 
-                #print(e)
+	            #parser.parse_packet(packet)
+	            try:
+	                parser.parse_packet(packet)
+	            except:
+	                print("Packet lost")
+	            #except Exception as e: 
+	                #print(e)
 
-            ###################################################################
-            ### END GROUND DATA UPDATE ########################################
-            ###################################################################
+	            ###################################################################
+	            ### END GROUND DATA UPDATE ########################################
+	            ###################################################################
 
-            ###################################################################
-            ### FLIGHT DATA UPDATE ############################################
-            ###################################################################
+	            ###################################################################
+	            ### FLIGHT DATA UPDATE ############################################
+	            ###################################################################
 
-            if(parser.BOARD_ID == TARGET_ADDRESS_FLIGHT):
-                flight_data_log.write(parser.log_string+'\n')
-                flight_serial_log.write(time.strftime("%H:%M:%S"))
-                flight_serial_log.write(str(packet)+'length = '+str(len(packet))+'\n')
-
-
-
-                if(parser.ebatt < 10):
-                    print(len(packet))
-                else:
-                    # print(str(len(packet))+" - good")
-                    pass
-
-                for n in range(parser.num_items-1):
-                    flight_y[n].append(parser.dict[parser.items[n]])
-                    flight_x[n].append(time.strftime("%H:%M:%S"))
-                    flight_y[n] = flight_y[n][-BUFFER_SIZE:]
-                    flight_x[n] = flight_x[n][-BUFFER_SIZE:]
-                    if flight_active_plots[n]:
-                        flight_curves[n].setData(flight_x[n][:], flight_y[n][:])
-                        app.processEvents()
+	            if(parser.BOARD_ID == TARGET_ADDRESS_FLIGHT):
+	                flight_data_log.write(parser.log_string+'\n')
+	                flight_serial_log.write(time.strftime("%H:%M:%S"))
+	                flight_serial_log.write(str(packet)+'length = '+str(len(packet))+'\n')
 
 
-                mask = 1
-                # Update valve state feedback
-                for n in range(0, 32):
-                    state = 0
-                    if(mask & parser.valve_states):
-                        state = 1
 
-                    vlv_id = 'f'+'vlv'+str(n)
-                    if vlv_id in alias.keys():
-                        vlv_id = str(n) + ': ' + alias[vlv_id]
+	                if(parser.ebatt < 10):
+	                    print(len(packet))
+	                else:
+	                    # print(str(len(packet))+" - good")
+	                    pass
 
-                    flight_valve_buttons[n][0].setText(vlv_id+" is "+str(state))
-                    flight_valve_buttons[n][3].setText(str(parser.ivlv[n])+"A / "+str(parser.evlv[n])+"V")
-                    mask = mask << 1
-                for n in range(0, 22): # update pressures
-                    this_press = parser.pressure[n]
-                    if(alias['fpressure'+str(n)] in cal_offset.keys()):
-                        this_press -= cal_offset[alias['fpressure'+str(n)]]
-                        this_press *= cal_slope[alias['fpressure'+str(n)]]
-                    f_press[n] = this_press
-                    this_press -= float(f_ambient[n])
-                    this_press = int(this_press)
-                    flight_pressure_labels[n][1].setText(str(this_press)+" psi")
-                total_thrust = 0
-                for n in range(0, 3): # update loadcells
-                    this_load = parser.load[n]
-                    if('LOADCELL-'+str(n) in cal_offset.keys()):
-                        this_load -= cal_offset['LOADCELL-'+str(n)]
-                        this_load *= cal_slope['LOADCELL-'+str(n)]
-                    lc_load[n] = this_load
-                    this_load -= float(lc_tare[n])
-                    total_thrust += this_load
-                    this_load = int(this_load)
-                    flight_load_cell_labels[n][1].setText(str(this_load)+" kg")
-                flight_total_load_label[1].setText(str(int(total_thrust))+" kg")
+	                for n in range(parser.num_items-1):
+	                    flight_y[n].append(parser.dict[parser.items[n]])
+	                    flight_x[n].append(time.time())
+	                    flight_y[n] = flight_y[n][-BUFFER_SIZE:]
+	                    flight_x[n] = flight_x[n][-BUFFER_SIZE:]
+	                    if flight_active_plots[n]:
+	                        flight_curves[n].setData(flight_x[n][:], flight_y[n][:])
+	                        app.processEvents()
 
-                state_label.setText("STATE = "+state_dict[parser.STATE])
 
-                for n in range(parser.num_items - 1):
-                    flight_table.setItem(n, 1, QtGui.QTableWidgetItem(str(parser.dict[parser.items[n]])))
+	                mask = 1
+	                # Update valve state feedback
+	                for n in range(0, 32):
+	                    state = 0
+	                    if(mask & parser.valve_states):
+	                        state = 1
 
-            ###################################################################
-            ### END FLIGHT DATA UPDATE ########################################
-            ###################################################################
+	                    vlv_id = 'f'+'vlv'+str(n)
+	                    if vlv_id in alias.keys():
+	                        vlv_id = str(n) + ': ' + alias[vlv_id]
 
-    # except Exception:
-    #     pass
-        # raise Exception
+	                    flight_valve_buttons[n][0].setText(vlv_id+" is "+str(state))
+	                    flight_valve_buttons[n][3].setText(str(parser.ivlv[n])+"A / "+str(parser.evlv[n])+"V")
+	                    mask = mask << 1
+	                for n in range(0, 22): # update pressures
+	                    this_press = parser.pressure[n]
+	                    if(alias['fpressure'+str(n)] in cal_offset.keys()):
+	                        this_press -= cal_offset[alias['fpressure'+str(n)]]
+	                        this_press *= cal_slope[alias['fpressure'+str(n)]]
+	                    f_press[n] = this_press
+	                    this_press -= float(f_ambient[n])
+	                    this_press = int(this_press)
+	                    flight_pressure_labels[n][1].setText(str(this_press)+" psi")
+	                total_thrust = 0
+	                for n in range(0, 3): # update loadcells
+	                    this_load = parser.load[n]
+	                    if('LOADCELL-'+str(n) in cal_offset.keys()):
+	                        this_load -= cal_offset['LOADCELL-'+str(n)]
+	                        this_load *= cal_slope['LOADCELL-'+str(n)]
+	                    lc_load[n] = this_load
+	                    this_load -= float(lc_tare[n])
+	                    total_thrust += this_load
+	                    this_load = int(this_load)
+	                    flight_load_cell_labels[n][1].setText(str(this_load)+" kg")
+	                flight_total_load_label[1].setText(str(int(total_thrust))+" kg")
+
+	                state_label.setText("STATE = "+state_dict[parser.STATE])
+
+	                for n in range(parser.num_items - 1):
+	                    flight_table.setItem(n, 1, QtGui.QTableWidgetItem(str(parser.dict[parser.items[n]])))
+
+	            ###################################################################
+	            ### END FLIGHT DATA UPDATE ########################################
+	            ###################################################################
+
+    except Exception as e:
+    	#print(e)
+    	pass
 
 flight_valve_buttons = []
 flight_pressure_labels = []
@@ -469,13 +483,12 @@ flight_load_cell_labels = []
 for valve_buttons, pressure_labels, load_labels, abbrev in [(flight_valve_buttons, flight_pressure_labels, flight_load_cell_labels, 'f')]:
     for n in range(0, 32):
 
-        # Valve wdgets init
+        # Valve widgets init
         temp = []
         vlv_id = abbrev+'vlv'+str(n)
         if vlv_id in alias.keys():
             vlv_id = alias[vlv_id]
-        temp.append(QtGui.QPushButton(str(vlv_id)+' = OFF'))
-        temp.append(QtGui.QPushButton(str(vlv_id)+' = ON'))
+        temp.append(QtGui.QPushButton(str(vlv_id)+' is 0'))
         temp.append(QtGui.QLabel())
         temp.append(QtGui.QLabel())
         temp.append(QtGui.QLabel())
@@ -491,7 +504,7 @@ for valve_buttons, pressure_labels, load_labels, abbrev in [(flight_valve_button
         if press_id in alias.keys():
             press_id = str(n) + ': ' + alias[press_id]
         pressure_labels[n][0].setText(press_id+":")
-        pressure_labels[n][1].setText(str(0)+"psi")
+        pressure_labels[n][1].setText(str(0)+" psi")
  
  # Load cell reading widgets init
     for n in range(0, 3):
@@ -634,7 +647,6 @@ def toggle_valve(board, vlv_id):
 # FLIGHT VALVES
 for n in range(0,32):
 	flight_valve_buttons[n][0].clicked.connect(lambda: toggle_valve('flight', n))
-	flight_valve_buttons[n][1].clicked.connect(lambda: toggle_valve('flight', n))
 
 
 ##############################################################################
