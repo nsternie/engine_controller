@@ -1,0 +1,56 @@
+
+#n/** Configure pins as #n #t#t #t* Analog #n #t#t #t* Input #n #t#t #t* Output#n #t#t #t* EVENT_OUT#n #t#t #t* EXTI
+*/
+static void MX_GPIO_Init(void)
+{
+#n
+#tGPIO_InitTypeDef GPIO_InitStruct;
+#n#t/* GPIO Ports Clock Enable */
+#t__HAL_RCC_GPIOE_CLK_ENABLE();
+#t__HAL_RCC_GPIOC_CLK_ENABLE();
+#t__HAL_RCC_GPIOA_CLK_ENABLE();
+#t__HAL_RCC_GPIOB_CLK_ENABLE();
+#t__HAL_RCC_GPIOD_CLK_ENABLE();
+#n#t/*Configure GPIO pin Output Level */
+#tHAL_GPIO_WritePin(GPIOE, ADC0_CS_Pin|ADC2_CS_Pin, GPIO_PIN_RESET);
+#n#t/*Configure GPIO pin Output Level */
+#tHAL_GPIO_WritePin(GPIOC, vlv7_Pin|vlv6_Pin|vlv5_Pin|vlv4_Pin, GPIO_PIN_RESET);
+#n#t/*Configure GPIO pin Output Level */
+#tHAL_GPIO_WritePin(GPIOA, vlv3_Pin|vlv2_Pin|vlv1_Pin|vlv0_Pin #n#t#t#t#t#t#t#t#t#t#t#t#t#t|ADC1_CS_Pin, GPIO_PIN_RESET);
+#n#t/*Configure GPIO pin Output Level */
+#tHAL_GPIO_WritePin(GPIOB, MEM_CS_Pin|EEPROM_CS_Pin, GPIO_PIN_RESET);
+#n#t/*Configure GPIO pin Output Level */
+#tHAL_GPIO_WritePin(GPIOD, led0_Pin|led1_Pin|led2_Pin|led3_Pin #n#t#t#t#t#t#t#t#t#t#t#t#t#t|ina_mtr0_Pin|inb_mtr0_Pin|ina_mtr1_Pin|inb_mtr1_Pin, GPIO_PIN_RESET);
+#n#t/*Configure GPIO pins : ADC0_CS_Pin ADC2_CS_Pin */
+#tGPIO_InitStruct.Pin = ADC0_CS_Pin|ADC2_CS_Pin;
+#tGPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+#tGPIO_InitStruct.Pull = GPIO_NOPULL;
+#tGPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+#tHAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+#n#t/*Configure GPIO pins : vlv7_Pin vlv6_Pin vlv5_Pin vlv4_Pin */
+#tGPIO_InitStruct.Pin = vlv7_Pin|vlv6_Pin|vlv5_Pin|vlv4_Pin;
+#tGPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+#tGPIO_InitStruct.Pull = GPIO_NOPULL;
+#tGPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+#tHAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+#n#t/*Configure GPIO pins : vlv3_Pin vlv2_Pin vlv1_Pin vlv0_Pin #n#t#t#t#t#t#t#t#t#t#t#t#t#t ADC1_CS_Pin */
+#tGPIO_InitStruct.Pin = vlv3_Pin|vlv2_Pin|vlv1_Pin|vlv0_Pin #n#t#t#t#t#t#t#t#t#t#t#t#t#t|ADC1_CS_Pin;
+#tGPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+#tGPIO_InitStruct.Pull = GPIO_NOPULL;
+#tGPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+#tHAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+#n#t/*Configure GPIO pins : MEM_CS_Pin EEPROM_CS_Pin */
+#tGPIO_InitStruct.Pin = MEM_CS_Pin|EEPROM_CS_Pin;
+#tGPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+#tGPIO_InitStruct.Pull = GPIO_NOPULL;
+#tGPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+#tHAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+#n#t/*Configure GPIO pins : led0_Pin led1_Pin led2_Pin led3_Pin #n#t#t#t#t#t#t#t#t#t#t#t#t#t ina_mtr0_Pin inb_mtr0_Pin ina_mtr1_Pin inb_mtr1_Pin */
+#tGPIO_InitStruct.Pin = led0_Pin|led1_Pin|led2_Pin|led3_Pin #n#t#t#t#t#t#t#t#t#t#t#t#t#t|ina_mtr0_Pin|inb_mtr0_Pin|ina_mtr1_Pin|inb_mtr1_Pin;
+#tGPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+#tGPIO_InitStruct.Pull = GPIO_NOPULL;
+#tGPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+#tHAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+#n
+}
+#n

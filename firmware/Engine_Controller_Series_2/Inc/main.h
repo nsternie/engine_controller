@@ -69,8 +69,8 @@
 #define vlv1_GPIO_Port GPIOA
 #define vlv0_Pin GPIO_PIN_4
 #define vlv0_GPIO_Port GPIOA
-#define FLASH_CS_Pin GPIO_PIN_0
-#define FLASH_CS_GPIO_Port GPIOB
+#define MEM_CS_Pin GPIO_PIN_0
+#define MEM_CS_GPIO_Port GPIOB
 #define EEPROM_CS_Pin GPIO_PIN_1
 #define EEPROM_CS_GPIO_Port GPIOB
 #define led0_Pin GPIO_PIN_8

@@ -1,40 +1,58 @@
 Device	Alias
-vlv0	0 - Ox Vent
-vlv1	1 - Fuel Vent
-vlv2	2 - Ox Fill
-vlv3	3 - Ox Drain
-vlv4	4 - N2 Drain
-vlv5	5 - N2 Fill
-vlv6	6 - Ox QD
-vlv7	7 - Water
-vlv8	8 - Camera
-vlv9	9 - R.I.P.
-vlv10	__		 
-vlv11	__
-vlv12	__
-vlv13	__
-vlv14	__
-vlv15	IGNITER
-pressure0	0 - DP
-pressure1	1 - Chamber
-pressure2	2 - Ox Man
-pressure3	3 - Fuel Man
-pressure4	4 - Ox Tank
-pressure5	5 - Fuel Tank
-pressure6	6 - __
-pressure7	7 - __
-pressure8	8 - Ox Fill Hose
-pressure9	9 - MOM
-pressure10	10 - N2 Fill
-pressure11	11 - N2 Mother
-pressure12	12 - __
-pressure13	13 - __
-pressure14	14 - _s_
-pressure15	15 - __
-mtr0	OX VALVE
-mtr1	FUEL VALVE
-mtr2	unused
-mtr3	unused
+fvlv0	OX-SN-F01
+fvlv1	HE-SN-F11
+fvlv2	HE-SN-F07
+fvlv3	HE-SN-F08
+fvlv4	HE-SN-F09-OPEN
+fvlv5	HE-SN-F10-OPEN
+fvlv6	ET-SN-F02
+fvlv7	ET-SN-F01
+fvlv8	OX-SN-G01
+fvlv9	OX-SN-G02
+fvlv10	OX-SN-G03
+fvlv11	HE-SN-G01
+fvlv12	HE-SN-G02
+fvlv13	.
+fvlv14	HE-SN-G03
+fvlv15	HE-SN-G04
+fvlv16	HE-SN-G05
+fvlv17	HE-SN-G06
+fvlv18	.
+fvlv19	NI-SN-G01
+fvlv20	NI-SN-G02
+fvlv21	.
+fvlv22	.
+fvlv23	.
+fvlv24	HE-SN-F09-CLOSED
+fvlv25	.
+fvlv26	IGNITER
+fvlv27	.
+fvlv28	.
+fvlv29	.
+fvlv30	.
+fvlv31	.
+fpressure0	NC
+fpressure1	NC
+fpressure2	NC
+fpressure3	NC
+fpressure4	NC
+fpressure5	NC
+fpressure6	NC
+fpressure7	OX-PT-F02
+fpressure8	ET-PT-F03
+fpressure9	OX-PT-F01
+fpressure10	HE-PT-F02
+fpressure11	ET-PT-F01
+fpressure12	ET-PT-F02
+fpressure13	OX-PT-G02
+fpressure14	HE-PT-G03
+fpressure15	NI-PT-G01
+fpressure16	NI-PT-G02
+fpressure17	OX-PT-G01
+fpressure18	NI-PT-G00
+fpressure19	EX-PT-F01
+fpressure20	HE-PT-F03
+fpressure21	HE-PT-G01
 STATE0	ERROR
 STATE1	MANUAL
 STATE2	ARMED
@@ -44,4 +62,5 @@ STATE5	FULL_DURATION
 STATE6	PRE_IGNITION
 STATE7	FULL_DURATION_SAFE
 STATE_N	8
-COM_PORT	COM13
+COM_PORT	COM4
+BAUDRATE	115200
