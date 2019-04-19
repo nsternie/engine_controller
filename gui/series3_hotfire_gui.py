@@ -422,7 +422,7 @@ def parse_serial():
 	                    flight_y[n] = flight_y[n][-BUFFER_SIZE:]
 	                    flight_x[n] = flight_x[n][-BUFFER_SIZE:]
 	                    if flight_active_plots[n]:
-	                        flight_curves[n].setData(flight_x[n][:], flight_y[n][:])
+	                        flight_curves[n].setData(flight_x[n][1:], flight_y[n][1:])
 	                        app.processEvents()
 
 
