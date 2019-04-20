@@ -176,7 +176,7 @@ flight_data_log.write(parser.csv_header)
 app = QtGui.QApplication([])
 app.setWindowIcon(QtGui.QIcon('logos/logo2.png'))
 flight_window = QtGui.QWidget();
-flight_window.setWindowTitle("MASA Engine Controller - Series 3")
+flight_window.setWindowTitle("MASA Engine Controller - Series 3 - " + str(run_name))
 tabs = QtGui.QTabWidget()
 control_widget = QtGui.QWidget()
 #temp_widget = QtGui.QWidget()
