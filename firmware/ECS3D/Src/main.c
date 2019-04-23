@@ -299,7 +299,7 @@ int main(void)
 			command(vlv4, 0);	// MPVF Open
 			command(vlv26, 0);	// Igniter
 		}
-		else if(T > 1005){
+		else if(T > 1050){
 			command(vlv5, 1);	// MPVO
 		}
 		else if(T > 1000){

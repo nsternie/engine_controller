@@ -602,10 +602,10 @@ class ECParse:
 		self.tc[15] = float((float(struct.unpack("<H", byte_rep)[0]))/1)
 		self.dict[self.items[130]] = self.tc[15]
 		byte_rep = packet[203:205]
-		self.rtd[0] = float((float(struct.unpack("<H", byte_rep)[0]))/1)
+		self.rtd[0] = float((float(struct.unpack("<H", byte_rep)[0]))/1)-273.15
 		self.dict[self.items[131]] = self.rtd[0]
 		byte_rep = packet[205:207]
-		self.rtd[1] = float((float(struct.unpack("<H", byte_rep)[0]))/1)
+		self.rtd[1] = float((float(struct.unpack("<H", byte_rep)[0]))/1)-273.15
 		self.dict[self.items[132]] = self.rtd[1]
 		byte_rep = packet[207:209]
 		self.rtd[2] = float((float(struct.unpack("<H", byte_rep)[0]))/1)
