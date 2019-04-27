@@ -421,22 +421,22 @@ void scale_readings(){
 		}
 	}
 
-	ebatt = (adc_data[4][0])*ebatt_cal;
-	ibus = (adc_data[4][1])*ibus_cal;
-	e5v = (adc_data[4][2])*e5v_cal;
-	e3v = (adc_data[4][3])*e3v_cal;
-	i5v = (adc_data[4][9])*i5v_cal;
-	i3v = (adc_data[4][8])*i3v_cal;
+	//ebatt = (adc_data[4][0])*ebatt_cal;
+	//ibus = (adc_data[4][1])*ibus_cal;
+	//e5v = (adc_data[4][2])*e5v_cal;
+	//e3v = (adc_data[4][3])*e3v_cal;
+	//i5v = (adc_data[4][9])*i5v_cal;
+	//i3v = (adc_data[4][8])*i3v_cal;
 
-	tbrd = (adc_data[4][5])/1.24;
-	tbrd -= 600;
-	tbrd /= 10;
-	tvlv = (adc_data[4][6])/1.24;
-	tvlv -= 600;
-	tvlv /= 10;
-	tmtr = (adc_data[4][7])/1.24;
-	tmtr -= 600;
-	tmtr /= 10;
+	//tbrd = (adc_data[4][5])/1.24;
+	//tbrd -= 600;
+	//tbrd /= 10;
+	//tvlv = (adc_data[4][6])/1.24;
+	//tvlv -= 600;
+	//tvlv /= 10;
+	//tmtr = (adc_data[4][7])/1.24;
+	//tmtr -= 600;
+	//tmtr /= 10;
 
 	for(uint8_t n = 0; n < 16; n ++){
 		pressure[n] = adc_data[5][15-n];

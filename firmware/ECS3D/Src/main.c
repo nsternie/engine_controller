@@ -322,7 +322,7 @@ int main(void)
 		command(led0, 1);
 		for(uint8_t n = 0; n < 7; n++){
 			if(n == 4){
-				read_adc(&hspi2, n);
+				//read_adc(&hspi2, n);
 			}
 			else{
 				read_adc(&hspi1, n);
