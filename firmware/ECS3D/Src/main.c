@@ -1,4 +1,4 @@
-
+2
 /**
   ******************************************************************************
   * @file           : main.c
@@ -278,39 +278,39 @@ int main(void)
 	if(STATE == FIRING){
 		uint32_t T = millis - main_auto_start_time;
 
-		if(T > 4000){
+		if(T > 4850){
 			command(vlv1, 0);	// Fuel purge
-			command(vlv15, 0);	// Ox Purge
+			command(vlv15, 0);	// Ox Purge solenoid1
+			command(vlv14,0);	// Ox Purge solenoid2
 
 			STATE = FULL_DURATION_SAFE; // Complete
 		}
-		else if(T > 2350){
-			command(vlv24, 0);	//MPVF Close
+		else if(T > 1850){
+			command(vlv24, 0);	//MPVF depressed closed
 			command(vlv1, 1);	// Fuel Purge
-			command(vlv15, 1);	// Ox Purge
+			command(vlv15, 1);	// Ox Purge solenoid1
+			command(vlv14,1); 	// Ox Purge solenoid2
 		}
-		else if(T > 2250){
-			command(vlv5, 0);	// MPVO
-			command(vlv2, 0);	// Ox Press
-			command(vlv3, 0);	// Fuel Press
-			command(vlv24, 1);	// MPVF Close
-		}
-		else if(T > 1500){
-			command(vlv4, 0);	// MPVF Open
-			command(vlv26, 0);	// Igniter
-		}
-		else if(T > 1050){
-			command(vlv5, 1);	// MPVO
+		else if(T > 1750){
+			command(vlv5, 0);	// MPVO pressed closed
+			command(vlv2, 0);	// Ox Press close
+			command(vlv3, 0);	// Fuel Press close
+			command(vlv24, 1);	// MPVF pressed closed
 		}
 		else if(T > 1000){
-			command(vlv4, 1);	// MPVF Open
+			command(vlv4, 0);	// MPVF depress opened
+			command(vlv26, 0);	// Igniter
+		}
+		else if(T > 525){
+			command(vlv5, 1);	// MPVO depressed open
 		}
 		else if(T > 500){
-			command(vlv2, 1);	// Ox Press
-			command(vlv3, 1);	// Fuel Press
+			command(vlv4, 1);	// MPVF pressed Open
 		}
 		else if(T > 0){
 			command(vlv26, 1);   // Igniter
+			command(vlv2, 1);	// Ox Press
+			command(vlv3, 1);	// Fuel Press
 		}
 
 	}
