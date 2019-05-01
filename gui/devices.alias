@@ -1,5 +1,5 @@
 Device	Alias
-fvlv0	OX-SN-F01
+fvlv0	BROKEN
 fvlv1	HE-SN-F11
 fvlv2	HE-SN-F07
 fvlv3	HE-SN-F08
@@ -29,7 +29,7 @@ fvlv26	IGNITER
 fvlv27	.
 fvlv28	.
 fvlv29	.
-fvlv30	.
+fvlv30	OX-SN-F01
 fvlv31	.
 fpressure0	NC
 fpressure1	NC
