@@ -271,6 +271,12 @@ int main(void)
   while (1)
   {
 
+	if((((pressure[9] - 310.303)* 0.64453125) - 12.69) > 35){
+		command(vlv20, 1);
+	}else{
+		command(vlv20, 0);
+	}
+
 	if(STATE == IGNITION){
 		main_auto_start_time = millis;
 		STATE = FIRING;
