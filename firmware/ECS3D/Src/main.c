@@ -268,14 +268,24 @@ int main(void)
 
  	uint32_t main_auto_start_time;
 
+  uint32_t last_bang_time = 0;
+
+  uint32_t bang_bang_delay = 300;
+
   while (1)
   {
 
-	if((((pressure[9] - 310.303)* 0.64453125) - 12.69) > 35){
-		command(vlv20, 1);
-	}else{
-		command(vlv20, 0);
-	}
+  if(STATE == ARMED){
+    if(millis - last_bang_time > 2 * bang_bang_delay){
+      last_bang_time = millis;
+      command(vlv0,0);
+    }else if (millis - last_bang_time > bang_bang_delay){
+      command(vlv0, 1);
+    }else{
+      command(vlv0, 0);
+    }
+  }
+
 
 	if(STATE == IGNITION){
 		main_auto_start_time = millis;
