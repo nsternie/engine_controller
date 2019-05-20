@@ -119,6 +119,7 @@
 #define FULL_DURATION	 	5
 #define PRE_IGNITION	 	6
 #define FULL_DURATION_SAFE 	7
+#define PRIME_TANKS			8
 
 
 #define MAX_COMMAND_ARGS 	7

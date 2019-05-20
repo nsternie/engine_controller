@@ -565,6 +565,11 @@ void disarm(int32_t argc, int32_t* argv){
 	STATE = MANUAL;
 
 }
+
+void prime_tanks(int32_t argc, int32_t* argv){
+	STATE = PRIME_TANKS;
+}
+
 void main_auto_start(int32_t argc, int32_t* argv){
 	if(STATE == ARMED){
 //		main_auto_start_time = millis;

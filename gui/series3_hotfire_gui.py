@@ -12,10 +12,16 @@ import serial.tools.list_ports
 
 from hotfire_packet import ECParse
 from PlotDefinition import PlotDefinition
+from sys import platform
 
-#apparently I need to mess with process ids just to get the logo in the task bar
-myappid = 'MASA.EngineController.Series3.GUI' # arbitrary string
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+#GUI has to be runnable from mac and windows goign forward so this is probably the best way to do it
+#Alternative is to distribute a mac and windows version
+if platform == "win32":
+    #apparently I need to mess with process ids just to get the logo in the task bar
+    #This only applies to windows
+    myappid = 'MASA.EngineController.Series3.GUI' # arbitrary string
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 ###############################################################################
 ###   CONFIGURATION   #########################################################
@@ -54,6 +60,7 @@ COMAND_LOGRATE_SET        =    65
 COMMAND_ARM                =    100
 COMMAND_DISARM            =    101
 COMMAND_MAIN_AUTO_START    =    102
+COMMAND_PRIME_TANKS       =     103
 TARGET_ADDRESS_GROUND     =    100
 TARGET_ADDRESS_FLIGHT     =    101
 
@@ -583,10 +590,12 @@ state_label = QtGui.QLabel("STATE = N/A")
 arm_button = QtGui.QPushButton("ARM")
 disarm_button = QtGui.QPushButton("DISARM")
 hotfire_button = QtGui.QPushButton("HOTFIRE")
+prime_button = QtGui.QPushButton("PRIME TANKS");
 flight_layout.addWidget(state_label, zr+26, zc+5, 1, 3)
 flight_layout.addWidget(arm_button, zr+27, zc+5, 1, 3)
 flight_layout.addWidget(disarm_button, zr+28, zc+5, 1, 3)
 flight_layout.addWidget(hotfire_button, zr+29, zc+5, 1, 3)
+flight_layout.addWidget(prime_button, zr+30, zc+5, 1, 3)
 
 #kill runt
 def death():
@@ -638,6 +647,7 @@ if(0):
 arm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_ARM, 0, []))
 disarm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DISARM, 0, []))
 hotfire_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_MAIN_AUTO_START, 0, []))
+prime_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_PRIME_TANKS, 0, []))
 
 def toggle_valve(board, vlv_id):
     if board is 'flight':

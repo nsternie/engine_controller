@@ -55,6 +55,7 @@
 #define COMMAND_ARM				100
 #define COMMAND_DISARM			101
 #define COMMAND_MAIN_AUTO_START	102
+#define COMMAND_PRIME_TANKS		103
 
 #define TARGET_ADDRESS_GROUND 100
 #define TARGET_ADDRESS_FLIGHT 101
@@ -85,6 +86,7 @@ void motor_enable(int32_t argc, int32_t* argv);
 void arm(int32_t argc, int32_t* argv);
 void disarm(int32_t argc, int32_t* argv);
 void main_auto_start(int32_t argc, int32_t* argv);
+void prime_tanks(int32_t argc, int32_t* argv);
 void qd_set(int32_t argc, int32_t* argv);
 void pwm_set(int32_t argc, int32_t* argv);
 void telemrate_set(int32_t argc, int32_t* argv);

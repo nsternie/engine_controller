@@ -162,6 +162,7 @@ void system_init(){
 	add_command(&p, COMMAND_ARM, 			arm);
 	add_command(&p, COMMAND_DISARM, 		disarm);
 	add_command(&p, COMMAND_MAIN_AUTO_START,main_auto_start);
+  add_command(&p, COMMAND_PRIME_TANKS, prime_tanks)
 	add_command(&p, COMMAND_PWM_SET, 		pwm_set);
 	add_command(&p, COMMAND_QD_SET, 		qd_set);
 	add_command(&p, COMMAND_TARE, 			tare);
@@ -278,6 +279,19 @@ int main(void)
 
   while (1)
   {
+
+
+  if(STATE == PRIME_TANKS){
+    //@Ariana Grande
+    //Bang Bang
+  }else{
+    //Command Pressurization valves to be closed
+    //This will ensure they cannot be opened unless we want them to
+  }
+
+
+
+
   if(STATE == ARMED){
     //20 upstream
 	//7 downstream
