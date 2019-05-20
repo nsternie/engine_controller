@@ -266,24 +266,47 @@ int main(void)
 
  	uint32_t last_motor_millis = 0;
 
- 	uint32_t main_auto_start_time;
+  uint32_t main_auto_start_time;
 
   uint32_t last_bang_time = 0;
 
-  uint32_t bang_bang_delay = 300;
+  uint32_t bang_bang_delay = 75;
+
+  uint32_t run_once = 0;
+
+  //uint32_t bang_bang_pressure_tolerance_factor = .70;
 
   while (1)
   {
-
   if(STATE == ARMED){
-    if(millis - last_bang_time > 2 * bang_bang_delay){
-      last_bang_time = millis;
-      command(vlv0,0);
-    }else if (millis - last_bang_time > bang_bang_delay){
-      command(vlv0, 1);
-    }else{
-      command(vlv0, 0);
-    }
+    //20 upstream
+	//7 downstream
+	//valve 30
+	//valve 19 downstream
+
+//	if((((pressure[7] - 310.3030303) * 0.64453125)-4.9)< (bang_bang_set_pressure - 5)){
+//		command(vlv30, 1);
+//	}else if((((pressure[7] - 310.3030303) * 0.64453125)-4.9) > (bang_bang_set_pressure * .1)){
+//		command(vlv30, 0);
+//	}
+
+//	if(millis - last_bang_time > 200){
+//		command(vlv30,0);
+//		last_bang_time = millis;
+//	}else if(millis - last_bang_time > 100){
+//		command(vlv30,1);
+//	}
+
+
+
+//	if((((pressure[20] - 310.3030303) * 2.416992188) -1.6)<  (bang_bang_set_pressure + 90)){
+//		command(vlv30,0);
+//		STATE = FULL_DURATION_SAFE;
+//	}
+  }
+
+  if(STATE == FULL_DURATION_SAFE){
+	  //command(vlv30,0);
   }
 
 
@@ -294,42 +317,50 @@ int main(void)
 	if(STATE == FIRING){
 		uint32_t T = millis - main_auto_start_time;
 
-		if(T > 4850){
-			command(vlv1, 0);	// Fuel purge
-			command(vlv15, 0);	// Ox Purge solenoid1
-			command(vlv14,0);	// Ox Purge solenoid2
-
-			STATE = FULL_DURATION_SAFE; // Complete
+		if(T < 100){
+			command(vlv30,1);
+		}else{
+			command(vlv30,0);
 		}
-		else if(T > 1850){
-			command(vlv24, 0);	//MPVF depressed closed
-			command(vlv1, 1);	// Fuel Purge
-			command(vlv15, 1);	// Ox Purge solenoid1
-			command(vlv14,1); 	// Ox Purge solenoid2
-		}
-		else if(T > 1750){
-			command(vlv5, 0);	// MPVO pressed closed
-			command(vlv2, 0);	// Ox Press close
-			command(vlv3, 0);	// Fuel Press close
-			command(vlv24, 1);	// MPVF pressed closed
-		}
-		else if(T > 1000){
-			command(vlv4, 0);	// MPVF depress opened
-			command(vlv26, 0);	// Igniter
-		}
-		else if(T > 525){
-			command(vlv5, 1);	// MPVO depressed open
-		}
-		else if(T > 500){
-			command(vlv4, 1);	// MPVF pressed Open
-		}
-		else if(T > 0){
-			command(vlv26, 1);   // Igniter
-			command(vlv2, 1);	// Ox Press
-			command(vlv3, 1);	// Fuel Press
-		}
-
 	}
+//		uint32_t T = millis - main_auto_start_time;
+//
+//		if(T > 4850){
+//			command(vlv1, 0);	// Fuel purge
+//			command(vlv15, 0);	// Ox Purge solenoid1
+//			command(vlv14,0);	// Ox Purge solenoid2
+//
+//			STATE = FULL_DURATION_SAFE; // Complete
+//		}
+//		else if(T > 1850){
+//			command(vlv24, 0);	//MPVF depressed closed
+//			command(vlv1, 1);	// Fuel Purge
+//			command(vlv15, 1);	// Ox Purge solenoid1
+//			command(vlv14,1); 	// Ox Purge solenoid2
+//		}
+//		else if(T > 1750){
+//			command(vlv5, 0);	// MPVO pressed closed
+//			command(vlv2, 0);	// Ox Press close
+//			command(vlv3, 0);	// Fuel Press close
+//			command(vlv24, 1);	// MPVF pressed closed
+//		}
+//		else if(T > 1000){
+//			command(vlv4, 0);	// MPVF depress opened
+//			command(vlv26, 0);	// Igniter
+//		}
+//		else if(T > 525){
+//			command(vlv5, 1);	// MPVO depressed open
+//		}
+//		else if(T > 500){
+//			command(vlv4, 1);	// MPVF pressed Open
+//		}
+//		else if(T > 0){
+//			command(vlv26, 1);   // Igniter
+//			command(vlv2, 1);	// Ox Press
+//			command(vlv3, 1);	// Fuel Press
+//		}
+//
+//	}
 	if(read_adc_now){
 		read_adc_now = 0;
 	}
@@ -606,7 +637,10 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 45000;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 200;
+  htim6.Init.Period = 50; //HZ is set HERE! period = clock_speed / (prescalar * hz)
+  //Clock_speed = 90,000,000 for ECS3D
+  //If period is not an int from those calulations either adjust hz till it is or
+  //change both prescaler and period until it is
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
