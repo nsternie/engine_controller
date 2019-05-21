@@ -51,6 +51,7 @@
 #include "flash.h"
 #include "config.h"
 #include "string.h"
+#include "bang_bang.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -284,7 +285,9 @@ int main(void)
   if(STATE == PRIME_TANKS){
     //@Ariana Grande
     //Bang Bang
+    bang_bang(vlv0,vlv30);
   }else{
+    command(vlv0,0);
     //Command Pressurization valves to be closed
     //This will ensure they cannot be opened unless we want them to
   }
