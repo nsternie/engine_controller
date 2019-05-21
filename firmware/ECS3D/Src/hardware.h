@@ -73,6 +73,7 @@ void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t
 void command(uint8_t device, int16_t command_value);
 void writeMotor(uint8_t device, int16_t motor_command);
 void motor_control();
+void bang_bang(uint8_t device_1, uint8_t device_2);
 
 // S2 Command wrappers
 void led_write(int32_t argc, int32_t* argv);
