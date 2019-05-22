@@ -93,7 +93,7 @@ void pwm_set(int32_t argc, int32_t* argv);
 void telemrate_set(int32_t argc, int32_t* argv);
 void samplerate_set(int32_t argc, int32_t* argv);
 void tare(int32_t argc, int32_t* argv);
-void load_ducer_calibrations(int32_t argc, int32_t* argv)
+void load_ducer_calibrations(int32_t argc, int32_t* argv);
 void ambientize(int32_t argc, int32_t* argv);
 void lograte_set(int32_t argc, int32_t* argv);
 void print_file(int32_t argc, int32_t* argv);

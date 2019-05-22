@@ -294,6 +294,7 @@ cal_slope = {}
 cal_offset = {}
 for line in cal_file:
     s = line.split('\t')
+    print("bitties")
     cal_slope[s[0]] = float(s[1])
     cal_offset[s[0]] = float(s[2].rstrip('\n'))
 
@@ -318,14 +319,14 @@ def connect():
     global ser, ports_box
     if ser.isOpen():
         ser.close()
-    try:
-        ser.port = str(ports_box.currentText())
-        ser.open()
-        ser.readline()
-        print("Connection established on %s" % str(ports_box.currentText()))
-        send_ducer_cals()
-    except:
-        print("Unable to connect to selected port or no ports available")
+    #try:
+    ser.port = str(ports_box.currentText())
+    ser.open()
+    ser.readline()
+    print("Connection established on %s" % str(ports_box.currentText()))
+    send_ducer_cals()
+    #except:
+        #print("Unable to connect to selected port or no ports available")
 
 #scan for com ports
 def scan():
@@ -345,11 +346,18 @@ def send_ducer_cals():
     j = 0;
     for line in cal_file:
         s = line.split('\t')
+        print("test")
         if j <= 22:
+            print("Tits")
             cal_slope = float(s[1])
             cal_offset = float(s[2].rstrip('\n'))
+            print("1");
+            cal_slope = int(cal_slope * 1000)
+            cal_offset= int(cal_offset * 1000)
             s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, 3, [j, cal_offset, cal_slope])
-            j++
+            time.sleep(.02)
+            print("2")
+            j = j + 1
 
 
 def write_ambient():
