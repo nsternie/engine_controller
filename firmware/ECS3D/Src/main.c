@@ -163,7 +163,7 @@ void system_init(){
 	add_command(&p, COMMAND_ARM, 			arm);
 	add_command(&p, COMMAND_DISARM, 		disarm);
 	add_command(&p, COMMAND_MAIN_AUTO_START,main_auto_start);
-  add_command(&p, COMMAND_PRIME_TANKS, prime_tanks)
+	add_command(&p, COMMAND_PRIME_TANKS, prime_tanks);
 	add_command(&p, COMMAND_PWM_SET, 		pwm_set);
 	add_command(&p, COMMAND_QD_SET, 		qd_set);
 	add_command(&p, COMMAND_TARE, 			tare);

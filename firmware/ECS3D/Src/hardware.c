@@ -538,13 +538,6 @@ void command(uint8_t device, int16_t command_value){
 
 }
 
-void bang_bang(uint8_t device_1, uint8_t device_2){
-	//Make sure state wants this
-	//Eventually will include Firing State
-	if(STATE == PRIME_TANKS){
-		
-	}
-}
 
 // S2 commands
 void led_write(int32_t argc, int32_t* argv){
