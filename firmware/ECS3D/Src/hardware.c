@@ -440,10 +440,12 @@ void scale_readings(){
 
 	for(uint8_t n = 0; n < 16; n ++){
 		pressure[n] = adc_data[5][15-n];
+		real_pressure[n] = (pressure[n] - pressure_b[n]) * pressure_slope;
 	}
 
 	for(uint8_t n = 0; n < 6; n++){
 		pressure[16+n] = adc_data[6][15-n];
+		real_pressure[n] = (pressure[n] - pressure_b[n]) * pressure_slope;
 	}
 
 	load[0] = adc_data[6][9];
@@ -654,6 +656,16 @@ void samplerate_set(int32_t argc, int32_t* argv){
 
 	samplerate = (100000/period);	// Actual rate
 }
+
+void load_ducer_calibrations(int32_t argc, int32_t* argv){
+	uint8_t ducer_number = argv[0];
+	float b = argv[1];
+	float slope = argv[2];
+
+	pressure_b[ducer_number] = b;
+	pressure_slope[ducer_number] = slope;
+}
+
 void tare(int32_t argc, int32_t* argv){
 
 }

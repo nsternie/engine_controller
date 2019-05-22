@@ -57,6 +57,7 @@ COMMAND_SET_KD             =    62
 COMMAND_TELEMRATE_SET    =    63
 COMMAND_SAMPLERATE_SET    =    64
 COMAND_LOGRATE_SET        =    65
+COMMAND_DUCER_CALS          = 70
 COMMAND_ARM                =    100
 COMMAND_DISARM            =    101
 COMMAND_MAIN_AUTO_START    =    102
@@ -322,6 +323,7 @@ def connect():
         ser.open()
         ser.readline()
         print("Connection established on %s" % str(ports_box.currentText()))
+        send_ducer_cals()
     except:
         print("Unable to connect to selected port or no ports available")
 
@@ -337,6 +339,17 @@ f_press = [0]*22
 f_ambient = [0]*22
 lc_tare = [0]*5
 lc_load = [0]*5
+
+def send_ducer_cals():
+    cal_file = open('calibrations')
+    j = 0;
+    for line in cal_file:
+        s = line.split('\t')
+        if j <= 22:
+            cal_slope = float(s[1])
+            cal_offset = float(s[2].rstrip('\n'))
+            s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, 3, [j, cal_offset, cal_slope])
+            j++
 
 
 def write_ambient():

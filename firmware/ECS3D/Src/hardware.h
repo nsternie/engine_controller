@@ -51,6 +51,7 @@
 #define COMMAND_SAMPLERATE_SET	64
 #define COMMAND_LOGRATE_SET		65
 
+#define COMMAND_DUCER_CALS		70
 
 #define COMMAND_ARM				100
 #define COMMAND_DISARM			101
@@ -73,7 +74,6 @@ void setpwm(TIM_HandleTypeDef timer, uint32_t channel, uint16_t period, uint16_t
 void command(uint8_t device, int16_t command_value);
 void writeMotor(uint8_t device, int16_t motor_command);
 void motor_control();
-void bang_bang(uint8_t device_1, uint8_t device_2);
 
 // S2 Command wrappers
 void led_write(int32_t argc, int32_t* argv);
@@ -93,6 +93,7 @@ void pwm_set(int32_t argc, int32_t* argv);
 void telemrate_set(int32_t argc, int32_t* argv);
 void samplerate_set(int32_t argc, int32_t* argv);
 void tare(int32_t argc, int32_t* argv);
+void load_ducer_calibrations(int32_t argc, int32_t* argv)
 void ambientize(int32_t argc, int32_t* argv);
 void lograte_set(int32_t argc, int32_t* argv);
 void print_file(int32_t argc, int32_t* argv);
