@@ -76,6 +76,7 @@ COMMAND_TELEM_RESUME   =   46
 
 def s2_command(target_id, command_id, argc, argv):
     global packet_number, ground_packet_number, flight_packet_number;
+    print("AHHHHHHHHHHH")
     packet_number += 1
     command_id = command_id;
     packet = [0]*(8+4*argc+2)
@@ -103,6 +104,7 @@ def s2_command(target_id, command_id, argc, argv):
     print(command_id, argc, argv)
 
     if(target_id == TARGET_ADDRESS_FLIGHT):
+        print("Yoyo")
         flight_packet_number += 1
         flight_command_log.write(str(packet)+'\n')
 
@@ -347,7 +349,7 @@ def send_ducer_cals():
     j = 0;
     for line in cal_file:
         s = line.split('\t')
-        if j <= 22:
+        if j <= 20:
             cal_slope = float(s[1])
             cal_offset = float(s[2].rstrip('\n'))
             cal_slope = int(cal_slope * 1000)
@@ -357,7 +359,7 @@ def send_ducer_cals():
             ducer_cal_array.append(cal_slope)
             j = j + 1
 
-    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, 22* 3, ducer_cal_array)
+    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, 20* 3, ducer_cal_array)
 
 
 def write_ambient():
@@ -369,7 +371,12 @@ def read_ambient():
     global f_ambient
     with open('ambient.txt') as f:
         f_ambient = f.read().splitlines()
-    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_AMBIENTIZE, 22, f_ambient)
+        f_ambient_send = [];
+        for i in range(len(f_ambient)):
+            print(float(f_ambient[i]) * 1000)
+            f_ambient_send.append(int(float(f_ambient[i]) * 1000))
+        
+    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_AMBIENTIZE, 22, f_ambient_send)
 
 def ambientize():
     write_ambient()

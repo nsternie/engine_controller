@@ -100,13 +100,33 @@ void run_parser(parser* p){
 	unstuff_data(temp, p->filled, p->buffer);
 
 
-	uint16_t packet_number = p->buffer[0]  << 8 | p->buffer[1];
-	uint16_t target_id = p->buffer[2]  << 8 | p->buffer[3];
-	uint16_t command_id = p->buffer[4]  << 8 | p->buffer[5];
-	uint16_t num_args = p->buffer[6]  << 8 | p->buffer[7];
+	int16_t packet_number = p->buffer[0]  << 8 | p->buffer[1];
+	int16_t target_id = p->buffer[2]  << 8 | p->buffer[3];
+	int16_t command_id = p->buffer[4]  << 8 | p->buffer[5];
+	int16_t num_args = p->buffer[6]  << 8 | p->buffer[7];
+
+	if (command_id == 70){
+		command_id = 70;
+	}
+
+//  Leave this for the absolutely funny business it causes
+//	if(num_args > 3){
+//		//Clear Buffer
+//		command_id = command_id;
+//		p->filled = 0;
+//		for(int n = 0; n < BUFFER_LENGTH; n++){
+//			p->buffer[n] = 255;
+//		}
+//		free(temp);
+//		return;
+//	}
+
 
 	int length_of_packet = 8+4*num_args+2; // 8 overhead, 4 per arg, 2 for checksum
 	int32_t *args = malloc(num_args);
+	if(args == NULL){
+
+	}
 
 	for(int n = 0; n < num_args; n++){
 		args[n] = p->buffer[8+4*n]<<24 | p->buffer[9+4*n]<<16 | p->buffer[10+4*n]<<8 | p->buffer[11+4*n];
@@ -116,6 +136,7 @@ void run_parser(parser* p){
 	for(int n = 0; n < (length_of_packet - 2)/2; n++){
 		checksum_0 ^= p->buffer[2*n];
 		checksum_1 ^= p->buffer[2*n+1];
+
 	}
 
 	uint8_t expected_checksum_0 = p->buffer[8+4*num_args];
@@ -140,8 +161,19 @@ void run_parser(parser* p){
 	else{
 		// Checksum corrupt
 		p->corrupted++;
+//		// Clear buffer
+		p->filled = 0;
+		for(int n = 0; n < BUFFER_LENGTH; n++){
+			p->buffer[n] = 255;
+		}
+		free(temp);
+		return;
 	}
 	
+	if(length_of_packet > 256){
+		int i = 10;
+	}
+
 	for(int n = 0; n < length_of_packet; n++){
 		p->buffer[n] = p->buffer[n + length_of_packet];
 	}
