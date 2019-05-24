@@ -21,7 +21,13 @@
 
 
 
-
+//To add a command do the following:
+//1. Add a command ID below
+//2. Add a function header below
+//3. Add the function and code to hardware.c
+//4. Add the command in main.c
+//5. Add command id to gui
+//6. Add functionality to call command in gui
 
 // COMMAND IDs
 #define COMMAND_TARE 			30

@@ -197,6 +197,7 @@ extern float pressure[22];
 extern float real_pressure[22];
 extern float pressure_b[22];
 extern float pressure_slope[22];
+extern float pressure_ambients[22];
 extern float tc[16];
 extern float rtd[8];
 extern uint16_t load[5];
