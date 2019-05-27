@@ -440,23 +440,12 @@ void scale_readings(){
 
 	for(uint8_t n = 0; n < 16; n ++){
 		pressure[n] = adc_data[5][15-n];
-		if(n < 10){
-			real_pressure[n] = ((pressure[n] - pressure_b[n]) * pressure_slope[n]) - pressure_ambients[n];
-		}
-		if(n == 7){
-			float pres = real_pressure[n];
-			float pb = pressure_b[n];
-			float p_slope = pressure_slope[n];
-			float p_ambients = pressure_ambients[n];
-			float pres2 = real_pressure[n];
-		}
+		real_pressure[n] = ((pressure[n] - pressure_b[n]) * pressure_slope[n]) - pressure_ambients[n];
 	}
 
 	for(uint8_t n = 0; n < 6; n++){
 		pressure[16+n] = adc_data[6][15-n];
-		if(n < 0){
-			real_pressure[n] = ((pressure[n] - pressure_b[n]) * pressure_slope[n]) - pressure_ambients[n];
-		}
+		real_pressure[n] = ((pressure[n] - pressure_b[n]) * pressure_slope[n]) - pressure_ambients[n];
 	}
 
 	load[0] = adc_data[6][9];
@@ -669,12 +658,13 @@ void samplerate_set(int32_t argc, int32_t* argv){
 }
 
 void load_ducer_calibrations(int32_t argc, int32_t* argv){
-	for(int i = 0; i < argc; i += 3){
-		uint8_t ducer_number = argv[i];
-		float b = argv[i+1]/ 1000.0;
-		float slope = argv[i+2] / 1000.0;
-		pressure_b[ducer_number] = b;
-		pressure_slope[ducer_number] = slope;
+
+	for(int i = 0; i < argc; i += 2){
+		float b = argv[i]/ 1000.0;
+		float slope = argv[i+1] / 1000.0;
+		pressure_b[i/2] = b;
+		float w = pressure_b[7];
+		pressure_slope[i/2] = slope;
 	}	
 }
 
@@ -682,6 +672,7 @@ void tare(int32_t argc, int32_t* argv){
 
 }
 void ambientize(int32_t argc, int32_t* argv){
+
 	for(int i = 0; i < argc; i++){
 		pressure_ambients[i] = argv[i]/ 1000.0;
 	}

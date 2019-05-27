@@ -223,7 +223,7 @@
 #define	TELEM_ITEM_216	((uint16_t) (rtd[6]*1)) >> 8 
 #define	TELEM_ITEM_217	((uint16_t) (rtd[7]*1)) >> 0 
 #define	TELEM_ITEM_218	((uint16_t) (rtd[7]*1)) >> 8 
-#define	TELEM_ITEM_219	((uint8_t) (0*1)) >> 0 
+#define	TELEM_ITEM_219	((uint8_t) (0*1)) >> 0
 #define	TELEM_ITEM_220	((uint8_t) (0*1)) >> 0 
 #define	TELEM_ITEM_221	((uint8_t) (0*1)) >> 0 
 #define	TELEM_ITEM_222	((uint8_t) (0*1)) >> 0 

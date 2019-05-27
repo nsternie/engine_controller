@@ -281,14 +281,18 @@ int main(void)
 
   while (1)
   {
-	ITM_SendChar( 65 );
+	  //printf("This is a test");
+
+	  //printf("Main While \n");
+
+	  //ITM_SendChar(65);
 
   if(STATE == PRIME_TANKS){
     //@Ariana Grande
     //Bang Bang
-    bang_bang(vlv0,vlv30);
+    bang_bang(vlv30,vlv0, millis, hspi1, hspi2);
   }else{
-    command(vlv0,0);
+    command(vlv0,30);
     //Command Pressurization valves to be closed
     //This will ensure they cannot be opened unless we want them to
   }
@@ -401,16 +405,23 @@ int main(void)
 		for(uint n = 0; n < 8; n++){
 			read_rtd(&hspi2, rtd0 + n);
 		}
+		//printf("Main 2 \n");
 		scale_readings();
+		//printf("Main 3 \n");
 		pack_telem(telem_unstuffed);
+		//printf("Main 4 \n");
 		stuff_telem(telem_unstuffed, telem_stuffed);
+		//printf("Main 5 \n");
 		send_telem(rs422_com, gui_byte_packet);
+		//printf("Main 6 \n");
 		command(led0, 0);
+		//printf("Main 6.5 \n");
 	}
 
 if(p.buffer[p.filled - 1] == 0){
-
-run_parser(&p);
+	//printf("Main 7 \n");
+	run_parser(&p);
+	//printf("Main 8 \n");
 }
 
   /* USER CODE END WHILE */
@@ -705,7 +716,7 @@ static void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
+  huart1.Init.BaudRate = 57600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -724,7 +735,7 @@ static void MX_USART2_UART_Init(void)
 {
 
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 57600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -743,7 +754,7 @@ static void MX_USART6_UART_Init(void)
 {
 
   huart6.Instance = USART6;
-  huart6.Init.BaudRate = 115200;
+  huart6.Init.BaudRate = 57600;
   huart6.Init.WordLength = UART_WORDLENGTH_8B;
   huart6.Init.StopBits = UART_STOPBITS_1;
   huart6.Init.Parity = UART_PARITY_NONE;

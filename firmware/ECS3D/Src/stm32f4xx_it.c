@@ -107,6 +107,7 @@ void HardFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+	  printf("We done shit ourselves");
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
   /* USER CODE BEGIN HardFault_IRQn 1 */
@@ -282,7 +283,7 @@ void USART1_IRQHandler(void)
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
   	  //HAL_UART_Transmit_IT(&huart6, &rs422_in, 1);
-
+  	//printf("The Last Call\n");
 	pass_byte(&p, rs422_in);
 	HAL_UART_Receive_IT(&huart1, &rs422_in, 1);
   /* USER CODE END USART1_IRQn 1 */

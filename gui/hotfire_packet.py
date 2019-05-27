@@ -627,7 +627,7 @@ class ECParse:
 		self.dict[self.items[138]] = self.rtd[7]
 		byte_rep = packet[219:220]
 		self.zero = float((float(struct.unpack("<B", byte_rep)[0]))/1)
-		self.dict[self.items[139]] = self.zero
+		self.dict[self.items[139]] = 1
 		byte_rep = packet[220:221]
 		self.zero = float((float(struct.unpack("<B", byte_rep)[0]))/1)
 		self.dict[self.items[140]] = self.zero

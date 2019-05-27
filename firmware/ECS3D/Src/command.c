@@ -105,8 +105,11 @@ void run_parser(parser* p){
 	int16_t command_id = p->buffer[4]  << 8 | p->buffer[5];
 	int16_t num_args = p->buffer[6]  << 8 | p->buffer[7];
 
-	if (command_id == 70){
-		command_id = 70;
+	if(command_id == 70 || command_id == 31){
+		float j = 10.6;
+
+		j = 2.4;
+
 	}
 
 //  Leave this for the absolutely funny business it causes

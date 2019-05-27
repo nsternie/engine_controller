@@ -76,7 +76,6 @@ COMMAND_TELEM_RESUME   =   46
 
 def s2_command(target_id, command_id, argc, argv):
     global packet_number, ground_packet_number, flight_packet_number;
-    print("AHHHHHHHHHHH")
     packet_number += 1
     command_id = command_id;
     packet = [0]*(8+4*argc+2)
@@ -104,7 +103,6 @@ def s2_command(target_id, command_id, argc, argv):
     print(command_id, argc, argv)
 
     if(target_id == TARGET_ADDRESS_FLIGHT):
-        print("Yoyo")
         flight_packet_number += 1
         flight_command_log.write(str(packet)+'\n')
 
@@ -296,7 +294,6 @@ cal_slope = {}
 cal_offset = {}
 for line in cal_file:
     s = line.split('\t')
-    print("bitties")
     cal_slope[s[0]] = float(s[1])
     cal_offset[s[0]] = float(s[2].rstrip('\n'))
 
@@ -349,17 +346,15 @@ def send_ducer_cals():
     j = 0;
     for line in cal_file:
         s = line.split('\t')
-        if j <= 20:
+        if j < 22:
             cal_slope = float(s[1])
             cal_offset = float(s[2].rstrip('\n'))
             cal_slope = int(cal_slope * 1000)
             cal_offset= int(cal_offset * 1000)
-            ducer_cal_array.append(j)
             ducer_cal_array.append(cal_offset)
             ducer_cal_array.append(cal_slope)
             j = j + 1
-
-    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, 20* 3, ducer_cal_array)
+    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, len(ducer_cal_array), ducer_cal_array)
 
 
 def write_ambient():
@@ -653,7 +648,7 @@ ports_box = QtGui.QComboBox()
 connection_layout.addWidget(ports_box, 0, 0)
 
 if(1):
-    # Add image
+    # Add 
 
     #logo = QtGui.QLabel(w)
     #logo.setGeometry(1000, 250, 800, 250)
