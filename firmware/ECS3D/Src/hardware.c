@@ -503,12 +503,12 @@ void command(uint8_t device, int16_t command_value){
 
 		if(command_value == 1){
 			GPIO_COMMAND = GPIO_PIN_SET;
-			valve_states |= mask;
+			//valve_states |= mask;
 		}
 		else{
 			GPIO_COMMAND = GPIO_PIN_RESET;
 			mask ^= 0xFFFFFFFF;
-			valve_states &= mask;
+			//valve_states &= mask;
 		}
 		switch(device){
 
@@ -664,6 +664,7 @@ void load_ducer_calibrations(int32_t argc, int32_t* argv){
 		float slope = argv[i+1] / 1000.0;
 		pressure_b[i/2] = b;
 		float w = pressure_b[7];
+		printf("w %d\n", (int)(w));
 		pressure_slope[i/2] = slope;
 	}	
 }
