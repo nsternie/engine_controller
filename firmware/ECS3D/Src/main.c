@@ -228,9 +228,7 @@ int main(void)
   /* MCU Configuration----------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
-
-	HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -407,7 +405,6 @@ int main(void)
 		for(uint n = 0; n < 8; n++){
 			read_rtd(&hspi2, rtd0 + n);
 		}
-		valve_states = millis;
 		//printf("Main 2 \n");
 		scale_readings();
 		//printf("Main 3 \n");
@@ -672,7 +669,7 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 45000;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 100; //HZ is set HERE! period = clock_speed / (prescalar * hz)
+  htim6.Init.Period = 50; //HZ is set HERE! period = clock_speed / (prescalar * hz)
   //Clock_speed = 90,000,000 for ECS3D
   //If period is not an int from those calulations either adjust hz till it is or
   //change both prescaler and period until it is
