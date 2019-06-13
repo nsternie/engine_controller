@@ -39,7 +39,6 @@ float pressure[22];
 float real_pressure[22];
 float pressure_b[22];
 float pressure_slope[22];
-float pressure_ambients[22];
 uint16_t load[5];
 float thrust_load;
 float tc[16];

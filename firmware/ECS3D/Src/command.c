@@ -125,6 +125,17 @@ void run_parser(parser* p){
 //	}
 
 
+	if(num_args > 3){
+		// Clear buffer
+		p->filled = 0;
+		for(int n = 0; n < BUFFER_LENGTH; n++){
+				p->buffer[n] = 255;
+		}
+		free(temp);
+		return;
+	}
+
+
 	int length_of_packet = 8+4*num_args+2; // 8 overhead, 4 per arg, 2 for checksum
 	int32_t *args = malloc(num_args);
 	if(args == NULL){

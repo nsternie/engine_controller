@@ -318,14 +318,14 @@ def connect():
     global ser, ports_box
     if ser.isOpen():
         ser.close()
-    try:
-        ser.port = str(ports_box.currentText())
-        ser.open()
-        ser.readline()
-        print("Connection established on %s" % str(ports_box.currentText()))
-        send_ducer_cals()
-    except:
-        print("Unable to connect to selected port or no ports available")
+    #try:
+    ser.port = str(ports_box.currentText())
+    ser.open()
+    ser.readline()
+    print("Connection established on %s" % str(ports_box.currentText()))
+    send_ducer_cals()
+    #except:
+        #print("Unable to connect to selected port or no ports available")
 
 #scan for com ports
 def scan():
@@ -342,19 +342,32 @@ lc_load = [0]*5
 
 def send_ducer_cals():
     cal_file = open('calibrations')
-    ducer_cal_array = []
     j = 0;
     for line in cal_file:
         s = line.split('\t')
+<<<<<<< HEAD
         if j < 22:
+=======
+        print("test")
+        if j <= 22:
+            print("Tits")
+>>>>>>> parent of 8f53d43... Cals and Ambients!
             cal_slope = float(s[1])
             cal_offset = float(s[2].rstrip('\n'))
+            print("1");
             cal_slope = int(cal_slope * 1000)
             cal_offset= int(cal_offset * 1000)
+<<<<<<< HEAD
             ducer_cal_array.append(cal_offset)
             ducer_cal_array.append(cal_slope)
             j = j + 1
     s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, len(ducer_cal_array), ducer_cal_array)
+=======
+            s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, 3, [j, cal_offset, cal_slope])
+            time.sleep(.02)
+            print("2")
+            j = j + 1
+>>>>>>> parent of 8f53d43... Cals and Ambients!
 
 
 def write_ambient():
@@ -366,12 +379,15 @@ def read_ambient():
     global f_ambient
     with open('ambient.txt') as f:
         f_ambient = f.read().splitlines()
+<<<<<<< HEAD
         f_ambient_send = [];
         for i in range(len(f_ambient)):
             print(float(f_ambient[i]) * 1000)
             f_ambient_send.append(int(float(f_ambient[i]) * 1000))
         
     s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_AMBIENTIZE, 22, f_ambient_send)
+=======
+>>>>>>> parent of 8f53d43... Cals and Ambients!
 
 def ambientize():
     write_ambient()
