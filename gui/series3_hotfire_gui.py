@@ -346,12 +346,16 @@ def send_ducer_cals():
     for line in cal_file:
         s = line.split('\t')
 <<<<<<< HEAD
+<<<<<<< HEAD
         if j < 22:
 =======
         print("test")
         if j <= 22:
             print("Tits")
 >>>>>>> parent of 8f53d43... Cals and Ambients!
+=======
+        if j <= 22:
+>>>>>>> parent of fd9765f... Advanced Cals Sending
             cal_slope = float(s[1])
             cal_offset = float(s[2].rstrip('\n'))
             print("1");
@@ -361,6 +365,7 @@ def send_ducer_cals():
             ducer_cal_array.append(cal_offset)
             ducer_cal_array.append(cal_slope)
             j = j + 1
+<<<<<<< HEAD
     s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, len(ducer_cal_array), ducer_cal_array)
 =======
             s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, 3, [j, cal_offset, cal_slope])
@@ -368,6 +373,10 @@ def send_ducer_cals():
             print("2")
             j = j + 1
 >>>>>>> parent of 8f53d43... Cals and Ambients!
+=======
+
+    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DUCER_CALS, 22* 3, ducer_cal_array)
+>>>>>>> parent of fd9765f... Advanced Cals Sending
 
 
 def write_ambient():
@@ -380,6 +389,7 @@ def read_ambient():
     with open('ambient.txt') as f:
         f_ambient = f.read().splitlines()
 <<<<<<< HEAD
+<<<<<<< HEAD
         f_ambient_send = [];
         for i in range(len(f_ambient)):
             print(float(f_ambient[i]) * 1000)
@@ -388,6 +398,9 @@ def read_ambient():
     s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_AMBIENTIZE, 22, f_ambient_send)
 =======
 >>>>>>> parent of 8f53d43... Cals and Ambients!
+=======
+    s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_AMBIENTIZE, 22, f_ambient)
+>>>>>>> parent of fd9765f... Advanced Cals Sending
 
 def ambientize():
     write_ambient()

@@ -9,6 +9,7 @@ float error = 0;
 float k = .1;
 void scale_readings();
 
+<<<<<<< HEAD
 void bang_bang(uint8_t device_1, uint8_t device_2, uint32_t time, SPI_HandleTypeDef hspi1, SPI_HandleTypeDef hspi2){
 	if(time > last_time + last_delay){
 		for(uint8_t n = 0; n < 7; n++){
@@ -28,5 +29,13 @@ void bang_bang(uint8_t device_1, uint8_t device_2, uint32_t time, SPI_HandleType
 		}else if(real_pressure[7] > (bang_bang_set_pressure - 25)){
 			command(device_1, 0);
 		}
+=======
+void bang_bang(uint8_t device_1, uint8_t device_2){
+
+	if(real_pressure[7] - 17 > (bang_bang_set_pressure * .7)){
+		command(device_1, 0);
+	}else if(real_pressure[7] - 17< (bang_bang_set_pressure - 5)){
+		command(device_1, 1);
+>>>>>>> parent of fd9765f... Advanced Cals Sending
 	}
 }

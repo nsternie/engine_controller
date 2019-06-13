@@ -281,11 +281,15 @@ int main(void)
 
   while (1)
   {
+<<<<<<< HEAD
 	  //printf("This is a test");
 
 	  //printf("Main While \n");
 
 	  //ITM_SendChar(65);
+=======
+
+>>>>>>> parent of fd9765f... Advanced Cals Sending
 
   if(STATE == PRIME_TANKS){
     //@Ariana Grande
@@ -296,14 +300,6 @@ int main(void)
     //Command Pressurization valves to be closed
     //This will ensure they cannot be opened unless we want them to
   }
-
-//  if(millis - last_bang_time > 1000){
-//  		command(vlv0,0);
-//  		last_bang_time = millis;
-//  }else if(millis - last_bang_time > 500){
-//  		command(vlv0,1);
-//  }
-
 
 
 
@@ -320,6 +316,12 @@ int main(void)
 //		command(vlv30, 0);
 //	}
 
+//	if(millis - last_bang_time > 200){
+//		command(vlv30,0);
+//		last_bang_time = millis;
+//	}else if(millis - last_bang_time > 100){
+//		command(vlv30,1);
+//	}
 
 
 
@@ -419,9 +421,13 @@ int main(void)
 	}
 
 if(p.buffer[p.filled - 1] == 0){
+<<<<<<< HEAD
 	//printf("Main 7 \n");
 	run_parser(&p);
 	//printf("Main 8 \n");
+=======
+run_parser(&p);
+>>>>>>> parent of fd9765f... Advanced Cals Sending
 }
 
   /* USER CODE END WHILE */

@@ -441,19 +441,27 @@ void scale_readings(){
 	for(uint8_t n = 0; n < 16; n ++){
 		pressure[n] = adc_data[5][15-n];
 <<<<<<< HEAD
-		real_pressure[n] = ((pressure[n] - pressure_b[n]) * pressure_slope[n]) - pressure_ambients[n];
-=======
-		real_pressure[n] = (pressure[n] - pressure_b[n]) * pressure_slope[n];
->>>>>>> parent of 8f53d43... Cals and Ambients!
-	}
-
-	for(uint8_t n = 0; n < 6; n++){
-		pressure[16+n] = adc_data[6][15-n];
 <<<<<<< HEAD
 		real_pressure[n] = ((pressure[n] - pressure_b[n]) * pressure_slope[n]) - pressure_ambients[n];
 =======
 		real_pressure[n] = (pressure[n] - pressure_b[n]) * pressure_slope[n];
 >>>>>>> parent of 8f53d43... Cals and Ambients!
+=======
+		real_pressure[n] = (pressure[n] - pressure_b[n]) * pressure_slope[n] - pressure_ambients;
+>>>>>>> parent of fd9765f... Advanced Cals Sending
+	}
+
+	for(uint8_t n = 0; n < 6; n++){
+		pressure[16+n] = adc_data[6][15-n];
+<<<<<<< HEAD
+<<<<<<< HEAD
+		real_pressure[n] = ((pressure[n] - pressure_b[n]) * pressure_slope[n]) - pressure_ambients[n];
+=======
+		real_pressure[n] = (pressure[n] - pressure_b[n]) * pressure_slope[n];
+>>>>>>> parent of 8f53d43... Cals and Ambients!
+=======
+		real_pressure[n] = (pressure[n] - pressure_b[n]) * pressure_slope[n]- pressure_ambients;
+>>>>>>> parent of fd9765f... Advanced Cals Sending
 	}
 
 	load[0] = adc_data[6][9];
@@ -667,6 +675,7 @@ void samplerate_set(int32_t argc, int32_t* argv){
 
 void load_ducer_calibrations(int32_t argc, int32_t* argv){
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	for(int i = 0; i < argc; i += 2){
 		float b = argv[i]/ 1000.0;
@@ -680,6 +689,12 @@ void load_ducer_calibrations(int32_t argc, int32_t* argv){
 	float b = argv[1]/ 1000.0;
 	float slope = argv[2] / 1000.0;
 	if (ducer_number == 7){
+=======
+	for(int i = 0; n < argc; i + 3){
+		uint8_t ducer_number = argv[i];
+		float b = argv[i+1]/ 1000.0;
+		float slope = argv[i+2] / 1000.0;
+>>>>>>> parent of fd9765f... Advanced Cals Sending
 		pressure_b[ducer_number] = b;
 		pressure_slope[ducer_number] = slope;
 	}else{
@@ -696,7 +711,7 @@ void ambientize(int32_t argc, int32_t* argv){
 <<<<<<< HEAD
 
 	for(int i = 0; i < argc; i++){
-		pressure_ambients[i] = argv[i]/ 1000.0;
+		pressure_ambients[i] = argv[i];
 	}
 =======
 >>>>>>> parent of 8f53d43... Cals and Ambients!
