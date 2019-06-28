@@ -62,6 +62,9 @@ originColOffset = [];
 objectHeight = [];
 objectWidth = [];
 
+objectHeightList = [];
+objectWidthList = [];
+
 %Final HSV Object Images
 finalHSVObjImg = {};
 
@@ -81,7 +84,7 @@ for s = 1:objectImgQuantity
     
     %Displays how many pixels are in the object.
     %USE FOR THE THRESHOLD BELOW
-    disp(['Man Number of Pixels in Object: ', num2str(sum(sum(logicalObjPosArray == 0)))])
+    disp(['Max Number of Pixels in Object: ', num2str(sum(sum(logicalObjPosArray == 0)))])
     
     %Displays image with above cuttoff applied
     imshow(logicalObjPosArray)
@@ -101,7 +104,7 @@ for s = 1:objectImgQuantity
         zoom off;
         title(strcat("Edited:  ", objects(s), "  **SELECT PIXEL. ENTER x2 WHEN READY OR 0**"));
         %User zooms in image then picks pixel
-        [colPix , rowPix, p] = impixel()
+        [colPix , rowPix, p] = impixel();
         userOriginRowPosArray(s) = rowPix(1);
         userOriginColPosArray(s) = colPix(1);
         goOn = input("Continue Execution? 1 or 0 ");
@@ -116,8 +119,8 @@ for s = 1:objectImgQuantity
     [rowOffset, columnOffset] = find(logicalObjPosArray(:, :) == 0);
     
     %Sets the Object Height and Width
-    objectHeight(s) = max(rowOffset) - min(rowOffset) + 1
-    objectWidth(s) = max(columnOffset) - min(columnOffset) + 1
+    objectHeight(s) = max(rowOffset) - min(rowOffset) + 1;
+    objectWidth(s) = max(columnOffset) - min(columnOffset) + 1;
     
     [rowMinOffset, rowI] = min(rowOffset);
     [columnMinOffset, colI] = min(columnOffset);
@@ -129,15 +132,15 @@ for s = 1:objectImgQuantity
         logicalObjPosArray = circshift(logicalObjPosArray, [-rowMinOffset + 1, -columnMinOffset + 1]);
         originColOffset(s) = -1;
         if shouldPullFromSave == 0
-            userOriginRowPosArray(s) = -(rowMinOffset - userOriginRowPosArray(s))
-            userOriginColPosArray(s) = -(columnMinOffset - userOriginColPosArray(s))
+            userOriginRowPosArray(s) = -(rowMinOffset - userOriginRowPosArray(s));
+            userOriginColPosArray(s) = -(columnMinOffset - userOriginColPosArray(s));
         end
     elseif originPosArray(s) == 1
         logicalObjPosArray = circshift(logicalObjPosArray, [-rowMinOffset + 1, -columnOffset(rowI) + 1]);
         originColOffset(s) = columnOffset(rowI) - columnMinOffset;
         if shouldPullFromSave == 0
-            userOriginRowPosArray(s) = -(rowMinOffset - userOriginRowPosArray(s))
-            userOriginColPosArray(s) = -(columnOffset(rowI) - userOriginColPosArray(s))
+            userOriginRowPosArray(s) = -(rowMinOffset - userOriginRowPosArray(s));
+            userOriginColPosArray(s) = -(columnOffset(rowI) - userOriginColPosArray(s));
         end
     end
     
@@ -297,15 +300,15 @@ for row = 1:imgsRowSize
                     hsvColoredObjImg(nrow-1: nrow+1,ncol-1: ncol+1 , 3) = hsvColoredObjImg(nrow,ncol,3);
                 end
                 
-                objectColorId
-                j = hsvColoredObjImg(row,col,1)
-                z = hsvColoredObjImg(row,col,2)
                 
                 %Add Cord to arrays and set object type value
                 xCord = [xCord ncol];
                 yCord = [yCord nrow];
                 objectType = [objectType, s];
                 objectColor = [objectColor, objectColorId];
+                objectHeightList = [objectHeightList, objectHeight(s)];
+                objectWidthList = [objectWidthList, objectWidth(s)];
+                
                 
                 %Removes the just matched object from the full object
                 %image. This is important for optimization because this
@@ -314,7 +317,7 @@ for row = 1:imgsRowSize
                 if originPosArray(s) == 0
                     logicalFullObjPosArray(row - 2: row + objectHeight(s) + 2, col - 2:col + objectWidth(s)+ 2) = 1;
                 elseif originPosArray(s) == 1
-                    col - (objectHeight(s) - (objectHeight(s) - originColOffset(s))) - 2 
+                    col - (objectHeight(s) - (objectHeight(s) - originColOffset(s))) - 2 ;
                     logicalFullObjPosArray(row - 2: row + objectHeight(s) + 2, col - (objectWidth(s) - (objectWidth(s) - originColOffset(s))) - 2 : col + (objectWidth(s) - originColOffset(s)) + 2) = 1;
                 end
                 
@@ -406,7 +409,7 @@ end
 %% OUTPUT
 
 %Creates the CSV Output Matrix
-csvOutputMatrix = [objectType - 1; objectColor; xCord; yCord];
+csvOutputMatrix = [objectType - 1; objectColor; xCord; yCord; objectHeightList; objectWidthList];
 
 %Name of csvFile
 csvFileName = "csvObjectData.csv";
