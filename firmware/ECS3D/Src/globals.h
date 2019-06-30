@@ -119,6 +119,7 @@
 #define FULL_DURATION	 	5
 #define PRE_IGNITION	 	6
 #define FULL_DURATION_SAFE 	7
+#define TANKS_PRIMED		8
 
 
 #define MAX_COMMAND_ARGS 	7
@@ -232,6 +233,25 @@ struct autosequence{
 	int16_t 	length;
 	uint8_t 	running;
 };
+
+struct bang_bang{
+	uint32_t ducer_id; //
+	float ducer_b; //
+	float ducer_slope; //
+	uint32_t vlv_id; //
+	float ducer_ambient;//
+	float tank_upper_pressure;
+	float tank_lower_pressure;
+	uint8_t vlv_state;
+	int num_pressures;
+	float press_array[2][10];
+	float vlv_close_delay;
+	float vlv_open_delay;
+	//uint8_t vlv_first_opening;
+};
+
+struct bang_bang fuel_bb;
+struct bang_bang ox_bb;
 
 struct autosequence autos[NUM_AUTOS];
 struct autosequence hotfire_auto;

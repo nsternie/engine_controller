@@ -105,15 +105,15 @@ void run_parser(parser* p){
 	uint16_t command_id = p->buffer[4]  << 8 | p->buffer[5];
 	uint16_t num_args = p->buffer[6]  << 8 | p->buffer[7];
 
-	if(num_args > 3){
-		// Clear buffer
-		p->filled = 0;
-		for(int n = 0; n < BUFFER_LENGTH; n++){
-				p->buffer[n] = 255;
-		}
-		free(temp);
-		return;
-	}
+//	if(num_args > 3){
+//		// Clear buffer
+//		p->filled = 0;
+//		for(int n = 0; n < BUFFER_LENGTH; n++){
+//				p->buffer[n] = 255;
+//		}
+//		free(temp);
+//		return;
+//	}
 
 
 	int length_of_packet = 8+4*num_args+2; // 8 overhead, 4 per arg, 2 for checksum
@@ -151,6 +151,12 @@ void run_parser(parser* p){
 	else{
 		// Checksum corrupt
 		p->corrupted++;
+		p->filled = 0;
+				for(int n = 0; n < BUFFER_LENGTH; n++){
+						p->buffer[n] = 255;
+				}
+				free(temp);
+				return;
 	}
 	
 	for(int n = 0; n < length_of_packet; n++){

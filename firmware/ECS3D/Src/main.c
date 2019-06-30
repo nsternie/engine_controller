@@ -174,6 +174,9 @@ void system_init(){
 	add_command(&p, COMMAD_INIT_FS, 		init_fs);
 	add_command(&p, COMMAND_TELEM_PAUSE, 		telem_pause);
 	add_command(&p, COMMAND_TELEM_RESUME, 		telem_resume);
+  add_command(&p, COMMAND_BB_DATA_SET,  send_bb_data_set);
+  add_command(&p, COMMAND_PRIME_TANKS,  prime_tanks);
+
 //	add_command(&p, COMMAND_PRIME_BRIDGE,		prime_bridge_wrapper);
 
 	release_device(adc0);
@@ -268,6 +271,8 @@ int main(void)
 
  	uint32_t main_auto_start_time;
 
+  uint32_t bb_press_time;
+
   while (1)
   {
 
@@ -314,8 +319,44 @@ int main(void)
 		}
 
 	}
-	if(read_adc_now){
+	if(read_adc_now && STATE == TANKS_PRIMED){
 		read_adc_now = 0;
+    command(led1,1);
+    // if (fuel_bb.vlv_first_opening == 1){
+    //   command(fuel_bb.vlv_id, 1);
+    //   fuel_bb.vlv_first_opening = 0;
+    // }
+    for(uint8_t n = 0; n < 7; n++){
+          if(n == 4){
+            read_adc(&hspi2, n);
+          }
+          else{
+            read_adc(&hspi1, n);
+          }
+        }
+
+    bb_press_time = millis;
+    scale_readings();
+    fill_bb_press_array(bb_press_time);
+    bang_bang();
+    // for(uint8_t n = 0; n < 7; n++){
+    //   if(n == 4){
+    //     read_adc(&hspi2, n);
+    //   }
+    //   else{
+    //     read_adc(&hspi1, n);
+    //   }
+    // }
+    // scale_readings();
+    // fuel_bb.real_pres = ((pressure[fuel_bb.ducer_id] - fuel_bb.ducer_b)*fuel_bb.ducer_slope) - fuel_bb.ducer_ambient;
+    // if(fuel_bb.real_pres > (fuel_bb.tank_set_pressure + fuel_bb.pres_upper_tolerance)){
+    //   command(fuel_bb.vlv_id, 0);
+    // }
+    // else if(fuel_bb.real_pres < (fuel_bb.tank_set_pressure - fuel_bb.pres_lower_tolerance)){
+    //   command(fuel_bb.vlv_id, 1);
+    // }
+    command(led1,0);
+
 	}
 	if(send_rs422_now && TELEM_ACTIVE){
 		send_rs422_now = 0;

@@ -65,6 +65,7 @@ int16_t LOG_TO_AUTO = -1;
 uint8_t AUTOSTRING[1024];
 uint16_t auto_states;
 struct autosequence hotfire_auto;
+struct bang_bang fuel_bb,  ox_bb;
 
 parser p;
 int16_t last_packet_number = 0;

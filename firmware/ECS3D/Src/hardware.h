@@ -50,11 +50,13 @@
 #define COMMAND_TELEMRATE_SET	63
 #define COMMAND_SAMPLERATE_SET	64
 #define COMMAND_LOGRATE_SET		65
+#define COMMAND_BB_DATA_SET 	66
 
 
 #define COMMAND_ARM				100
 #define COMMAND_DISARM			101
 #define COMMAND_MAIN_AUTO_START	102
+#define COMMAND_PRIME_TANKS 	103
 
 #define TARGET_ADDRESS_GROUND 100
 #define TARGET_ADDRESS_FLIGHT 101
@@ -101,5 +103,8 @@ void telem_pause(int32_t argc, int32_t* argv);
 void telem_resume(int32_t argc, int32_t* argv);
 void prime_bridge_wrapper(int32_t argc, int32_t* argv);
 void prime_bridge();
+void prime_tanks(int32_t argc, int32_t* argv);
+void send_bb_data_set(int32_t argc, int32_t* argv);
+
 
 #endif /* HARDWARE_H_ */

@@ -571,6 +571,11 @@ void main_auto_start(int32_t argc, int32_t* argv){
 		STATE = IGNITION;
 	}
 }
+
+void prime_tanks(int32_t argc, int32_t* argv){
+	STATE = TANKS_PRIMED;
+}
+
 void pwm_set(int32_t argc, int32_t* argv){
 
 	return;	// Disabled
@@ -652,6 +657,21 @@ void tare(int32_t argc, int32_t* argv){
 
 }
 void ambientize(int32_t argc, int32_t* argv){
+
+}
+
+void send_bb_data_set(int32_t argc, int32_t* argv){
+	fuel_bb.ducer_b = argv[0]/1000.0;
+	fuel_bb.ducer_slope = argv[1]/1000.0;
+	fuel_bb.ducer_id = argv[2];
+	fuel_bb.vlv_id = vlv0 + argv[3];
+	fuel_bb.ducer_ambient = argv[4]/1000.0;
+	fuel_bb.tank_upper_pressure = 30;
+	fuel_bb.tank_lower_pressure = 20;
+	fuel_bb.num_pressures = 10;
+	fuel_bb.vlv_close_delay = 2;
+	fuel_bb.vlv_open_delay = 2;
+	fuel_bb.vlv_state = 0;
 
 }
 void lograte_set(int32_t argc, int32_t* argv){

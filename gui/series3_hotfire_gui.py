@@ -51,9 +51,11 @@ COMMAND_SET_KD             =    62
 COMMAND_TELEMRATE_SET    =    63
 COMMAND_SAMPLERATE_SET    =    64
 COMAND_LOGRATE_SET        =    65
+COMMAND_BB_DATA_SET 		= 66
 COMMAND_ARM                =    100
 COMMAND_DISARM            =    101
 COMMAND_MAIN_AUTO_START    =    102
+COMMAND_PRIME_TANKS 		= 103
 TARGET_ADDRESS_GROUND     =    100
 TARGET_ADDRESS_FLIGHT     =    101
 
@@ -64,6 +66,10 @@ COMMAND_LOG_END         =   43
 COMMAND_INIT_FS         =   44
 COMMAND_TELEM_PAUSE     =   45
 COMMAND_TELEM_RESUME   =   46
+
+BANG_BANG_VLV_ID = 24
+BANG_BANG_DUCER_ID = 9
+
 
 
 def s2_command(target_id, command_id, argc, argv):
@@ -331,6 +337,18 @@ f_ambient = [0]*22
 lc_tare = [0]*5
 lc_load = [0]*5
 
+def send_bang_bang_data():
+        if(alias['fpressure'+str(BANG_BANG_DUCER_ID)] in cal_offset.keys()):            
+            bang_bang_ducer_offset = cal_offset[alias['fpressure'+str(BANG_BANG_DUCER_ID)]]
+            bang_bang_ducer_slope = cal_slope[alias['fpressure'+str(BANG_BANG_DUCER_ID)]]
+            bang_bang_ducer_offset = int(1000.0*bang_bang_ducer_offset)
+            bang_bang_ducer_slope = int(1000.0*bang_bang_ducer_slope)
+            bang_bang_ducer_ambient = int(1000.0*float(f_ambient[BANG_BANG_DUCER_ID]))
+
+        bang_bang_data = [bang_bang_ducer_offset, bang_bang_ducer_slope, BANG_BANG_DUCER_ID, BANG_BANG_VLV_ID, bang_bang_ducer_ambient]
+        s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_BB_DATA_SET, 5, bang_bang_data)
+        print("BANG BANG DATA SENT!!")
+
 
 def write_ambient():
     with open('ambient.txt', 'w') as f:
@@ -341,6 +359,8 @@ def read_ambient():
     global f_ambient
     with open('ambient.txt') as f:
         f_ambient = f.read().splitlines()
+
+    send_bang_bang_data() 
 
 def ambientize():
     write_ambient()
@@ -583,10 +603,12 @@ state_label = QtGui.QLabel("STATE = N/A")
 arm_button = QtGui.QPushButton("ARM")
 disarm_button = QtGui.QPushButton("DISARM")
 hotfire_button = QtGui.QPushButton("HOTFIRE")
+prime_button = QtGui.QPushButton("PRIME TANKS")
 flight_layout.addWidget(state_label, zr+26, zc+5, 1, 3)
 flight_layout.addWidget(arm_button, zr+27, zc+5, 1, 3)
 flight_layout.addWidget(disarm_button, zr+28, zc+5, 1, 3)
 flight_layout.addWidget(hotfire_button, zr+29, zc+5, 1, 3)
+flight_layout.addWidget(prime_button, zr+30, zc+5, 1, 3)
 
 #kill runt
 def death():
@@ -638,6 +660,7 @@ if(0):
 arm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_ARM, 0, []))
 disarm_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_DISARM, 0, []))
 hotfire_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_MAIN_AUTO_START, 0, []))
+prime_button.clicked.connect(lambda: s2_command(TARGET_ADDRESS_FLIGHT, COMMAND_PRIME_TANKS, 0, []))
 
 def toggle_valve(board, vlv_id):
     if board is 'flight':
