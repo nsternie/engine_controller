@@ -88,7 +88,7 @@ class ControlsWidget(QWidget):
 
     def on_click(self):
         # Gets the senders(button) solenoidList index from the accessibleName
-        self.counter = self.counter + .05
+        self.counter = self.counter + .005
         index = int(self.sender().accessibleName())
         print(index)
         self.solHelper.toggleSolenoid(index)
