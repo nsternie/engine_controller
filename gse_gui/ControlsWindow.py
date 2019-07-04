@@ -60,6 +60,16 @@ class ControlsWidget(QWidget):
     def initConfigFiles(self):
         self.csvObjectData = self.csvHelper.loadCsv("Sol.csv")
 
+        self.csvObjectData2 = self.csvHelper.loadCsv("csvObjectData.csv")
+
+        objectType = self.csvObjectData2[2][0]
+        objectColor = self.csvObjectData2[2][1]
+        objectXPos = self.csvObjectData2[2][2]
+        objectYPos = self.csvObjectData2[2][3]
+
+        #for i in range(self.csvObjectData2[1]):
+            #print(str(objectType[i]) +", " + str(objectColor[i]) + ", " + str(objectXPos[i]) + ", " + str(objectYPos[i]))
+
 
     def initHelpers(self):
         self.csvHelper = CsvHelper()
@@ -67,7 +77,7 @@ class ControlsWidget(QWidget):
         self.tnkHelper = TankHelper()
 
     def createObjects(self):
-        self.solHelper.createObjects(self, self.csvObjectData)
+        self.solHelper.createObjects(self, self.csvObjectData, self.csvObjectData2)
 
 
     qp = QPainter()
@@ -76,7 +86,7 @@ class ControlsWidget(QWidget):
         self.qp.begin(self)
         self.qp.setRenderHint(QPainter.HighQualityAntialiasing)
 
-        self.solHelper.drawSolenoids(self.qp, self.objectScale)
+        self.solHelper.drawSolenoids2(self.qp, self.objectScale)
         self.tnkHelper.drawTank1(self.qp, self.objectScale, self.counter)
 
         self.qp.end()
@@ -86,10 +96,4 @@ class ControlsWidget(QWidget):
         quitAction = menu.addAction("Test RMB")
         action = menu.exec_(self.mapToGlobal(event.pos()))
 
-    def on_click(self):
-        # Gets the senders(button) solenoidList index from the accessibleName
-        self.counter = self.counter + .005
-        index = int(self.sender().accessibleName())
-        print(index)
-        self.solHelper.toggleSolenoid(index)
-        self.update()
+

@@ -27,3 +27,4 @@
 
 # Test data files
 gse_gui/data*
+.DS_Store
