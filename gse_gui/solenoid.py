@@ -145,7 +145,8 @@ class Solenoid(QPushButton, BaseObject):
         # Gets the senders(button) solenoidList index from the accessibleName
         #self.widgetParent.counter = self.widgetParent.counter + .05
 
-        self.widgetParent.tank_list[self._id].fillPercent += .05
+        if self._id < len(self.widgetParent.tank_list):
+            self.widgetParent.tank_list[self._id].fillPercent += .05
 
         print(self._id)
         print(len(self.widgetParent.solenoid_list))
@@ -153,7 +154,7 @@ class Solenoid(QPushButton, BaseObject):
         self.widgetParent.update()
 
     def move(self, xPos, yPos):
-        self.button.move(xPos,yPos)
+        self.button.move(xPos, yPos)
         self.contextMenu.move(xPos, yPos)
         self.position = [xPos, yPos]
 
