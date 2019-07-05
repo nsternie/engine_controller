@@ -3,20 +3,22 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from PlotButton import PlotButton
-
+from Constants import Constants
 
 class Solenoid(QPushButton):
 
+    #Beef of the setup for creating solenoid button object
     def __init__(self, widgetParent, idNumber, position, fluid, isVertical):
 
-        self.widgetParent = widgetParent
+        self.widgetParent = widgetParent # Important for getting sender
 
-        self.id = idNumber
+        self.id = idNumber #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
 
         #Should be grabbed by csv and scaled
         self.height = 30;
         self.width = 75;
 
+        #These values will eventually be able to be edited by the user
         self.avionicsNumber = -1
         self.shortName = 'OX-SN-G07'
         self.state = 0
@@ -61,10 +63,11 @@ class Solenoid(QPushButton):
         label.setFixedWidth(self.width)
         label.setFixedHeight(80)  # 80 Corresponds to three rows at this font type and size (Arial 23)
         label.setText(self.longName)  # Solenoid long name
+        label.setStyleSheet('color: white')
         label.setWordWrap(1)
 
 
-        #This is a fucking mess but too hella lazy to fix it rn
+        #This is a fucking mess but I am too hella lazy to fix it rn
         if self.labelPosition == 0:
             label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
             if self.isVertical == 0:
@@ -93,6 +96,40 @@ class Solenoid(QPushButton):
         label.show()
 
         self.label = label
+
+    def draw(self):
+
+        path = QPainterPath()
+
+        # To make coding easier
+        xPos = self.position[0]
+        yPos = self.position[1]
+
+        # If solenoid is open color it in
+        if self.state == 1:
+            self.widgetParent.qp.setBrush(Constants.fluidColor[self.fluid])  # This function colors in a path
+        else:
+            self.widgetParent.qp.setBrush(0)
+
+        # Need to update and grab real color from sol list
+        self.widgetParent.qp.setPen(Constants.fluidColor[self.fluid])
+
+        # Move path to starting position
+        path.moveTo(xPos, yPos)  # Top left corner
+
+        # = 0 -> Draw horizontally
+        if self.isVertical == 0:
+            path.lineTo(xPos, yPos + self.height)  # Straight Down
+            path.lineTo(xPos + self.width, yPos)  # Diag to upper right
+            path.lineTo(xPos + self.width, yPos + self.height)  # Straight Up
+            path.lineTo(xPos, yPos)
+        else:  # Draw verticaly
+            path.lineTo(xPos + self.height, yPos)
+            path.lineTo(xPos, yPos + self.width)
+            path.lineTo(xPos + self.height, yPos + self.width)
+            path.lineTo(xPos, yPos)
+
+        self.widgetParent.qp.drawPath(path)
 
     def onClick(self):
         # Gets the senders(button) solenoidList index from the accessibleName

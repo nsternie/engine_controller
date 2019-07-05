@@ -7,6 +7,8 @@ from CsvHelper import CsvHelper
 from SolenoidHelper import SolenoidHelper
 from TankHelper import TankHelper
 
+from Solenoid import Solenoid
+
 """
     This file contains the class to create the window and widget
     """
@@ -38,8 +40,9 @@ class ControlsWindow(QMainWindow):
 class ControlsWidget(QWidget):
 
     objectScale = 1.75
-
     counter = 0
+
+    solenoidList = []
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -52,41 +55,41 @@ class ControlsWidget(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.show()
 
+        self.qp = QPainter()
+
         self.initHelpers()
         self.initConfigFiles()
         self.createObjects()
 
 
     def initConfigFiles(self):
-        self.csvObjectData = self.csvHelper.loadCsv("Sol.csv")
-
-        self.csvObjectData2 = self.csvHelper.loadCsv("csvObjectData.csv")
-
-        objectType = self.csvObjectData2[2][0]
-        objectColor = self.csvObjectData2[2][1]
-        objectXPos = self.csvObjectData2[2][2]
-        objectYPos = self.csvObjectData2[2][3]
-
-        #for i in range(self.csvObjectData2[1]):
-            #print(str(objectType[i]) +", " + str(objectColor[i]) + ", " + str(objectXPos[i]) + ", " + str(objectYPos[i]))
+        self.csvObjectData = self.csvHelper.loadCsv("csvObjectData.csv")
 
 
     def initHelpers(self):
         self.csvHelper = CsvHelper()
-        self.solHelper = SolenoidHelper()
         self.tnkHelper = TankHelper()
 
     def createObjects(self):
-        self.solHelper.createObjects(self, self.csvObjectData, self.csvObjectData2)
 
+        for i in range(self.csvObjectData[1]):
+            # Creates horizontal and vertical solenoids
+            if int(self.csvObjectData[2][0][i]) == 0 or int(self.csvObjectData[2][0][i]) == 1:
+                solenoid = Solenoid(self, len(self.solenoidList),
+                                    [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])],
+                                    int(self.csvObjectData[2][1][i]), int(self.csvObjectData[2][0][i]))
+                self.solenoidList.append(solenoid)
 
-    qp = QPainter()
 
     def paintEvent(self, e):
         self.qp.begin(self)
         self.qp.setRenderHint(QPainter.HighQualityAntialiasing)
 
-        self.solHelper.drawSolenoids2(self.qp, self.objectScale)
+        #Draw Solenoids
+        for i in range(len(self.solenoidList)):
+            self.solenoidList[i].draw()
+
+        #self.solHelper.drawSolenoids2(self.qp, self.objectScale)
         self.tnkHelper.drawTank1(self.qp, self.objectScale, self.counter)
 
         self.qp.end()
