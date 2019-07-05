@@ -1,7 +1,7 @@
 import sys
 
-from PlotWindow import PlotWindow
-from ControlsWindow import ControlsWindow
+from plotWindow import PlotWindow
+from controlsWindow import ControlsWindow
 
 from PyQt5.QtWidgets import *
 

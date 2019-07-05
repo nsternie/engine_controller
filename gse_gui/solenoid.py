@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from Constants import Constants
+from constants import Constants
 
 class Solenoid(QPushButton):
 
@@ -11,14 +11,16 @@ class Solenoid(QPushButton):
     #Beef of the setup for creating solenoid button object
     def __init__(self, widgetParent, position, fluid, isVertical):
 
+        super().__init__(widgetParent)
+
         self.widgetParent = widgetParent # Important for getting sender
 
         #This ID could be calculated better to avoid repeats but it works for now
-        self.id = len(self.solenoidList) #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
+        self._id = len(self.solenoidList) #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
 
         #Should be grabbed by csv and scaled
-        self.height = 30;
-        self.width = 75;
+        self.height = 30
+        self.width = 75
 
         #These values will eventually be able to be edited by the user
         self.avionicsNumber = -1
@@ -139,7 +141,7 @@ class Solenoid(QPushButton):
     def onClick(self):
         # Gets the senders(button) solenoidList index from the accessibleName
         self.widgetParent.counter = self.widgetParent.counter + .05
-        print(self.id)
+        print(self._id)
         print(len(self.solenoidList))
         self.toggle()
         self.widgetParent.update()
@@ -158,7 +160,7 @@ class Solenoid(QPushButton):
             self.state = 0
             self.button.setToolTip(self.shortName + "\nState: Closed")
         else:
-            print("WARNING STATE OF SOLENOID " + str(self.id) + " IS NOT PROPERLY DEFINED")
+            print("WARNING STATE OF SOLENOID " + str(self._id) + " IS NOT PROPERLY DEFINED")
 
 
 

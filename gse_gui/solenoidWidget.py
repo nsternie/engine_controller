@@ -1,6 +1,6 @@
 import csv
 
-from PlotButton import PlotButton
+from plotButton import PlotButton
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *

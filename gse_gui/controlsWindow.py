@@ -3,10 +3,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 
-from CsvHelper import CsvHelper
-from TankHelper import TankHelper
+from csvHelper import CsvHelper
+from tankHelper import TankHelper
 
-from Solenoid import Solenoid
+from solenoid import Solenoid
 
 """
     This file contains the class to create the window and widget

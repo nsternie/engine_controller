@@ -123,7 +123,6 @@ class Plot(QWidget):
             dataType = dataTypes[i]
             dataName = dataNames[i]
 
-            ##TODO: Assign each series a color when it is linked
             if dataType == 'Force':
                 ylabel = "Force (N)"
                 frm = 'b'
