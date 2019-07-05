@@ -4,16 +4,14 @@ from PyQt5.QtCore import *
 from constants import Constants
 from MathHelper import MathHelper
 
-class Tank1:
-
-    tank1List = []
+class Tank:
 
     # Beef of the setup for creating solenoid button object
     def __init__(self, widgetParent, position, fluid):
         self.widgetParent = widgetParent  # Important for getting sender
 
         # This ID could be calculated better to avoid repeats but it works for now
-        self.id = len(self.tank1List)  # Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
+        self._id = len(self.widgetParent.tank_list)  # Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
 
         # Should be grabbed by csv and scaled
         self.height = 170 * 1.75;
@@ -28,10 +26,6 @@ class Tank1:
         self.fluid = fluid
         self.isVertical = 0
         self.fillPercent = 0
-
-
-        self.tank1List.append(self)
-
 
     def draw(self):
 

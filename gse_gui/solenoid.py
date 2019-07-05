@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 
 from constants import Constants
 from plot import PlotButton
-from Tank1 import Tank1
+from Tank import Tank
 
 class Solenoid(QPushButton):
 
@@ -18,7 +18,7 @@ class Solenoid(QPushButton):
         self.widgetParent = widgetParent # Important for getting sender
 
         #This ID could be calculated better to avoid repeats but it works for now
-        self._id = len(self.solenoidList) #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
+        self._id = len(self.widgetParent.solenoid_list) #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
 
         #Should be grabbed by csv and scaled
         self.height = 18 * 1.75
@@ -51,7 +51,7 @@ class Solenoid(QPushButton):
         self.contextMenu.move(self.position[0], self.position[1])
 
         ## Add quitAction
-        quitAction = self.contextMenu.addAction("Test RMB")
+        self.contextMenu.addAction("Test RMB")
 
         #If the sol is vertical set the button size accordingly
         if self.isVertical == 1:
@@ -59,7 +59,7 @@ class Solenoid(QPushButton):
         else:
             button.resize(self.width,self.height)
 
-        #Connect the button and show it
+        #Connect plot options to button context menu
         button.clicked.connect(lambda: self.onClick())
         button.customContextMenuRequested.connect(
             lambda *args: self.plot_menu(*args, button, self.contextMenu)
@@ -115,9 +115,6 @@ class Solenoid(QPushButton):
 
         self.label = label
 
-        #Finnally and VERY importantly add the Solenoid to the big list
-        self.solenoidList.append(self)
-
     def draw(self):
 
         path = QPainterPath()
@@ -160,11 +157,11 @@ class Solenoid(QPushButton):
         #self.widgetParent.counter = self.widgetParent.counter + .05
 
         if self._id == 0:
-            Tank1.tank1List[0].fillPercent = Tank1.tank1List[0].fillPercent + .05
+            Tank.tank1List[0].fillPercent = Tank.tank1List[0].fillPercent + .05
         elif self._id == 1:
-            Tank1.tank1List[1].fillPercent = Tank1.tank1List[1].fillPercent + .05
+            Tank.tank1List[1].fillPercent = Tank.tank1List[1].fillPercent + .05
         elif self._id == 2:
-            Tank1.tank1List[2].fillPercent = Tank1.tank1List[2].fillPercent + .05
+            Tank.tank1List[2].fillPercent = Tank.tank1List[2].fillPercent + .05
 
         print(self._id)
         print(len(self.solenoidList))

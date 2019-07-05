@@ -5,7 +5,7 @@ from PyQt5.QtGui import *
 from csvHelper import CsvHelper
 
 from solenoid import Solenoid
-from Tank1 import Tank1
+from Tank import Tank
 from MathHelper import MathHelper
 
 """
@@ -55,6 +55,10 @@ class ControlsWidget(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.show()
 
+        ## Solenoid and tank trackers
+        self.solenoid_list = []
+        self.tank_list = []
+
         self.qp = QPainter()
 
         self.initHelpers()
@@ -78,9 +82,15 @@ class ControlsWidget(QWidget):
         for i in range(self.csvObjectData[1]):
             # Creates horizontal and vertical solenoids
             if int(self.csvObjectData[2][0][i]) == 0 or int(self.csvObjectData[2][0][i]) == 1:
-                Solenoid(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])], int(self.csvObjectData[2][1][i]), int(self.csvObjectData[2][0][i]))
+                self.solenoid_list.append(
+                    Solenoid(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])],
+                             int(self.csvObjectData[2][1][i]), int(self.csvObjectData[2][0][i]))
+                )
             if int(self.csvObjectData[2][0][i]) == 2:
-                Tank1(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])], int(self.csvObjectData[2][1][i]))
+                self.tank_list.append(
+                    Tank(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])],
+                          int(self.csvObjectData[2][1][i]))
+                )
 
 
     def paintEvent(self, e):
@@ -88,10 +98,10 @@ class ControlsWidget(QWidget):
         self.qp.setRenderHint(QPainter.HighQualityAntialiasing)
 
         #Draw Solenoids
-        for solenoid in Solenoid.solenoidList:
+        for solenoid in self.solenoid_list:
             solenoid.draw()
 
-        for tank1 in Tank1.tank1List:
+        for tank1 in self.tank_list:
             tank1.draw()
 
         #self.tnkHelper.drawTank1(self.qp, self.objectScale, self.counter)
