@@ -2,11 +2,11 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
-
 from CsvHelper import CsvHelper
-from TankHelper import TankHelper
 
 from Solenoid import Solenoid
+from Tank1 import Tank1
+from MathHelper import MathHelper
 
 """
     This file contains the class to create the window and widget
@@ -38,7 +38,10 @@ class ControlsWindow(QMainWindow):
 
 class ControlsWidget(QWidget):
 
+    screenWidthBuffer = 100
+    screenHeightBuffer = 100
     objectScale = 1.75
+    positionScale = 1
     counter = 0
 
     def __init__(self, parent=None):
@@ -62,10 +65,14 @@ class ControlsWidget(QWidget):
     def initConfigFiles(self):
         self.csvObjectData = self.csvHelper.loadCsv("csvObjectData.csv")
 
+        for i in range(self.csvObjectData[1]):
+            print(self.csvObjectData[2][2][i] + " " + self.csvObjectData[2][3][i])
+            self.csvObjectData[2][2][i] = MathHelper.mapValue(float(self.csvObjectData[2][2][i]), 139, 790, self.screenWidthBuffer, self.parent.parent.screenResolution[0]-self.screenWidthBuffer)
+            self.csvObjectData[2][3][i] = MathHelper.mapValue(float(self.csvObjectData[2][3][i]), 179, 590, self.screenHeightBuffer,self.parent.parent.screenResolution[1] - self.screenHeightBuffer)
+            print(str(self.csvObjectData[2][2][i]) + " A " + str(self.csvObjectData[2][3][i]))
 
     def initHelpers(self):
         self.csvHelper = CsvHelper()
-        self.tnkHelper = TankHelper()
 
     def createObjects(self):
 
@@ -73,6 +80,8 @@ class ControlsWidget(QWidget):
             # Creates horizontal and vertical solenoids
             if int(self.csvObjectData[2][0][i]) == 0 or int(self.csvObjectData[2][0][i]) == 1:
                 Solenoid(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])], int(self.csvObjectData[2][1][i]), int(self.csvObjectData[2][0][i]))
+            if int(self.csvObjectData[2][0][i]) == 2:
+                Tank1(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])], int(self.csvObjectData[2][1][i]))
 
 
     def paintEvent(self, e):
@@ -83,7 +92,10 @@ class ControlsWidget(QWidget):
         for solenoid in Solenoid.solenoidList:
             solenoid.draw()
 
-        self.tnkHelper.drawTank1(self.qp, self.objectScale, self.counter)
+        for tank1 in Tank1.tank1List:
+            tank1.draw()
+
+        #self.tnkHelper.drawTank1(self.qp, self.objectScale, self.counter)
 
         self.qp.end()
 
@@ -92,4 +104,6 @@ class ControlsWidget(QWidget):
         quitAction = menu.addAction("Test RMB")
         action = menu.exec_(self.mapToGlobal(event.pos()))
 
+    def calculatePositionScale(self):
+        print("tes")
 

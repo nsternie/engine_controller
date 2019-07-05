@@ -409,7 +409,7 @@ end
 %% OUTPUT
 
 %Creates the CSV Output Matrix
-csvOutputMatrix = [objectType - 1; objectColor; xCord * 1.8; yCord * 1.3; objectHeightList; objectWidthList];
+csvOutputMatrix = [objectType - 1; objectColor; xCord; yCord; objectHeightList; objectWidthList];
 
 %Name of csvFile
 csvFileName = "csvObjectData.csv";

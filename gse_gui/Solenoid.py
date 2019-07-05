@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from Constants import Constants
+from Tank1 import Tank1
 
 class Solenoid(QPushButton):
 
@@ -17,8 +18,8 @@ class Solenoid(QPushButton):
         self.id = len(self.solenoidList) #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
 
         #Should be grabbed by csv and scaled
-        self.height = 30;
-        self.width = 75;
+        self.height = 18 * 1.75;
+        self.width = 40 * 1.75;
 
         #These values will eventually be able to be edited by the user
         self.avionicsNumber = -1
@@ -29,7 +30,12 @@ class Solenoid(QPushButton):
         self.position = position
         self.fluid = fluid
         self.isVertical = isVertical
-        self.labelPosition = 2
+
+        if self.id == 16:
+            self.labelPosition = 1
+        else:
+            self.labelPosition = 0
+
 
         #Create Button and style it
         button = QPushButton(self.widgetParent)
@@ -136,9 +142,20 @@ class Solenoid(QPushButton):
 
         self.widgetParent.qp.drawPath(path)
 
+        self.widgetParent.qp.fillRect(QRectF(self.position[0], self.position[1], 7, 7),
+                                      Constants.fluidColor[self.fluid])
+
     def onClick(self):
         # Gets the senders(button) solenoidList index from the accessibleName
-        self.widgetParent.counter = self.widgetParent.counter + .05
+        #self.widgetParent.counter = self.widgetParent.counter + .05
+
+        if self.id == 0:
+            Tank1.tank1List[0].fillPercent = Tank1.tank1List[0].fillPercent + .05
+        elif self.id == 1:
+            Tank1.tank1List[1].fillPercent = Tank1.tank1List[1].fillPercent + .05
+        elif self.id == 2:
+            Tank1.tank1List[2].fillPercent = Tank1.tank1List[2].fillPercent + .05
+
         print(self.id)
         print(len(self.solenoidList))
         self.toggle()
