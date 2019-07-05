@@ -45,7 +45,7 @@ class Plot(QWidget):
         :param msg: string to output
         :return:
         """
-        print('{}: {}'.format(self.name,msg))
+        print('{}: {}'.format(self.name, msg))
 
     def link_data(self, button):
         """
@@ -61,7 +61,7 @@ class Plot(QWidget):
 
         if button.dataType not in self.dataTypes:
             self.dataTypes.append(button.dataType)
-        self.dataTuples.append((button.dataFile,button.dataType, button.name))
+        self.dataTuples.append((button.dataFile, button.dataType, button.name))
 
     def read_data(self):
         """
@@ -92,7 +92,8 @@ class Plot(QWidget):
                         dataTypes.append(dataType)
                         dataNames.append(dataName)
 
-                    self.plot_data(dataArray, dataTypes, dataNames)
+                    ## TODO: Instead of re-plotting everything, just update the data variables
+                    self.update_plot(dataArray, dataTypes, dataNames)
                 except FileNotFoundError:
                     print('Could not find {}'.format(dataFile))
                     pass
@@ -102,7 +103,7 @@ class Plot(QWidget):
                     pass
             time.sleep(self.parent.update_rate)
 
-    def plot_data(self, dataArray, dataTypes, dataNames):
+    def update_plot(self, dataArray, dataTypes, dataNames):
         """
         Plot data on the figure
         :param data: data to plot [[[x,y],[x2,y2]...]]
@@ -112,12 +113,7 @@ class Plot(QWidget):
         """
         self.message('plotting')
 
-        ## Clear old data
-        for dataType in dataTypes:
-            indx = self.dataTypes.index(dataType)
-            self.axes[indx].clear()
-
-        for i in range(0,len(dataArray)):
+        for i in range(0, len(dataArray)):
 
             data = np.array(dataArray[i])
             dataType = dataTypes[i]
@@ -138,11 +134,21 @@ class Plot(QWidget):
 
             indx = self.dataTypes.index(dataType)
 
+            ## Plot the data
             self.axes[indx].set(ylabel=ylabel)
-            self.axes[indx].plot(data[:, 0], data[:, 1], frm, label=dataName)
+            self.lines[indx].set_xdata(data[:, 0])
+            self.lines[indx].set_ydata(data[:, 1])
+            self.lines[indx].set_color(frm)
+            self.lines[indx].set_label(dataName)
+
+            ## Rescale the axes based on new data
+            self.axes[indx].relim()
+            self.axes[indx].autoscale_view()
+
+            ## Draw the plot
+            self.canvas.draw()
 
         self.fig.legend(loc='best')
-        self.canvas.draw()
 
     def get_figure_dimensions(self):
         ## Determine plot size via window size
@@ -182,3 +188,34 @@ class Plot(QWidget):
 
         ## Title
         self.fig.suptitle(self.name)
+
+        ## Plot baseline object
+        self.lines = []
+        for i in range(0, 1):
+            line = self.axes[i].plot([], [])[0]
+            self.lines.append(line)
+
+        self.canvas.draw()
+
+class PlotButton(QPushButton):
+    """
+    Button class that holds a data file
+    """
+
+    ## Allowed data types, including solenoid state (0 or 1)
+    allowed_data_types = ['Force', 'Temperature', 'Pressure', 'State']
+    def __init__(self, name, dataFile, dataType, parent=None):
+        """
+        Init for PlotButton
+        :param name: name on button
+        :param dataFile: data file tied to button
+        :param dataType: type of data in [Force, Temperature, Pressure, State]
+        :param parent: parent window
+        """
+        super().__init__(name,parent)
+        self.parent = parent
+        self.name = name
+        self.dataFile = dataFile
+        self.dataType = dataType
+
+        assert dataType in self.allowed_data_types

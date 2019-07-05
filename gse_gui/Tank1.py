@@ -1,7 +1,7 @@
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from Constants import Constants
+from constants import Constants
 from MathHelper import MathHelper
 
 class Tank1:

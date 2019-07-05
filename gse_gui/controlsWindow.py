@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from csvHelper import CsvHelper
-from tankHelper import TankHelper
 
 from solenoid import Solenoid
 from Tank1 import Tank1
@@ -62,7 +61,6 @@ class ControlsWidget(QWidget):
         self.initConfigFiles()
         self.createObjects()
 
-
     def initConfigFiles(self):
         self.csvObjectData = self.csvHelper.loadCsv("csvObjectData.csv")
 
@@ -99,11 +97,6 @@ class ControlsWidget(QWidget):
         #self.tnkHelper.drawTank1(self.qp, self.objectScale, self.counter)
 
         self.qp.end()
-
-    def contextMenuEvent(self, event):
-        menu = QMenu(self)
-        quitAction = menu.addAction("Test RMB")
-        action = menu.exec_(self.mapToGlobal(event.pos()))
 
     def calculatePositionScale(self):
         print("tes")

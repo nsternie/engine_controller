@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from constants import Constants
+from plot import PlotButton
 from Tank1 import Tank1
 
 class Solenoid(QPushButton):
@@ -40,12 +41,17 @@ class Solenoid(QPushButton):
 
 
         #Create Button and style it
-        button = QPushButton(self.widgetParent)
+        button = PlotButton(self.shortName, 'data.csv', 'Pressure', self.widgetParent)
         button.setStyleSheet("background-color:transparent;border:0;")
-        button.setContextMenuPolicy(Qt.DefaultContextMenu)
+        button.setContextMenuPolicy(Qt.CustomContextMenu)
         button.setToolTip(self.shortName + "\nState: Closed")
 
-        button.move(self.position[0],self.position[1])
+        button.move(self.position[0], self.position[1])
+        self.contextMenu = QMenu(self.widgetParent)
+        self.contextMenu.move(self.position[0], self.position[1])
+
+        ## Add quitAction
+        quitAction = self.contextMenu.addAction("Test RMB")
 
         #If the sol is vertical set the button size accordingly
         if self.isVertical == 1:
@@ -55,9 +61,11 @@ class Solenoid(QPushButton):
 
         #Connect the button and show it
         button.clicked.connect(lambda: self.onClick())
+        button.customContextMenuRequested.connect(
+            lambda *args: self.plot_menu(*args, button, self.contextMenu)
+        )
         button.show()
         self.button = button
-
 
         #Label next to sol
         label = QLabel(self.widgetParent)
@@ -163,11 +171,10 @@ class Solenoid(QPushButton):
         self.toggle()
         self.widgetParent.update()
 
-
     def move(self, xPos, yPos):
         self.button.move(xPos,yPos)
+        self.contextMenu.move(xPos, yPos)
         self.position = [xPos, yPos]
-
 
     def toggle(self):
         if self.state == 0:
@@ -179,5 +186,32 @@ class Solenoid(QPushButton):
         else:
             print("WARNING STATE OF SOLENOID " + str(self._id) + " IS NOT PROPERLY DEFINED")
 
+    def plot_menu(self, event, button, menu):
+        """
+        Handler for context menu. These menus hand-off data plotting to plot windows
+        :param event: default event from pyqt
+        :param button: button instance this plot_menu is connected to
+        :param menu: input QMenu object to display options on
+        :return:
+        """
+        self.plotMenuActions = []
+        for plot in self.widgetParent.parent.parent.plotWindow.plotList:
+            action = QAction(plot.name)
+            self.plotMenuActions.append(action)
 
+            self.plotMenuActions[-1].triggered.connect(
+                lambda *args, p=plot: self.link_plot(p, button)
+            )
 
+            menu.addAction(self.plotMenuActions[-1])
+
+        menu.exec_(self.mapToGlobal(event))
+
+    def link_plot(self, plot, button):
+        """
+        Link a Plot object to a given data file
+        :param plot: plot object that needs a link to a data file
+        :param button: button instance that was clicked on
+        :return:
+        """
+        plot.link_data(button)
