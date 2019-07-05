@@ -4,7 +4,6 @@ from PyQt5.QtGui import *
 
 
 from CsvHelper import CsvHelper
-from SolenoidHelper import SolenoidHelper
 from TankHelper import TankHelper
 
 from Solenoid import Solenoid
@@ -42,8 +41,6 @@ class ControlsWidget(QWidget):
     objectScale = 1.75
     counter = 0
 
-    solenoidList = []
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
@@ -75,10 +72,7 @@ class ControlsWidget(QWidget):
         for i in range(self.csvObjectData[1]):
             # Creates horizontal and vertical solenoids
             if int(self.csvObjectData[2][0][i]) == 0 or int(self.csvObjectData[2][0][i]) == 1:
-                solenoid = Solenoid(self, len(self.solenoidList),
-                                    [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])],
-                                    int(self.csvObjectData[2][1][i]), int(self.csvObjectData[2][0][i]))
-                self.solenoidList.append(solenoid)
+                Solenoid(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])], int(self.csvObjectData[2][1][i]), int(self.csvObjectData[2][0][i]))
 
 
     def paintEvent(self, e):
@@ -86,10 +80,9 @@ class ControlsWidget(QWidget):
         self.qp.setRenderHint(QPainter.HighQualityAntialiasing)
 
         #Draw Solenoids
-        for i in range(len(self.solenoidList)):
-            self.solenoidList[i].draw()
+        for solenoid in Solenoid.solenoidList:
+            solenoid.draw()
 
-        #self.solHelper.drawSolenoids2(self.qp, self.objectScale)
         self.tnkHelper.drawTank1(self.qp, self.objectScale, self.counter)
 
         self.qp.end()

@@ -2,17 +2,19 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-from PlotButton import PlotButton
 from Constants import Constants
 
 class Solenoid(QPushButton):
 
+    solenoidList = []
+
     #Beef of the setup for creating solenoid button object
-    def __init__(self, widgetParent, idNumber, position, fluid, isVertical):
+    def __init__(self, widgetParent, position, fluid, isVertical):
 
         self.widgetParent = widgetParent # Important for getting sender
 
-        self.id = idNumber #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
+        #This ID could be calculated better to avoid repeats but it works for now
+        self.id = len(self.solenoidList) #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
 
         #Should be grabbed by csv and scaled
         self.height = 30;
@@ -97,6 +99,9 @@ class Solenoid(QPushButton):
 
         self.label = label
 
+        #Finnally and VERY importantly add the Solenoid to the big list
+        self.solenoidList.append(self)
+
     def draw(self):
 
         path = QPainterPath()
@@ -123,7 +128,7 @@ class Solenoid(QPushButton):
             path.lineTo(xPos + self.width, yPos)  # Diag to upper right
             path.lineTo(xPos + self.width, yPos + self.height)  # Straight Up
             path.lineTo(xPos, yPos)
-        else:  # Draw verticaly
+        else:  # Draw vertically
             path.lineTo(xPos + self.height, yPos)
             path.lineTo(xPos, yPos + self.width)
             path.lineTo(xPos + self.height, yPos + self.width)
@@ -134,6 +139,8 @@ class Solenoid(QPushButton):
     def onClick(self):
         # Gets the senders(button) solenoidList index from the accessibleName
         self.widgetParent.counter = self.widgetParent.counter + .05
+        print(self.id)
+        print(len(self.solenoidList))
         self.toggle()
         self.widgetParent.update()
 
@@ -152,5 +159,6 @@ class Solenoid(QPushButton):
             self.button.setToolTip(self.shortName + "\nState: Closed")
         else:
             print("WARNING STATE OF SOLENOID " + str(self.id) + " IS NOT PROPERLY DEFINED")
+
 
 
