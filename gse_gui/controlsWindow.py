@@ -5,7 +5,7 @@ from PyQt5.QtGui import *
 from csvHelper import CsvHelper
 
 from solenoid import Solenoid
-from Tank import Tank
+from tank import Tank
 from MathHelper import MathHelper
 
 """
