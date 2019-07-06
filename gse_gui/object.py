@@ -16,7 +16,7 @@ class BaseObject:
         :param short_name: abbreviated name on schematics
         :param safety_status: safety criticality
         :param long_name: human-readable name for display on screen
-        :param is_vertical: tracker if object is vertical
+        :param is_vertical: tracker if object is drawn vertically
         """
         self.position = position
         self.fluid = fluid

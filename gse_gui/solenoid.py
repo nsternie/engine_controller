@@ -4,26 +4,43 @@ from PyQt5.QtCore import *
 
 from constants import Constants
 from plot import PlotButton
-from tank import Tank
 from object import BaseObject
 
+"""
+Class to handle all solenoid objects and their functionality 
+"""
 class Solenoid(QPushButton, BaseObject):
-    #Beef of the setup for creating solenoid button object
+
     def __init__(self, widgetParent, position, fluid, isVertical):
 
-        ## Initialize base classes
+        """
+        Init the solenoid object
+        :param widgetParent: widget this object will be added to
+        :param position: position of icon on screen
+        :param fluid: fluid in object
+        :param isVertical: tracker if object is drawn vertically
+        :return:
+        """
+
+        # Initialize base classes
         super().__init__(parent=widgetParent, position=position, fluid=fluid, is_vertical=isVertical)
 
-        self.widgetParent = widgetParent # Important for getting sender
+        self.widgetParent = widgetParent # Important for drawing object
 
-        #This ID could be calculated better to avoid repeats but it works for now
+        # This ID could be calculated better to avoid repeats but it works for now
         self._id = len(self.widgetParent.solenoid_list) #Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
 
-        #Should be grabbed by csv and scaled
+        # Should be grabbed by csv and scaled
+        # TODO: Grab height and width from csv file
+        # TODO: Grab object scale from widgetParent
         self.height = 18 * 1.75
         self.width = 40 * 1.75
+
+        # State tracks whether the solenoid is open or closed
         self.state = 0
 
+        # Label Position designates the side of the object the label will be placed
+        # TODO: Make dictionary to designate, top, bottom, left and right positions
         if self._id == 16:
             self.labelPosition = 1
         else:
@@ -37,18 +54,20 @@ class Solenoid(QPushButton, BaseObject):
 
         button.move(self.position[0], self.position[1])
         self.contextMenu = QMenu(self.widgetParent)
+        # FIXME: Context menu always appears in the top left
         self.contextMenu.move(self.position[0], self.position[1])
 
         ## Add quitAction
         self.contextMenu.addAction("Test RMB")
 
-        #If the sol is vertical set the button size accordingly
+        # If the sol is vertical set the button size accordingly
+        # TODO: Update self.height and width if the solenoid is vertical instead of doing this
         if self.is_vertical == 1:
             button.resize(self.height, self.width)
         else:
             button.resize(self.width,self.height)
 
-        #Connect plot options to button context menu
+        # Connect plot options to button context menu
         button.clicked.connect(lambda: self.onClick())
         button.customContextMenuRequested.connect(
             lambda *args: self.plot_menu(*args, button, self.contextMenu)
@@ -56,10 +75,10 @@ class Solenoid(QPushButton, BaseObject):
         button.show()
         self.button = button
 
-        #Label next to sol
+        # Label next to sol
         label = QLabel(self.widgetParent)
 
-        #Get font and set it
+        # Get font and set it
         font = QFont()
         font.setStyleStrategy(QFont.PreferAntialias)
         font.setFamily("Arial")
@@ -74,7 +93,8 @@ class Solenoid(QPushButton, BaseObject):
         label.setWordWrap(1)
 
 
-        #This is a fucking mess but I am too hella lazy to fix it rn
+        # This is a fucking mess but I am too hella lazy to fix it rn
+        # TODO: Make this not a mess
         if self.labelPosition == 0:
             label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
             if self.is_vertical == 0:
@@ -105,7 +125,11 @@ class Solenoid(QPushButton, BaseObject):
         self.label = label
 
     def draw(self):
+        """
+        Draws the solenoid icon on screen
+        """
 
+        #Holds the path of lines to draw
         path = QPainterPath()
 
         # To make coding easier
@@ -114,12 +138,12 @@ class Solenoid(QPushButton, BaseObject):
 
         # If solenoid is open color it in
         if self.state == 1:
-            self.widgetParent.qp.setBrush(Constants.fluidColor[self.fluid])  # This function colors in a path
+            self.widgetParent.painter.setBrush(Constants.fluidColor[self.fluid])  # This function colors in a path
         else:
-            self.widgetParent.qp.setBrush(0)
+            self.widgetParent.painter.setBrush(0)
 
-        # Need to update and grab real color from sol list
-        self.widgetParent.qp.setPen(Constants.fluidColor[self.fluid])
+        # Sets line color
+        self.widgetParent.painter.setPen(Constants.fluidColor[self.fluid])
 
         # Move path to starting position
         path.moveTo(xPos, yPos)  # Top left corner
@@ -136,29 +160,41 @@ class Solenoid(QPushButton, BaseObject):
             path.lineTo(xPos + self.height, yPos + self.width)
             path.lineTo(xPos, yPos)
 
-        self.widgetParent.qp.drawPath(path)
+        self.widgetParent.painter.drawPath(path)
 
-        self.widgetParent.qp.fillRect(QRectF(self.position[0], self.position[1], 7, 7),
+        # This is debug, draws a box around the origin of object
+        self.widgetParent.painter.fillRect(QRectF(self.position[0], self.position[1], 7, 7),
                                       Constants.fluidColor[self.fluid])
 
     def onClick(self):
-        # Gets the senders(button) solenoidList index from the accessibleName
-        #self.widgetParent.counter = self.widgetParent.counter + .05
+        """
+        When a solenoid is clicked this function is called
+        """
 
+        # This is for testing and will normally be used with capacitive level sensor
         if self._id < len(self.widgetParent.tank_list):
             self.widgetParent.tank_list[self._id].fillPercent += .05
-
-        print(self._id)
-        print(len(self.widgetParent.solenoid_list))
+        #Toggle state of solenoid
         self.toggle()
+        #Tells widget painter to update screen
         self.widgetParent.update()
 
     def move(self, xPos, yPos):
+        """
+        Move solenoid to a new position
+
+        :param xPos: new x position
+        :param yPos: new y position
+        """
         self.button.move(xPos, yPos)
         self.contextMenu.move(xPos, yPos)
         self.position = [xPos, yPos]
 
     def toggle(self):
+        """
+        Toggle the state of the solenoid
+        """
+
         if self.state == 0:
             self.state = 1
             self.button.setToolTip(self.short_name + "\nState: Open")

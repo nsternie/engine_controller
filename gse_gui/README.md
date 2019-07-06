@@ -1,5 +1,7 @@
 This is the repository for the 2018-2019 GUI.
-Started by Jack Taliercio
+Contributors:
+Jack Taliercio
+Alex Philpott
 
 
 This GUI will be written in Python using PyQT.

@@ -6,17 +6,14 @@ from controlsWindow import ControlsWindow
 from PyQt5.QtWidgets import *
 
 
-class GUI():
-    """
-        Parent class to hold all child windows
-    """
-    screenResolution = []
+"""
+Program start point. This class handles all child windows of the gui
+"""
+class GUI:
 
     def __init__(self, parent=None):
 
         self.screenResolution = [app.desktop().screenGeometry().width(),app.desktop().screenGeometry().height()]
-
-        print(self.screenResolution)
 
         self.controlsWindow = ControlsWindow(self)
         self.plotWindow = PlotWindow()

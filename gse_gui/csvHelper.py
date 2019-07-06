@@ -1,10 +1,19 @@
 import csv
 
-
-
+"""
+Helper class for reading, writing, and editing csv files
+"""
 class CsvHelper:
 
-    def loadCsv(self, filename):
+    @staticmethod
+    def loadCsv(filename):
+        """
+        Loads csv data into an array and return it
+
+        :param filename: name of csv file to load
+        """
+
+        # TODO: Switch returned array to col based format instead of row based format
         with open(filename, 'r') as f:
             reader = csv.reader(f)
             csv_list = list(reader)
