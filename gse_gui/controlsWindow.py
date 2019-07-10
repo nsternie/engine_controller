@@ -275,17 +275,18 @@ class ControlsPanelWidget(QWidget):
         """
 
         #Currently for testing, sets the long_name and label text of solenoid
-        for sol in self.controls.solenoid_list:
-            if sol.is_being_edited:
-                sol.updateLongName(text)
+        for object in self.objects_editing:
+            if object.is_being_edited:
+                object.updateLongName(text)
 
 
     def textChanged2(self, text):
         """
         Called when the text of a text field is changed
         """
-
         #Currently for testing, sets the long_name and label text of solenoid
+        # TODO: Change this to a drop down menu, with left, right etc options
+        # FIXME: This does not work for tanks
         for sol in self.controls.solenoid_list:
             if sol.is_being_edited:
                 if len(text) > 0:

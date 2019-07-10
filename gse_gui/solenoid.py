@@ -171,9 +171,6 @@ class Solenoid(QPushButton, BaseObject):
         """
 
         if self.widgetParent.window.is_editing == False:
-            # This is for testing and will normally be used with capacitive level sensor
-            if self._id < len(self.widgetParent.tank_list):
-                self.widgetParent.tank_list[self._id].fillPercent += .05
             #Toggle state of solenoid
             self.toggle()
             #Tells widget painter to update screen
