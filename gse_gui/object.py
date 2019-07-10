@@ -6,7 +6,7 @@ class BaseObject:
 
     def __init__(self, position: list, fluid: int, avionics_number: int = -1,
                  short_name: str = 'OX-SN-G07', safety_status: int = -1, long_name: str = 'LOX Dewar Drain',
-                 is_vertical: bool = False):
+                 is_vertical: bool = False, is_being_edited: bool = False):
         """
         Initializer for base class
 
@@ -17,6 +17,7 @@ class BaseObject:
         :param safety_status: safety criticality
         :param long_name: human-readable name for display on screen
         :param is_vertical: tracker if object is drawn vertically
+        :param is_being_edited: tracker if object is drawn vertically
         """
         self.position = position
         self.fluid = fluid
@@ -25,3 +26,8 @@ class BaseObject:
         self.safety_status = safety_status
         self.long_name = long_name
         self.is_vertical = is_vertical
+        self.is_being_edited = is_being_edited
+
+
+
+    # TODO: Add common object functions that will make lives so much easier

@@ -23,7 +23,7 @@ class Solenoid(QPushButton, BaseObject):
         """
 
         # Initialize base classes
-        super().__init__(parent=widgetParent, position=position, fluid=fluid, is_vertical=isVertical)
+        super().__init__(parent=widgetParent, position=position, fluid=fluid, is_vertical=isVertical, is_being_edited = False)
 
         self.widgetParent = widgetParent # Important for drawing object
 
@@ -91,7 +91,6 @@ class Solenoid(QPushButton, BaseObject):
         label.setText(self.long_name)  # Solenoid long name
         label.setStyleSheet('color: white')
         label.setWordWrap(1)
-
 
         # This is a fucking mess but I am too hella lazy to fix it rn
         # TODO: Make this not a mess
@@ -171,12 +170,19 @@ class Solenoid(QPushButton, BaseObject):
         When a solenoid is clicked this function is called
         """
 
-        # This is for testing and will normally be used with capacitive level sensor
-        if self._id < len(self.widgetParent.tank_list):
-            self.widgetParent.tank_list[self._id].fillPercent += .05
-        #Toggle state of solenoid
-        self.toggle()
-        #Tells widget painter to update screen
+        if self.widgetParent.window.is_editing == False:
+            # This is for testing and will normally be used with capacitive level sensor
+            if self._id < len(self.widgetParent.tank_list):
+                self.widgetParent.tank_list[self._id].fillPercent += .05
+            #Toggle state of solenoid
+            self.toggle()
+            #Tells widget painter to update screen
+        else:
+            if self.is_being_edited:
+                self.widgetParent.controlsPanel.removeEditingObjects(self)
+            else:
+                self.widgetParent.controlsPanel.addEditingObjects(self)
+
         self.widgetParent.update()
 
     def move(self, xPos, yPos):
@@ -203,6 +209,45 @@ class Solenoid(QPushButton, BaseObject):
             self.button.setToolTip(self.short_name + "\nState: Closed")
         else:
             print("WARNING STATE OF SOLENOID " + str(self._id) + " IS NOT PROPERLY DEFINED")
+
+    def updateLongName(self, name):
+        """
+        Updates long name and label of object
+        """
+        self.long_name = name
+        self.label.setText(name)
+
+    def updateLabelPosition(self, position):
+        self.labelPosition = position
+
+        label = self.label
+        # This is a fucking mess but I am too hella lazy to fix it rn
+        # TODO: Make this not a mess
+        if self.labelPosition == 0:
+            label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+            if self.is_vertical == 0:
+                label.move(self.position[0], self.position[1] - label.height())
+            else:
+                label.move(self.position[0] - label.width() / 2 + self.height / 2, self.position[1] - label.height())
+        elif self.labelPosition == 1:
+            label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
+            if self.is_vertical == 0:
+                label.move(self.position[0] + self.width, self.position[1] - label.height() / 2 + self.height / 2)
+            else:
+                label.move(self.position[0] + self.height, self.position[1] - label.height() / 2 + self.width / 2)
+        elif self.labelPosition == 2:
+            label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
+            if self.is_vertical == 0:
+                label.move(self.position[0], self.position[1] + self.height)
+            else:
+                label.move(self.position[0] - label.width() / 2 + self.height / 2, self.position[1] + self.width)
+        elif self.labelPosition == 3:
+            label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
+            if self.is_vertical == 0:
+                label.move(self.position[0] - self.width, self.position[1] - label.height() / 2 + self.height / 2)
+            else:
+                label.move(self.position[0] - self.width, self.position[1] - label.height() / 2 + self.width / 2)
+
 
     def plot_menu(self, event, button, menu):
         """

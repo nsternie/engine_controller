@@ -9,6 +9,8 @@ from object import BaseObject
 """
 Class to handle all tank objects and their functionality 
 """
+
+# TODO: Tanks need to be more similar to solenoids so the base object can be expanded
 class Tank(BaseObject):
 
     def __init__(self, widgetParent, position, fluid):
@@ -24,7 +26,7 @@ class Tank(BaseObject):
         self.widgetParent = widgetParent  # Important for drawing icon
 
         ## Initialize underlying class
-        super().__init__(position, fluid, is_vertical=False)
+        super().__init__(position, fluid, is_vertical=False, is_being_edited = False)
 
         # This ID could be calculated better to avoid repeats but it works for now
         self._id = len(self.widgetParent.tank_list)  # Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
