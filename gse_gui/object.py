@@ -1,15 +1,23 @@
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+
+from constants import Constants
+from plot import PlotButton
+
 """
 Base class for GUI objects. Used to define parameters all GUI objects need
 """
 
-class BaseObject:
+class BaseObject(QPushButton):
 
-    def __init__(self, position: list, fluid: int, avionics_number: int = -1,
+    def __init__(self, parent: QWidget, position: list, fluid: int, width: float, height : float, avionics_number: int = -1,
                  short_name: str = 'OX-SN-G07', safety_status: int = -1, long_name: str = 'LOX Dewar Drain',
                  is_vertical: bool = False, is_being_edited: bool = False):
         """
         Initializer for base class
 
+        :param parent: parent widget
         :param position: position of icon on screen
         :param fluid: fluid in object
         :param avionics_number: avionics identifier
@@ -19,15 +27,104 @@ class BaseObject:
         :param is_vertical: tracker if object is drawn vertically
         :param is_being_edited: tracker if object is drawn vertically
         """
+        super().__init__()
+
+        self.widget_parent = parent # Important for drawing icon
+        self._id = len(self.widget_parent.object_list) # Very important! DO NOT CHANGE FROM WHAT PROGRAM SET
         self.position = position
         self.fluid = fluid
+        self.width = width
+        self.height = height
         self.avionics_number = avionics_number
         self.short_name = short_name
         self.safety_status = safety_status
         self.long_name = long_name
         self.is_vertical = is_vertical
         self.is_being_edited = is_being_edited
+        self.context_menu = QMenu(self.widget_parent)
+        self.button = PlotButton(self.short_name, 'data.csv', 'Pressure', self.widget_parent)
+        self.label = QLabel(self.widget_parent)
 
+        self.initButton()
+        self.initLabel()
+
+    def initButton(self):
+        # Create Button and style it
+        self.button.setStyleSheet("background-color:transparent;border:0;")
+        self.button.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.button.setToolTip(self.short_name + "\nState: Closed")
+
+        self.button.move(self.position[0], self.position[1])
+
+        # FIXME: Context menu always appears in the top left
+        self.context_menu.move(self.position[0], self.position[1])
+
+        # Add quitAction
+        self.context_menu.addAction("Test RMB")
+
+        # If the object is vertical set the button size accordingly
+        # TODO: Update self.height and width if the solenoid is vertical instead of doing this
+        if self.is_vertical:
+            self.button.resize(self.height, self.width)
+        else:
+            self.button.resize(self.width, self.height)
+
+        # Connect plot options to button context menu
+        self.button.clicked.connect(lambda: self.onClick())
+        self.button.customContextMenuRequested.connect(
+            lambda *args: self.plot_menu(*args, self.button, self.context_menu)
+        )
+        self.button.show()
+
+    def initLabel(self):
+        # Get font and set it
+        font = QFont()
+        font.setStyleStrategy(QFont.PreferAntialias)
+        font.setFamily("Arial")
+        font.setPointSize(23)
+        self.label.setFont(font)
+
+        # Sets the sizing of the label
+        self.label.setFixedWidth(self.width)
+        self.label.setFixedHeight(80)  # 80 Corresponds to three rows at this font type and size (Arial 23)
+        self.label.setText(self.long_name)  # Solenoid long name
+        self.label.setStyleSheet('color: white')
+        self.label.setWordWrap(1)
+
+        self.label.move(self.position[0], self.position[1])
+
+        self.label.show()
+
+    def plot_menu(self, event, button, menu):
+        """
+        Handler for context menu. These menus hand-off data plotting to plot windows
+        :param event: default event from pyqt
+        :param button: button instance this plot_menu is connected to
+        :param menu: input QMenu object to display options on
+        :return:
+        """
+        self.plotMenuActions = []
+        for plot in self.widgetParent.parent.parent.plotWindow.plotList:
+            action = QAction(plot.name)
+            self.plotMenuActions.append(action)
+
+            self.plotMenuActions[-1].triggered.connect(
+                lambda *args, p=plot: self.link_plot(p, button)
+            )
+
+            menu.addAction(self.plotMenuActions[-1])
+
+        menu.exec_(self.mapToGlobal(event))
+
+    def link_plot(self, plot, button):
+        """
+        Link a Plot object to a given data file
+        :param plot: plot object that needs a link to a data file
+        :param button: button instance that was clicked on
+        :return:
+        """
+        plot.link_data(button)
 
 
     # TODO: Add common object functions that will make lives so much easier
+

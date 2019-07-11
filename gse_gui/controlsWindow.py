@@ -77,6 +77,9 @@ class ControlsWidget(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.show()
 
+        # Object Tracker
+        self.object_list = []
+
         # Solenoid and tank trackers
         self.solenoid_list = []
         self.tank_list = []
