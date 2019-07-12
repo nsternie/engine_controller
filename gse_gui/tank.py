@@ -5,7 +5,6 @@ from PyQt5.QtCore import *
 from constants import Constants
 from MathHelper import MathHelper
 from object import BaseObject
-from plot import PlotButton
 
 
 """
@@ -20,7 +19,7 @@ class Tank(BaseObject):
         """
         Init the solenoid object
         :param widget_parent: widget this object will be added to
-        :param position: position of icon on screen
+        :param position: position of icon on screen. Passed as QPointF()
         :param fluid: fluid in object
         :return:
         """
@@ -37,7 +36,7 @@ class Tank(BaseObject):
         # TODO: Implement the rest of this
         self.labelPosition = 0
 
-        self.button.move(self.position[0], self.position[1]-20)
+        self.button.move(self.position.x(), self.position.y()-20)
 
     def onClick(self):
         """
@@ -60,45 +59,6 @@ class Tank(BaseObject):
         # Tells widget painter to update screen
         self.widget_parent.update()
 
-
-    def updateLongName(self, name):
-        """
-        Updates long name and label of object
-        """
-        self.long_name = name
-        self.label.setText(name)
-
-
-    def plot_menu(self, event, button, menu):
-        """
-        Handler for context menu. These menus hand-off data plotting to plot windows
-        :param event: default event from pyqt
-        :param button: button instance this plot_menu is connected to
-        :param menu: input QMenu object to display options on
-        :return:
-        """
-        self.plotMenuActions = []
-        for plot in self.widget_parent.parent.parent.plotWindow.plotList:
-            action = QAction(plot.name)
-            self.plotMenuActions.append(action)
-
-            self.plotMenuActions[-1].triggered.connect(
-                lambda *args, p=plot: self.link_plot(p, button)
-            )
-
-            menu.addAction(self.plotMenuActions[-1])
-
-        menu.exec_(self.mapToGlobal(event))
-
-    def link_plot(self, plot, button):
-        """
-        Link a Plot object to a given data file
-        :param plot: plot object that needs a link to a data file
-        :param button: button instance that was clicked on
-        :return:
-        """
-        plot.link_data(button)
-
     def draw(self):
         """
         Draws the solenoid icon on screen
@@ -111,15 +71,15 @@ class Tank(BaseObject):
         path = QPainterPath()
         self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
 
-        path.moveTo(self.position[0],self.position[1])
-        path.arcTo(QRectF(self.position[0], self.position[1] - arcHeight, self.width, arcHeight * 2), 180, -180)
-        path.lineTo(self.position[0] + self.width, self.position[1]+ self.height - 2 * arcHeight)
-        path.arcTo(QRectF(self.position[0] + self.width, self.position[1] + self.height - arcHeight - 2 * arcHeight, - self.width, arcHeight * 2), 180, 180)
-        path.lineTo(self.position[0], self.position[1])
+        path.moveTo(self.position.x(),self.position.y())
+        path.arcTo(QRectF(self.position.x(), self.position.y() - arcHeight, self.width, arcHeight * 2), 180, -180)
+        path.lineTo(self.position.x() + self.width, self.position.y()+ self.height - 2 * arcHeight)
+        path.arcTo(QRectF(self.position.x() + self.width, self.position.y() + self.height - arcHeight - 2 * arcHeight, - self.width, arcHeight * 2), 180, 180)
+        path.lineTo(self.position.x(), self.position.y())
 
         self.widget_parent.painter.drawPath(path)
 
-        self.widget_parent.painter.fillRect(QRectF(self.position[0], self.position[1], 7, 7), Constants.fluidColor[self.fluid])
+        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 7, 7), Constants.fluidColor[self.fluid])
 
         # End tank outline draw
 
@@ -131,16 +91,16 @@ class Tank(BaseObject):
         # Maps the fill percentage of the tank to an angle to fill the bottom arc
         bottomArcFillAngle = MathHelper.mapValue(self.fillPercent, 0, arcHeight / self.height, 0, 90)
 
-        path.moveTo(self.position[0] + self.width / 2, self.position[1] + self.height - arcHeight)
-        path.arcTo(QRectF(self.position[0], self.position[1] + self.height - arcHeight - 2 * arcHeight, self.width, arcHeight * 2), 270, bottomArcFillAngle)
-        path.lineTo(self.position[0] + self.width / 2, path.currentPosition().y())
-        path.lineTo(self.position[0] + self.width / 2, self.position[1] + self.height - arcHeight)
+        path.moveTo(self.position.x() + self.width / 2, self.position.y() + self.height - arcHeight)
+        path.arcTo(QRectF(self.position.x(), self.position.y() + self.height - arcHeight - 2 * arcHeight, self.width, arcHeight * 2), 270, bottomArcFillAngle)
+        path.lineTo(self.position.x() + self.width / 2, path.currentPosition().y())
+        path.lineTo(self.position.x() + self.width / 2, self.position.y() + self.height - arcHeight)
 
-        path.moveTo(self.position[0] + self.width / 2, self.position[1] + self.height - arcHeight)
-        path.arcTo(QRectF(self.position[0], self.position[1] + self.height - arcHeight - 2 * arcHeight, self.width, 2 * arcHeight), 270,
+        path.moveTo(self.position.x() + self.width / 2, self.position.y() + self.height - arcHeight)
+        path.arcTo(QRectF(self.position.x(), self.position.y() + self.height - arcHeight - 2 * arcHeight, self.width, 2 * arcHeight), 270,
                    -bottomArcFillAngle)
-        path.lineTo(self.position[0] + self.width / 2, path.currentPosition().y())
-        path.lineTo(self.position[0] + self.width / 2, self.position[1] + self.height - arcHeight)
+        path.lineTo(self.position.x() + self.width / 2, path.currentPosition().y())
+        path.lineTo(self.position.x() + self.width / 2, self.position.y() + self.height - arcHeight)
 
         self.widget_parent.painter.drawPath(path)
         # End fill in bottom arc
@@ -150,7 +110,7 @@ class Tank(BaseObject):
         bodyFillHeight = MathHelper.mapValue(self.fillPercent, arcHeight / self.height, 1 - arcHeight / self.height, 0,
                                        self.height - 2 * arcHeight)
 
-        self.widget_parent.painter.fillRect(QRectF(self.position[0], self.position[1] - 2 * arcHeight + self.height - bodyFillHeight, self.width, bodyFillHeight), Constants.fluidColor[self.fluid])
+        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y() - 2 * arcHeight + self.height - bodyFillHeight, self.width, bodyFillHeight), Constants.fluidColor[self.fluid])
         # End fill in tank body
 
         # Fill in top arc
@@ -160,17 +120,17 @@ class Tank(BaseObject):
 
         topArcFillAngle = MathHelper.mapValue(self.fillPercent, 1 - (arcHeight / self.height), 1, 0, 90)
 
-        path.moveTo(self.position[0] + self.width, self.position[1])
-        path.arcTo(QRectF(self.position[0], self.position[1] - arcHeight, self.width, arcHeight * 2), 0, topArcFillAngle)
+        path.moveTo(self.position.x() + self.width, self.position.y())
+        path.arcTo(QRectF(self.position.x(), self.position.y() - arcHeight, self.width, arcHeight * 2), 0, topArcFillAngle)
         if topArcFillAngle > 0:
-            path.lineTo(self.position[0] + self.width / 2, path.currentPosition().y())
-            path.lineTo(self.position[0] + self.width / 2, self.position[1])
+            path.lineTo(self.position.x() + self.width / 2, path.currentPosition().y())
+            path.lineTo(self.position.x() + self.width / 2, self.position.y())
 
-        path.moveTo(self.position[0], self.position[1])
-        path.arcTo(QRectF(self.position[0], self.position[1] - arcHeight, self.width, arcHeight * 2), 180, -topArcFillAngle)
+        path.moveTo(self.position.x(), self.position.y())
+        path.arcTo(QRectF(self.position.x(), self.position.y() - arcHeight, self.width, arcHeight * 2), 180, -topArcFillAngle)
         if topArcFillAngle > 0:
-            path.lineTo(self.position[0] + self.width / 2, path.currentPosition().y())
-            path.lineTo(self.position[0] + self.width / 2, self.position[1])
+            path.lineTo(self.position.x() + self.width / 2, path.currentPosition().y())
+            path.lineTo(self.position.x() + self.width / 2, self.position.y())
 
         self.widget_parent.painter.drawPath(path)
 

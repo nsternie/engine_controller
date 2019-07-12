@@ -40,27 +40,27 @@ class Solenoid(BaseObject):
         if self.labelPosition == 0:
             self.label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
             if self.is_vertical == 0:
-                self.label.move(self.position[0], self.position[1] - self.label.height())
+                self.label.move(self.position.x(), self.position.y() - self.label.height())
             else:
-                self.label.move(self.position[0] - self.label.width() / 2 + self.height / 2, self.position[1] - self.label.height())
+                self.label.move(self.position.x() - self.label.width() / 2 + self.height / 2, self.position.y() - self.label.height())
         elif self.labelPosition == 1:
             self.label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
             if self.is_vertical == 0:
-                self.label.move(self.position[0] + self.width, self.position[1] - self.label.height() / 2 + self.height / 2)
+                self.label.move(self.position.x() + self.width, self.position.y() - self.label.height() / 2 + self.height / 2)
             else:
-                self.label.move(self.position[0] + self.height, self.position[1] - self.label.height() / 2 + self.width / 2)
+                self.label.move(self.position.x() + self.height, self.position.y() - self.label.height() / 2 + self.width / 2)
         elif self.labelPosition == 2:
             self.label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
             if self.is_vertical == 0:
-                self.label.move(self.position[0], self.position[1] + self.height)
+                self.label.move(self.position.x(), self.position.y() + self.height)
             else:
-                self.label.move(self.position[0] - self.label.width() / 2 + self.height / 2, self.position[1] + self.width)
+                self.label.move(self.position.x() - self.label.width() / 2 + self.height / 2, self.position.y() + self.width)
         elif self.labelPosition == 3:
             self.label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
             if self.is_vertical == 0:
-                self.label.move(self.position[0] - self.width, self.position[1] - self.label.height() / 2 + self.height / 2)
+                self.label.move(self.position.x() - self.width, self.position.y() - self.label.height() / 2 + self.height / 2)
             else:
-                self.label.move(self.position[0] - self.width, self.position[1] - self.label.height() / 2 + self.width / 2)
+                self.label.move(self.position.x() - self.width, self.position.y() - self.label.height() / 2 + self.width / 2)
 
     def draw(self):
         """
@@ -71,8 +71,8 @@ class Solenoid(BaseObject):
         path = QPainterPath()
 
         # To make coding easier
-        xPos = self.position[0]
-        yPos = self.position[1]
+        xPos = self.position.x()
+        yPos = self.position.y()
 
         # If solenoid is open color it in
         if self.state == 1:
@@ -101,7 +101,7 @@ class Solenoid(BaseObject):
         self.widget_parent.painter.drawPath(path)
 
         # This is debug, draws a box around the origin of object
-        self.widget_parent.painter.fillRect(QRectF(self.position[0], self.position[1], 7, 7),
+        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 7, 7),
                                       Constants.fluidColor[self.fluid])
 
     def onClick(self):
@@ -121,16 +121,6 @@ class Solenoid(BaseObject):
 
         self.widget_parent.update()
 
-    def move(self, xPos, yPos):
-        """
-        Move solenoid to a new position
-
-        :param xPos: new x position
-        :param yPos: new y position
-        """
-        self.button.move(xPos, yPos)
-        self.contextMenu.move(xPos, yPos)
-        self.position = [xPos, yPos]
 
     def toggle(self):
         """
@@ -146,14 +136,11 @@ class Solenoid(BaseObject):
         else:
             print("WARNING STATE OF SOLENOID " + str(self._id) + " IS NOT PROPERLY DEFINED")
 
-    def updateLongName(self, name):
-        """
-        Updates long name and label of object
-        """
-        self.long_name = name
-        self.label.setText(name)
 
     def updateLabelPosition(self, position):
+        """
+        Updates the label position value and then updates the labels position on screen
+        """
         self.labelPosition = position
 
         label = self.label
@@ -162,55 +149,24 @@ class Solenoid(BaseObject):
         if self.labelPosition == 0:
             label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
             if self.is_vertical == 0:
-                label.move(self.position[0], self.position[1] - label.height())
+                label.move(self.position.x(), self.position.y() - label.height())
             else:
-                label.move(self.position[0] - label.width() / 2 + self.height / 2, self.position[1] - label.height())
+                label.move(self.position.x() - label.width() / 2 + self.height / 2, self.position.y() - label.height())
         elif self.labelPosition == 1:
             label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
             if self.is_vertical == 0:
-                label.move(self.position[0] + self.width, self.position[1] - label.height() / 2 + self.height / 2)
+                label.move(self.position.x() + self.width, self.position.y() - label.height() / 2 + self.height / 2)
             else:
-                label.move(self.position[0] + self.height, self.position[1] - label.height() / 2 + self.width / 2)
+                label.move(self.position.x() + self.height, self.position.y() - label.height() / 2 + self.width / 2)
         elif self.labelPosition == 2:
             label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
             if self.is_vertical == 0:
-                label.move(self.position[0], self.position[1] + self.height)
+                label.move(self.position.x(), self.position.y() + self.height)
             else:
-                label.move(self.position[0] - label.width() / 2 + self.height / 2, self.position[1] + self.width)
+                label.move(self.position.x() - label.width() / 2 + self.height / 2, self.position.y() + self.width)
         elif self.labelPosition == 3:
             label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
             if self.is_vertical == 0:
-                label.move(self.position[0] - self.width, self.position[1] - label.height() / 2 + self.height / 2)
+                label.move(self.position.x() - self.width, self.position.y() - label.height() / 2 + self.height / 2)
             else:
-                label.move(self.position[0] - self.width, self.position[1] - label.height() / 2 + self.width / 2)
-
-
-    def plot_menu(self, event, button, menu):
-        """
-        Handler for context menu. These menus hand-off data plotting to plot windows
-        :param event: default event from pyqt
-        :param button: button instance this plot_menu is connected to
-        :param menu: input QMenu object to display options on
-        :return:
-        """
-        self.plotMenuActions = []
-        for plot in self.widget_parent.parent.parent.plotWindow.plotList:
-            action = QAction(plot.name)
-            self.plotMenuActions.append(action)
-
-            self.plotMenuActions[-1].triggered.connect(
-                lambda *args, p=plot: self.link_plot(p, button)
-            )
-
-            menu.addAction(self.plotMenuActions[-1])
-
-        menu.exec_(self.mapToGlobal(event))
-
-    def link_plot(self, plot, button):
-        """
-        Link a Plot object to a given data file
-        :param plot: plot object that needs a link to a data file
-        :param button: button instance that was clicked on
-        :return:
-        """
-        plot.link_data(button)
+                label.move(self.position.x() - self.width, self.position.y() - label.height() / 2 + self.width / 2)

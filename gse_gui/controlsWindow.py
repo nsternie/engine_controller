@@ -122,12 +122,12 @@ class ControlsWidget(QWidget):
             # Creates horizontal and vertical solenoids
             if int(self.csvObjectData[2][0][i]) == 0 or int(self.csvObjectData[2][0][i]) == 1:
                 self.solenoid_list.append(
-                    Solenoid(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])],
+                    Solenoid(self, QPointF(float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])),
                              int(self.csvObjectData[2][1][i]), int(self.csvObjectData[2][0][i])))
             # Creates Tanks
             if int(self.csvObjectData[2][0][i]) == 2:
                 self.tank_list.append(
-                    Tank(self, [float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])],
+                    Tank(self, QPointF(float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])),
                           int(self.csvObjectData[2][1][i])))
 
         self.edit_button = QPushButton("EDIT", self)
@@ -169,6 +169,9 @@ class ControlsWidget(QWidget):
         self.painter.end()
 
 class ControlsPanelWidget(QWidget):
+    """
+    Widget that contains controls that are not through icons on screen. Ex. Editing, Arming etc
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -188,6 +191,9 @@ class ControlsPanelWidget(QWidget):
         self.width = self.window.panel_width
         self.height = self.gui.screenResolution[1]
         self.setGeometry(self.left, self.top, self.width, self.height)
+
+        # Sets the color of the panel to dark Gray
+        # TODO: Make this not look totally terrible
         self.setAutoFillBackground(True)
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.darkGray)

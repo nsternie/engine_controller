@@ -11,7 +11,7 @@ Base class for GUI objects. Used to define parameters all GUI objects need
 
 class BaseObject(QPushButton):
 
-    def __init__(self, parent: QWidget, position: list, fluid: int, width: float, height : float, avionics_number: int = -1,
+    def __init__(self, parent: QWidget, position: QPointF, fluid: int, width: float, height : float, avionics_number: int = -1,
                  short_name: str = 'OX-SN-G07', safety_status: int = -1, long_name: str = 'LOX Dewar Drain',
                  is_vertical: bool = False, is_being_edited: bool = False):
         """
@@ -20,6 +20,8 @@ class BaseObject(QPushButton):
         :param parent: parent widget
         :param position: position of icon on screen
         :param fluid: fluid in object
+        :param width: width of object
+        :param height: height of object
         :param avionics_number: avionics identifier
         :param short_name: abbreviated name on schematics
         :param safety_status: safety criticality
@@ -45,19 +47,23 @@ class BaseObject(QPushButton):
         self.button = PlotButton(self.short_name, 'data.csv', 'Pressure', self.widget_parent)
         self.label = QLabel(self.widget_parent)
 
-        self.initButton()
-        self.initLabel()
+        self._initButton()
+        self._initLabel()
 
-    def initButton(self):
+    def _initButton(self):
+        """
+        Basic function that handles all the setup for the PlotButton
+        Should only be called from __init__
+        """
         # Create Button and style it
         self.button.setStyleSheet("background-color:transparent;border:0;")
         self.button.setContextMenuPolicy(Qt.CustomContextMenu)
         self.button.setToolTip(self.short_name + "\nState: Closed")
 
-        self.button.move(self.position[0], self.position[1])
+        self.button.move(self.position.x(), self.position.y())
 
         # FIXME: Context menu always appears in the top left
-        self.context_menu.move(self.position[0], self.position[1])
+        self.context_menu.move(self.position.x(), self.position.y())
 
         # Add quitAction
         self.context_menu.addAction("Test RMB")
@@ -76,7 +82,11 @@ class BaseObject(QPushButton):
         )
         self.button.show()
 
-    def initLabel(self):
+    def _initLabel(self):
+        """
+        Basic function that handles all the setup for the object label
+        Should only be called from __init__
+        """
         # Get font and set it
         font = QFont()
         font.setStyleStrategy(QFont.PreferAntialias)
@@ -91,9 +101,28 @@ class BaseObject(QPushButton):
         self.label.setStyleSheet('color: white')
         self.label.setWordWrap(1)
 
-        self.label.move(self.position[0], self.position[1])
+        # Move the label into position
+        self.label.move(self.position.x(), self.position.y())
 
         self.label.show()
+
+    def updateLongName(self, name):
+        """
+        Updates long name and label of object
+        """
+        self.long_name = name
+        self.label.setText(name)
+
+    def move(self, x_pos, y_pos):
+        """
+        Move solenoid to a new position
+
+        :param x_pos: new x position
+        :param y_pos: new y position
+        """
+        self.button.move(x_pos, y_pos)
+        self.contextMenu.move(x_pos, y_pos)
+        self.position = QPointF(x_pos, y_pos)
 
     def plot_menu(self, event, button, menu):
         """
@@ -125,6 +154,4 @@ class BaseObject(QPushButton):
         """
         plot.link_data(button)
 
-
-    # TODO: Add common object functions that will make lives so much easier
 
