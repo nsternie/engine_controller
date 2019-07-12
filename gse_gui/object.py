@@ -133,7 +133,7 @@ class BaseObject(QPushButton):
         :return:
         """
         self.plotMenuActions = []
-        for plot in self.widgetParent.parent.parent.plotWindow.plotList:
+        for plot in self.widget_parent.gui.plotWindow.plotList:
             action = QAction(plot.name)
             self.plotMenuActions.append(action)
 
