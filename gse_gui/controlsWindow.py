@@ -89,6 +89,14 @@ class ControlsWidget(QWidget):
 
         self.initConfigFiles()
         self.createObjects()
+        
+        # Masa Logo on bottom left of screen
+        # FIXME: Make this not blurry as hell
+        self.masa_logo = QLabel(self)
+        pixmap = QPixmap('masawhiteworm.png')
+        self.masa_logo.setPixmap(pixmap)
+        self.masa_logo.setGeometry(10, self.gui.screenResolution[1] - 110, 300, 100)
+
 
     # TODO: Almost anything but this, that being said it works
     def finalizeInit(self):

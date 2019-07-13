@@ -18,6 +18,7 @@ class GUI:
         self.controlsWindow = ControlsWindow(self)
         self.plotWindow = PlotWindow()
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     gui = GUI()

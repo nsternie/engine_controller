@@ -81,6 +81,8 @@ class BaseObject(QPushButton):
             lambda *args: self.plot_menu(*args, self.button, self.context_menu)
         )
         self.button.show()
+        # Raise button above label
+        self.button.raise_()
 
     def _initLabel(self):
         """
@@ -157,7 +159,7 @@ class BaseObject(QPushButton):
         self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
         self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 10, 10),
                                             Constants.fluidColor[self.fluid])
-        
+
     def move(self, x_pos, y_pos):
         """
         Move solenoid to a new position
