@@ -286,7 +286,7 @@ class ControlsPanelWidget(QWidget):
         #Currently for testing, sets the long_name and label text of solenoid
         for object in self.objects_editing:
             if object.is_being_edited:
-                object.updateLongName(text)
+                object.setLongName(text)
 
 
     def textChanged2(self, text):

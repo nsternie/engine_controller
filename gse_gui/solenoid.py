@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+from overrides import overrides
+
 from constants import Constants
-from plot import PlotButton
 from object import BaseObject
+
 
 """
 Class to handle all solenoid objects and their functionality 
@@ -62,6 +63,7 @@ class Solenoid(BaseObject):
             else:
                 self.label.move(self.position.x() - self.width, self.position.y() - self.label.height() / 2 + self.width / 2)
 
+    @overrides
     def draw(self):
         """
         Draws the solenoid icon on screen
@@ -104,23 +106,20 @@ class Solenoid(BaseObject):
         self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 7, 7),
                                       Constants.fluidColor[self.fluid])
 
+    @overrides
     def onClick(self):
         """
         When a solenoid is clicked this function is called
         """
 
-        if self.widget_parent.window.is_editing == False:
+        super().onClick()
+
+        if not self.widget_parent.window.is_editing:
             #Toggle state of solenoid
             self.toggle()
-            #Tells widget painter to update screen
-        else:
-            if self.is_being_edited:
-                self.widget_parent.controlsPanel.removeEditingObjects(self)
-            else:
-                self.widget_parent.controlsPanel.addEditingObjects(self)
 
+        # Tells widget painter to update screen
         self.widget_parent.update()
-
 
     def toggle(self):
         """
@@ -129,10 +128,12 @@ class Solenoid(BaseObject):
 
         if self.state == 0:
             self.state = 1
-            self.button.setToolTip(self.short_name + "\nState: Open")
+            self.setToolTip_("State: Open")
+            print("Test")
         elif self.state == 1:
             self.state = 0
-            self.button.setToolTip(self.short_name + "\nState: Closed")
+            self.setToolTip_("State: Closed")
+            print("test")
         else:
             print("WARNING STATE OF SOLENOID " + str(self._id) + " IS NOT PROPERLY DEFINED")
 
@@ -170,3 +171,4 @@ class Solenoid(BaseObject):
                 label.move(self.position.x() - self.width, self.position.y() - label.height() / 2 + self.height / 2)
             else:
                 label.move(self.position.x() - self.width, self.position.y() - label.height() / 2 + self.width / 2)
+

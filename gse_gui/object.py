@@ -106,13 +106,58 @@ class BaseObject(QPushButton):
 
         self.label.show()
 
-    def updateLongName(self, name):
+    def setToolTip_(self, text):
         """
-        Updates long name and label of object
+        Sets the toolTip of the button
+        :param text: text to be set on the tooltip
+        """
+        self.button.setToolTip(self.short_name + "\n" + text)
+        print(text)
+
+    def setLongName(self, name):
+        """
+        Sets long name and label of object
+        :param name: long_name of the object
         """
         self.long_name = name
         self.label.setText(name)
 
+    def setShortName(self, name):
+        """
+        Sets short name of the object
+        :param name: short_name of the object
+        """
+        self.short_name = name
+
+    def onClick(self):
+        """
+        When a object is clicked this function is called
+        This is base functionality, more functionality
+        can be added by overriding this function in the
+        child class
+        """
+
+        if self.widget_parent.window.is_editing:
+            if self.is_being_edited:
+                self.widget_parent.controlsPanel.removeEditingObjects(self)
+            else:
+                self.widget_parent.controlsPanel.addEditingObjects(self)
+
+        # Tells widget painter to update screen
+        self.widget_parent.update()
+
+    def draw(self):
+        """
+        Draws the object
+        Will almost always be overridden, this exists to
+        show user it needs an override
+        """
+
+        # Draws simple 10 x 10 box
+        self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
+        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 10, 10),
+                                            Constants.fluidColor[self.fluid])
+        
     def move(self, x_pos, y_pos):
         """
         Move solenoid to a new position
