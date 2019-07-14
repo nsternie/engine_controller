@@ -25,7 +25,7 @@ class Tank(BaseObject):
         :return:
         """
         ## Initialize underlying class
-        super().__init__(parent=widget_parent, position=position, fluid=fluid, width= 88*1.75, height = 170*1.75, is_vertical=False, is_being_edited = False)
+        super().__init__(parent=widget_parent, position=position, fluid=fluid, width= 88*1.75, height = 170*1.75, is_vertical=True, is_being_edited = False)
 
         # TODO: Grab height and width from csv file
         # TODO: Grab object scale from widget_parent

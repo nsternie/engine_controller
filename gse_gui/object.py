@@ -3,7 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from constants import Constants
-from plot import PlotButton
+from plotButton import PlotButton
 
 """
 Base class for GUI objects. Used to define parameters all GUI objects need
@@ -45,7 +45,9 @@ class BaseObject(QPushButton):
         self.is_being_edited = is_being_edited
         self.context_menu = QMenu(self.widget_parent)
         self.button = PlotButton(self.short_name, 'data.csv', 'Pressure', self.widget_parent)
-        self.label = QLabel(self.widget_parent)
+        self.long_name_label = QLabel(self.widget_parent)
+        # TODO: Do something with this:
+        self.short_name_label = QLabel(self.widget_parent)
 
         self._initButton()
         self._initLabel()
@@ -94,19 +96,22 @@ class BaseObject(QPushButton):
         font.setStyleStrategy(QFont.PreferAntialias)
         font.setFamily("Arial")
         font.setPointSize(23)
-        self.label.setFont(font)
+        self.long_name_label.setFont(font)
 
         # Sets the sizing of the label
-        self.label.setFixedWidth(self.width)
-        self.label.setFixedHeight(80)  # 80 Corresponds to three rows at this font type and size (Arial 23)
-        self.label.setText(self.long_name)  # Solenoid long name
-        self.label.setStyleSheet('color: white')
-        self.label.setWordWrap(1)
+        self.long_name_label.setFixedWidth(self.width)
+        self.long_name_label.setFixedHeight(80)  # 80 Corresponds to three rows at this font type and size (Arial 23)
+        self.long_name_label.setText(self.long_name)  # Solenoid long name
+        self.long_name_label.setStyleSheet('color: white')
+        self.long_name_label.setWordWrap(1)
 
         # Move the label into position
-        self.label.move(self.position.x(), self.position.y())
+        self.long_name_label.move(self.position.x(), self.position.y())
 
-        self.label.show()
+        # Sets alignment of label
+        self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
+
+        self.long_name_label.show()
 
     def setToolTip_(self, text):
         """
@@ -122,7 +127,7 @@ class BaseObject(QPushButton):
         :param name: long_name of the object
         """
         self.long_name = name
-        self.label.setText(name)
+        self.long_name_label.setText(name)
 
     def setShortName(self, name):
         """
@@ -130,6 +135,23 @@ class BaseObject(QPushButton):
         :param name: short_name of the object
         """
         self.short_name = name
+
+    def setAvionicsNumber(self, number):
+        """
+        Sets avionics number of object
+        :param number: avionics number of the object
+        """
+        self.avionics_number = number
+
+    def setFluid(self, fluid):
+        """
+        Sets fluid of object
+        :param fluid: fluid of the object
+        """
+        self.fluid = Constants.fluid[fluid]
+
+        # Tells widget painter to update screen
+        self.widget_parent.update()
 
     def onClick(self):
         """

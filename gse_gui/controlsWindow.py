@@ -3,9 +3,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from csvHelper import CsvHelper
+from constants import Constants
 from solenoid import Solenoid
 from tank import Tank
 from MathHelper import MathHelper
+from controlsPanelWidget import ControlsPanelWidget
 
 """
 This file contains the class to create the window and widget
@@ -89,9 +91,11 @@ class ControlsWidget(QWidget):
 
         self.initConfigFiles()
         self.createObjects()
-        
+
         # Masa Logo on bottom left of screen
         # FIXME: Make this not blurry as hell
+        # TODO: Move this to the main window instead of the widget
+        # TODO: Make CustomMainWindow Class to handle things like this for all windows
         self.masa_logo = QLabel(self)
         pixmap = QPixmap('masawhiteworm.png')
         self.masa_logo.setPixmap(pixmap)
@@ -175,141 +179,3 @@ class ControlsWidget(QWidget):
             tank.draw()
 
         self.painter.end()
-
-class ControlsPanelWidget(QWidget):
-    """
-    Widget that contains controls that are not through icons on screen. Ex. Editing, Arming etc
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.parent = parent
-        self.window = parent
-        # TODO: Rename the controls because it is weird
-        self.controls = self.window.controlsWidget
-
-        self.gui = self.window.parent
-
-        # Keeps track of all the objects currently being edited
-        self.objects_editing = []
-
-        self.left = self.gui.screenResolution[0] - self.window.panel_width
-        self.top = 0
-
-        self.width = self.window.panel_width
-        self.height = self.gui.screenResolution[1]
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
-        # Sets the color of the panel to dark Gray
-        # TODO: Make this not look totally terrible
-        self.setAutoFillBackground(True)
-        p = self.palette()
-        p.setColor(self.backgroundRole(), Qt.darkGray)
-        self.setPalette(p)
-
-        self.initEditFrame()
-
-        self.show()
-
-    def initEditFrame(self):
-        """
-        Inits the widgets inside of the editing frame
-        """
-
-        # Frame holds everything in it and can be hidden / shown
-        self.edit_frame = QFrame(self)
-        self.edit_form_layout = QFormLayout(self)
-
-        long_name_label = QLabel("Long Name:")
-
-        #Textbox to edit the longname of the object
-        self.long_name_textbox = QLineEdit(self)
-        self.long_name_textbox.setGeometry(20, 20, 200, 40)
-        self.long_name_textbox.textChanged.connect(self.textChanged1)
-
-        label_position_label = QLabel("Label Position:")
-
-        # Textbox to edit the longname of the object
-        self.label_position_textbox = QLineEdit(self)
-        self.label_position_textbox.setGeometry(20, 20, 200, 40)
-        self.label_position_textbox.textChanged.connect(self.textChanged2)
-        self.label_position_textbox.setValidator(QIntValidator())
-
-        # Add text boxes to the layout
-        self.edit_form_layout.addRow(long_name_label, self.long_name_textbox)
-        self.edit_form_layout.addRow(label_position_label, self.label_position_textbox)
-
-        self.edit_frame.setLayout(self.edit_form_layout)
-        self.edit_frame.hide()
-
-    # FIXME: Things don't work well if more than one object are in here
-    def addEditingObjects(self, objects):
-        """
-        Adds object to list to be edited
-        """
-        objects.is_being_edited = True
-        self.objects_editing.append(objects)
-        self.edit_frame.show()
-        self.updateEditFields(objects)
-
-    def removeEditingObjects(self, objects):
-        """
-        Removes object from list to be edited
-        """
-        objects.is_being_edited = False
-        self.objects_editing.remove(objects)
-
-        #If no objects are being edited hide the edit frame
-        if len(self.objects_editing) == 0:
-            self.edit_frame.hide()
-
-    def removeAllEditingObjects(self):
-        """
-        Sets all objects to not be editing and clears the editing list
-        """
-        for object in self.objects_editing:
-            object.is_being_edited = False
-
-        self.objects_editing.clear()
-
-    def updateEditFields(self, object):
-        """
-        Updates the various fields in the edit frame when a new object is selected for editing
-        """
-        self.long_name_textbox.setText(object.long_name)
-        self.label_position_textbox.setText(str(object.labelPosition))
-
-    def save(self):
-        """
-        This saves the edits and changes back into user mode
-        """
-        self.removeAllEditingObjects()
-
-    # TODO: Make this work for multiple fields, not just one
-    def textChanged1(self, text):
-        """
-        Called when the text of a text field is changed
-        """
-
-        #Currently for testing, sets the long_name and label text of solenoid
-        for object in self.objects_editing:
-            if object.is_being_edited:
-                object.setLongName(text)
-
-
-    def textChanged2(self, text):
-        """
-        Called when the text of a text field is changed
-        """
-        #Currently for testing, sets the long_name and label text of solenoid
-        # TODO: Change this to a drop down menu, with left, right etc options
-        # FIXME: This does not work for tanks
-        for sol in self.controls.solenoid_list:
-            if sol.is_being_edited:
-                if len(text) > 0:
-                    sol.updateLabelPosition(int(text))
-
-
-
-
-

@@ -10,10 +10,17 @@ class Constants:
     # TODO: I'm picky so change to LOX
     fluid = {
         "HE" :  0,
+        0: "HE",
         "Fuel": 1,
+        1: "Fuel",
         "OX":   2,
-        "LN2":  3
+        2: "OX",
+        "LN2":  3,
+        3: "LN2"
     }
+
+    #List of fluids
+    fluids = ["HE", "Fuel", "OX", "LN2"]
 
     # Dict of fluid colors. Number on left should match value of fluid dict above. Example call: fluidColor[0] -> Returns Qt.white
     fluidColor = {
