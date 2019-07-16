@@ -34,7 +34,8 @@ class Solenoid(BaseObject):
 
         # Label Position designates the side of the object the label will be placed
         # TODO: Make dictionary to designate, top, bottom, left and right positions
-        self.labelPosition = 0
+        # This is so badddddd
+        self.labelPosition = self.long_name_label_position_num
 
         # This is a fucking mess but I am too hella lazy to fix it rn
         # TODO: Make this not a mess
@@ -137,12 +138,15 @@ class Solenoid(BaseObject):
         else:
             print("WARNING STATE OF SOLENOID " + str(self._id) + " IS NOT PROPERLY DEFINED")
 
-
-    def updateLabelPosition(self, position):
+    # TODO: Get rid of this label position number stuff
+    @overrides
+    def setLongNameLabelPosition(self, label_num: int, label_position: QPoint = None):
         """
         Updates the label position value and then updates the labels position on screen
         """
-        self.labelPosition = position
+
+        self.labelPosition = label_num
+        self.long_name_label_position_num = label_num
 
         label = self.long_name_label
         # This is a fucking mess but I am too hella lazy to fix it rn

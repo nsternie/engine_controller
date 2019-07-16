@@ -4,8 +4,6 @@ from PyQt5.QtCore import *
 
 from constants import Constants
 
-
-
 class ControlsPanelWidget(QWidget):
     """
     Widget that contains controls that are not through icons on screen. Ex. Editing, Arming etc
@@ -59,11 +57,12 @@ class ControlsPanelWidget(QWidget):
         """
 
         # Add text boxes to the layout
-        self.createEnableDisableRadioButtons("Long Name Label")
+        self.createTFRadioButtons("Long Name Label", "Enabled", "Disabled", True)
         self.createLineEdit(self.long_name_textbox, "Long Name")
         self.createComboBox(self.label_position_combobox, "Label Position", ["Top","Right","Bottom","Left"])
         self.createLineEdit(self.avionics_number_textbox, "Avionics Number", QIntValidator())
         self.createComboBox(self.fluid_combobox, "Fluid", Constants.fluids)
+        self.createTFRadioButtons("Position is", "Locked", "Unlocked", False)
 
         self.edit_frame.hide()
 
@@ -81,23 +80,36 @@ class ControlsPanelWidget(QWidget):
 
         self.edit_form_layout.addRow(identifier_label, lineEdit)
 
-    def createEnableDisableRadioButtons(self, identifier):
+    # TODO: Make this cleaner, kinda messy right now
+    def createTFRadioButtons(self, identifier, true_btn_label = "True", false_btn_label = "False", checked:bool = True):
         """
         Creates two radio buttons to enable/disable aspects of the controls widget
         :param identifier: identifies radioButton widget, used when button is toggled
+        :param true_btn_label: label on the button that correlates to True
+        :param false_btn_label: label on the button that correlates to False
+        :param checked: Which button, True or False, is initially checked
         """
         identifier_label = QLabel(identifier + ":")
 
+        group = QButtonGroup(self)
+
         hbox = QHBoxLayout()
-        enabled_button = QRadioButton("Enabled")
-        disabled_button = QRadioButton("Disabled")
-        enabled_button.setChecked(True)
+        true_button = QRadioButton(true_btn_label)
+        false_button = QRadioButton(false_btn_label)
 
-        enabled_button.toggled.connect(lambda: self.updateEditingObjectFields(True, identifier))
-        disabled_button.toggled.connect(lambda: self.updateEditingObjectFields(False, identifier))
+        if checked:
+            true_button.setChecked(True)
+        else:
+            false_button.setChecked(True)
 
-        hbox.addWidget(enabled_button)
-        hbox.addWidget(disabled_button)
+        group.addButton(true_button)
+        group.addButton(false_button)
+
+        true_button.toggled.connect(lambda: self.updateEditingObjectFields(True, identifier))
+        false_button.toggled.connect(lambda: self.updateEditingObjectFields(False, identifier))
+
+        hbox.addWidget(true_button)
+        hbox.addWidget(false_button)
         hbox.addStretch()
 
         self.edit_form_layout.addRow(identifier_label, hbox)
@@ -140,16 +152,26 @@ class ControlsPanelWidget(QWidget):
                 if identifier == "Long Name":
                     object_.setLongName(text)
                 elif identifier == "Label Position":
-                    # TODO: Add in functionality for this
-                    print("Move Label to:" + text)
+                    # TODO: Fix the badness
+                    if text == "Top":
+                        object_.setLongNameLabelPosition(0)
+                    elif text == "Right":
+                        object_.setLongNameLabelPosition(1)
+                    elif text == "Bottom":
+                        object_.setLongNameLabelPosition(2)
+                    elif text == "Left":
+                        object_.setLongNameLabelPosition(3)
                 elif identifier == "Avionics Number":
                     object_.setAvionicsNumber(text)
                 elif identifier == "Fluid":
                     object_.setFluid(text)
                 elif identifier == "Long Name Label":
                     object_.long_name_label.setVisible(text)
+                elif identifier == "Position is":
+                    object_.setPositionLock(text)
 
     # FIXME: Things don't work well if more than one object are in here
+    # HMM: Move is_being_edited to object class and call this function here
     def addEditingObjects(self, objects):
         """
         Adds object to list to be edited

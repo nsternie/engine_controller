@@ -33,11 +33,9 @@ class Tank(BaseObject):
         # Tracks the percentage of fluid in the tank
         self.fillPercent = 0
 
-        # Holder for right now
-        # TODO: Implement the rest of this
-        self.labelPosition = 0
-
+        # TODO: Fix these properly
         self.button.move(self.position.x(), self.position.y()-20)
+        self.button.resize(self.width, self.height)
 
     @overrides
     def onClick(self):

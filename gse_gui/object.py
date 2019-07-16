@@ -4,16 +4,18 @@ from PyQt5.QtCore import *
 
 from constants import Constants
 from plotButton import PlotButton
+from overrides import overrides
 
 """
 Base class for GUI objects. Used to define parameters all GUI objects need
 """
 
-class BaseObject(QPushButton):
+class BaseObject:
 
     def __init__(self, parent: QWidget, position: QPointF, fluid: int, width: float, height : float, avionics_number: int = -1,
                  short_name: str = 'OX-SN-G07', safety_status: int = -1, long_name: str = 'LOX Dewar Drain',
-                 is_vertical: bool = False, is_being_edited: bool = False):
+                 is_vertical: bool = False, is_being_edited: bool = False, is_being_dragged: bool = False, locked: bool = False, position_locked: bool = False,
+                 long_name_label_position_num: int = 0):
         """
         Initializer for base class
 
@@ -28,6 +30,10 @@ class BaseObject(QPushButton):
         :param long_name: human-readable name for display on screen
         :param is_vertical: tracker if object is drawn vertically
         :param is_being_edited: tracker if object is drawn vertically
+        :param is_being_dragged: tracker if object is currently being dragged by user
+        :param locked: tracker if the object is locked from editing
+        :param position_locked: tracker if the object position is locked
+        :param long_name_label_position_num: num specifying the location of the label -> Move to pos based system
         """
         super().__init__()
 
@@ -43,9 +49,13 @@ class BaseObject(QPushButton):
         self.long_name = long_name
         self.is_vertical = is_vertical
         self.is_being_edited = is_being_edited
+        self.is_being_dragged = is_being_dragged
+        self.locked = locked
+        self.position_locked = position_locked
         self.context_menu = QMenu(self.widget_parent)
-        self.button = PlotButton(self.short_name, 'data.csv', 'Pressure', self.widget_parent)
+        self.button = PlotButton(self.short_name, self, 'data.csv', 'Pressure', self.widget_parent)
         self.long_name_label = QLabel(self.widget_parent)
+        self.long_name_label_position_num = long_name_label_position_num
         # TODO: Do something with this:
         self.short_name_label = QLabel(self.widget_parent)
 
@@ -153,6 +163,31 @@ class BaseObject(QPushButton):
         # Tells widget painter to update screen
         self.widget_parent.update()
 
+    def setPositionLock(self, is_locked: bool):
+        """
+        Sets if the position of on object is locked
+        :param is_locked: is the position locked
+        """
+
+        self.position_locked = is_locked
+
+        # TODO: Get rid of label_num and move over to a point based system
+    def setLongNameLabelPosition(self, label_num: int, label_position: QPoint = None):
+        """
+        Sets the position of the long name label on an object
+        :param label_num: num position of label -> Want to deprecate
+        :param label_position: new position of label
+        """
+        self.long_name_label_position_num = label_num
+
+        # If label position is not given, have label follow object
+        if label_position == None:
+            # Move the label into position
+            self.long_name_label.move(self.position.x(), self.position.y())
+        else:
+            self.long_name_label.move(label_position.x(),label_position.y())
+
+
     def onClick(self):
         """
         When a object is clicked this function is called
@@ -182,16 +217,20 @@ class BaseObject(QPushButton):
         self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 10, 10),
                                             Constants.fluidColor[self.fluid])
 
-    def move(self, x_pos, y_pos):
+    def move(self, point: QPoint):
         """
         Move solenoid to a new position
-
-        :param x_pos: new x position
-        :param y_pos: new y position
+        :param point: point to move to
         """
-        self.button.move(x_pos, y_pos)
-        self.contextMenu.move(x_pos, y_pos)
-        self.position = QPointF(x_pos, y_pos)
+
+        if self.position_locked == False and self.locked == False:
+            self.button.move(point)
+            self.context_menu.move(point)
+            self.position = point
+            self.setLongNameLabelPosition(self.long_name_label_position_num)
+
+        # Tells widget painter to update screen
+        self.widget_parent.update()
 
     def plot_menu(self, event, button, menu):
         """
