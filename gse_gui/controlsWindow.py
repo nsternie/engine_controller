@@ -6,8 +6,9 @@ from csvHelper import CsvHelper
 from constants import Constants
 from solenoid import Solenoid
 from tank import Tank
+from pressureTransducer import PressureTransducer
 from MathHelper import MathHelper
-from controlsPanelWidget import ControlsPanelWidget
+from controlsPanelWidget import  ControlsPanelWidget
 
 """
 This file contains the class to create the window and widget
@@ -85,6 +86,7 @@ class ControlsWidget(QWidget):
         # Solenoid and tank trackers
         self.solenoid_list = []
         self.tank_list = []
+        self.pressure_transducer_list = []
 
         # painter controls the drawing of everything on the widget
         self.painter = QPainter()
@@ -142,6 +144,9 @@ class ControlsWidget(QWidget):
                     Tank(self, QPointF(float(self.csvObjectData[2][2][i]), float(self.csvObjectData[2][3][i])),
                           int(self.csvObjectData[2][1][i])))
 
+
+        self.pressure_transducer_list.append(PressureTransducer(self, QPointF(20, 300), 0, False))
+
         self.edit_button = QPushButton("EDIT", self)
         self.edit_button.clicked.connect(lambda : self.toggleEdit())
         self.edit_button.move(self.gui.screenResolution[0]-self.window.panel_width - self.edit_button.width() - 30, 30)
@@ -177,5 +182,8 @@ class ControlsWidget(QWidget):
         # Draw Tanks
         for tank in self.tank_list:
             tank.draw()
+
+        for pt in self.pressure_transducer_list:
+            pt.draw()
 
         self.painter.end()

@@ -24,7 +24,7 @@ class Solenoid(BaseObject):
         """
 
         # Initialize base classes
-        super().__init__(parent=widget_parent, position=position, fluid=fluid, width= 40*1.75, height = 18*1.75, is_vertical=isVertical, is_being_edited = False)
+        super().__init__(parent=widget_parent, position=position, fluid=fluid, width= 40*1.75, height = 18*1.75, name = "Solenoid", is_vertical=isVertical, is_being_edited = False)
 
         # TODO: Grab height and width from csv file
         # TODO: Grab object scale from widget_parent

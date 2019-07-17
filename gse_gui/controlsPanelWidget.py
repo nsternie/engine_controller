@@ -134,7 +134,7 @@ class ControlsPanelWidget(QWidget):
         Updates the various fields in the edit frame when a new object is selected for editing
         """
         self.long_name_textbox.setText(object_.long_name)
-        self.label_position_combobox.setCurrentIndex(object_.labelPosition)
+        self.label_position_combobox.setCurrentIndex(object_.long_name_label_position_num)
         self.avionics_number_textbox.setText(str(object_.avionics_number))
         self.fluid_combobox.setCurrentText(Constants.fluid[object_.fluid])
 

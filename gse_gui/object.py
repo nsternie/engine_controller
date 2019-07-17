@@ -12,7 +12,7 @@ Base class for GUI objects. Used to define parameters all GUI objects need
 
 class BaseObject:
 
-    def __init__(self, parent: QWidget, position: QPointF, fluid: int, width: float, height : float, avionics_number: int = -1,
+    def __init__(self, parent: QWidget, position: QPointF, fluid: int, width: float, height : float, name: str, avionics_number: int = -1,
                  short_name: str = 'OX-SN-G07', safety_status: int = -1, long_name: str = 'LOX Dewar Drain',
                  is_vertical: bool = False, is_being_edited: bool = False, is_being_dragged: bool = False, locked: bool = False, position_locked: bool = False,
                  long_name_label_position_num: int = 0):
@@ -24,6 +24,7 @@ class BaseObject:
         :param fluid: fluid in object
         :param width: width of object
         :param height: height of object
+        :param name: name of object
         :param avionics_number: avionics identifier
         :param short_name: abbreviated name on schematics
         :param safety_status: safety criticality
@@ -43,6 +44,7 @@ class BaseObject:
         self.fluid = fluid
         self.width = width
         self.height = height
+        self.name = name
         self.avionics_number = avionics_number
         self.short_name = short_name
         self.safety_status = safety_status
@@ -116,7 +118,7 @@ class BaseObject:
         self.long_name_label.setWordWrap(1)
 
         # Move the label into position
-        self.long_name_label.move(self.position.x(), self.position.y())
+        self.setLongNameLabelPosition(self.long_name_label_position_num)
 
         # Sets alignment of label
         self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
@@ -171,7 +173,7 @@ class BaseObject:
 
         self.position_locked = is_locked
 
-        # TODO: Get rid of label_num and move over to a point based system
+    # TODO: Get rid of label_num and move over to a point based system
     def setLongNameLabelPosition(self, label_num: int, label_position: QPoint = None):
         """
         Sets the position of the long name label on an object
@@ -219,7 +221,7 @@ class BaseObject:
 
     def move(self, point: QPoint):
         """
-        Move solenoid to a new position
+        Move object to a new position
         :param point: point to move to
         """
 
