@@ -70,12 +70,8 @@ class Solenoid(BaseObject):
         Draws the solenoid icon on screen
         """
 
-        #Holds the path of lines to draw
+        # Holds the path of lines to draw
         path = QPainterPath()
-
-        # To make coding easier
-        xPos = self.position.x()
-        yPos = self.position.y()
 
         # If solenoid is open color it in
         if self.state == 1:
@@ -87,19 +83,21 @@ class Solenoid(BaseObject):
         self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
 
         # Move path to starting position
-        path.moveTo(xPos, yPos)  # Top left corner
+        path.moveTo(0, 0)  # Top left corner
 
         # = 0 -> Draw horizontally
         if self.is_vertical == 0:
-            path.lineTo(xPos, yPos + self.height)  # Straight Down
-            path.lineTo(xPos + self.width, yPos)  # Diag to upper right
-            path.lineTo(xPos + self.width, yPos + self.height)  # Straight Up
-            path.lineTo(xPos, yPos)
+            path.lineTo(0,self.height)  # Straight Down
+            path.lineTo(self.width,0)  # Diag to upper right
+            path.lineTo(self.width, self.height)  # Straight Up
+            path.lineTo(0, 0)
         else:  # Draw vertically
-            path.lineTo(xPos + self.height, yPos)
-            path.lineTo(xPos, yPos + self.width)
-            path.lineTo(xPos + self.height, yPos + self.width)
-            path.lineTo(xPos, yPos)
+            path.lineTo(self.height, 0)
+            path.lineTo(0, self.width)
+            path.lineTo(self.height, self.width)
+            path.lineTo(0, 0)
+
+        path.translate(self.position.x(), self.position.y())
 
         self.widget_parent.painter.drawPath(path)
 

@@ -66,18 +66,22 @@ class Tank(BaseObject):
         path = QPainterPath()
         self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
 
-        path.moveTo(self.position.x(),self.position.y())
-        path.arcTo(QRectF(self.position.x(), self.position.y() - arcHeight, self.width, arcHeight * 2), 180, -180)
-        path.lineTo(self.position.x() + self.width, self.position.y()+ self.height - 2 * arcHeight)
-        path.arcTo(QRectF(self.position.x() + self.width, self.position.y() + self.height - arcHeight - 2 * arcHeight, - self.width, arcHeight * 2), 180, 180)
-        path.lineTo(self.position.x(), self.position.y())
+        path.moveTo(0,0)
+        path.arcTo(QRectF(0, -arcHeight, self.width, arcHeight * 2), 180, -180) # Top Arc
+        path.lineTo(self.width, self.height - 2 * arcHeight) # Line down
+        path.arcTo(QRectF(self.width, path.currentPosition().y() - arcHeight, - self.width, arcHeight * 2), 180, 180) # Bottom Arc
+        path.lineTo(0, 0) # Line up
 
-        self.widget_parent.painter.drawPath(path)
+        path.translate(self.position.x(), self.position.y()) # Translate it into position
 
+        self.widget_parent.painter.drawPath(path) # Draw Path
+
+        # Debug randomness
         self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 10, 10), Constants.fluidColor[self.fluid])
 
         # End tank outline draw
 
+        # TODO: Make this a bit more basic to understand / helper function for filling an arc
         # Fill in bottom arc
         path = QPainterPath()
         self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
