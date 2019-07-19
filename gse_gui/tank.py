@@ -24,6 +24,7 @@ class Tank(BaseObject):
         :param fluid: fluid in object
         :return:
         """
+
         ## Initialize underlying class
         super().__init__(parent=widget_parent, position=position, fluid=fluid, width= 88*1.75, height = 170*1.75, name = "Tank", is_vertical=True, is_being_edited = False)
 
@@ -33,9 +34,10 @@ class Tank(BaseObject):
         # Tracks the percentage of fluid in the tank
         self.fillPercent = 0
 
-        # TODO: Fix these properly
-        self.button.move(self.position.x(), self.position.y()-20)
-        self.button.resize(self.width, self.height)
+        # TODO: Make this a better system
+        self.long_name_label.setFixedWidth(self.width)
+        self.setLongNameLabelPosition(self.long_name_label_position_num)
+
 
     @overrides
     def onClick(self):
@@ -53,6 +55,16 @@ class Tank(BaseObject):
         # Tells widget painter to update screen
         self.widget_parent.update()
 
+    def setLongNameLabelPosition(self, label_num: int, label_position: QPoint = None):
+        """
+        Sets the position of the long name label on an object
+        :param label_num: num position of label -> Want to deprecate
+        :param label_position: new position of label
+        """
+        self.long_name_label_position_num = label_num
+
+        self.long_name_label.move(QPoint(int(self.position.x() + self.width /2 - self.long_name_label.width() / 2), self.position.y() + 20))
+
     @overrides
     def draw(self):
         """
@@ -66,11 +78,11 @@ class Tank(BaseObject):
         path = QPainterPath()
         self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
 
-        path.moveTo(0,0)
-        path.arcTo(QRectF(0, -arcHeight, self.width, arcHeight * 2), 180, -180) # Top Arc
+        path.moveTo(0,arcHeight)
+        path.arcTo(QRectF(0, 0, self.width, arcHeight * 2), 180, -180) # Top Arc
         path.lineTo(self.width, self.height - 2 * arcHeight) # Line down
-        path.arcTo(QRectF(self.width, path.currentPosition().y() - arcHeight, - self.width, arcHeight * 2), 180, 180) # Bottom Arc
-        path.lineTo(0, 0) # Line up
+        path.arcTo(QRectF(self.width, path.currentPosition().y(), - self.width, arcHeight * 2), 180, 180) # Bottom Arc
+        path.lineTo(0, arcHeight) # Line up
 
         path.translate(self.position.x(), self.position.y()) # Translate it into position
 
@@ -90,16 +102,16 @@ class Tank(BaseObject):
         # Maps the fill percentage of the tank to an angle to fill the bottom arc
         bottomArcFillAngle = MathHelper.mapValue(self.fillPercent, 0, arcHeight / self.height, 0, 90)
 
-        path.moveTo(self.position.x() + self.width / 2, self.position.y() + self.height - arcHeight)
-        path.arcTo(QRectF(self.position.x(), self.position.y() + self.height - arcHeight - 2 * arcHeight, self.width, arcHeight * 2), 270, bottomArcFillAngle)
+        path.moveTo(self.position.x() + self.width / 2, self.position.y() + self.height)
+        path.arcTo(QRectF(self.position.x(), self.position.y() + self.height - 2 * arcHeight, self.width, arcHeight * 2), 270, bottomArcFillAngle)
         path.lineTo(self.position.x() + self.width / 2, path.currentPosition().y())
-        path.lineTo(self.position.x() + self.width / 2, self.position.y() + self.height - arcHeight)
+        path.lineTo(self.position.x() + self.width / 2, self.position.y() + self.height)
 
-        path.moveTo(self.position.x() + self.width / 2, self.position.y() + self.height - arcHeight)
-        path.arcTo(QRectF(self.position.x(), self.position.y() + self.height - arcHeight - 2 * arcHeight, self.width, 2 * arcHeight), 270,
+        path.moveTo(self.position.x() + self.width / 2, self.position.y() + self.height)
+        path.arcTo(QRectF(self.position.x(), self.position.y() + self.height - 2 * arcHeight, self.width, 2 * arcHeight), 270,
                    -bottomArcFillAngle)
         path.lineTo(self.position.x() + self.width / 2, path.currentPosition().y())
-        path.lineTo(self.position.x() + self.width / 2, self.position.y() + self.height - arcHeight)
+        path.lineTo(self.position.x() + self.width / 2, self.position.y() + self.height)
 
         self.widget_parent.painter.drawPath(path)
         # End fill in bottom arc
@@ -109,7 +121,7 @@ class Tank(BaseObject):
         bodyFillHeight = MathHelper.mapValue(self.fillPercent, arcHeight / self.height, 1 - arcHeight / self.height, 0,
                                        self.height - 2 * arcHeight)
 
-        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y() - 2 * arcHeight + self.height - bodyFillHeight, self.width, bodyFillHeight), Constants.fluidColor[self.fluid])
+        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y() - arcHeight + self.height - bodyFillHeight, self.width, bodyFillHeight), Constants.fluidColor[self.fluid])
         # End fill in tank body
 
         # Fill in top arc
@@ -119,17 +131,17 @@ class Tank(BaseObject):
 
         topArcFillAngle = MathHelper.mapValue(self.fillPercent, 1 - (arcHeight / self.height), 1, 0, 90)
 
-        path.moveTo(self.position.x() + self.width, self.position.y())
-        path.arcTo(QRectF(self.position.x(), self.position.y() - arcHeight, self.width, arcHeight * 2), 0, topArcFillAngle)
+        path.moveTo(self.position.x() + self.width, self.position.y() + arcHeight)
+        path.arcTo(QRectF(self.position.x(), self.position.y(), self.width, arcHeight * 2), 0, topArcFillAngle)
         if topArcFillAngle > 0:
             path.lineTo(self.position.x() + self.width / 2, path.currentPosition().y())
-            path.lineTo(self.position.x() + self.width / 2, self.position.y())
+            path.lineTo(self.position.x() + self.width / 2, self.position.y() + arcHeight)
 
-        path.moveTo(self.position.x(), self.position.y())
-        path.arcTo(QRectF(self.position.x(), self.position.y() - arcHeight, self.width, arcHeight * 2), 180, -topArcFillAngle)
+        path.moveTo(self.position.x(), self.position.y() + arcHeight)
+        path.arcTo(QRectF(self.position.x(), self.position.y(), self.width, arcHeight * 2), 180, -topArcFillAngle)
         if topArcFillAngle > 0:
             path.lineTo(self.position.x() + self.width / 2, path.currentPosition().y())
-            path.lineTo(self.position.x() + self.width / 2, self.position.y())
+            path.lineTo(self.position.x() + self.width / 2, self.position.y() + arcHeight)
 
         self.widget_parent.painter.drawPath(path)
 

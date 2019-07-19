@@ -59,8 +59,6 @@ class BaseObject:
         self.long_name_label = QLabel(self.widget_parent)
         self.short_name_label = QLabel(self.widget_parent)
         self.long_name_label_position_num = long_name_label_position_num
-        # TODO: Do something with this:
-        self.short_name_label = QLabel(self.widget_parent)
 
         self._initButton()
         self._initLabels()
@@ -75,20 +73,13 @@ class BaseObject:
         self.button.setContextMenuPolicy(Qt.CustomContextMenu)
         self.button.setToolTip(self.short_name + "\nState: Closed")
 
+        self.button.resize(self.width, self.height)
         self.button.move(self.position.x(), self.position.y())
 
-        # FIXME: Context menu always appears in the top left
         self.context_menu.move(self.position.x(), self.position.y())
 
         # Add quitAction
         self.context_menu.addAction("Test RMB")
-
-        # If the object is vertical set the button size accordingly
-        # TODO: Update self.height and width if the solenoid is vertical instead of doing this
-        if self.is_vertical:
-            self.button.resize(self.height, self.width)
-        else:
-            self.button.resize(self.width, self.height)
 
         # Connect plot options to button context menu
         self.button.clicked.connect(lambda: self.onClick())
@@ -113,7 +104,7 @@ class BaseObject:
         #### Long Name Label ####
         # Sets the sizing of the label
         self.long_name_label.setFont(font)
-        self.long_name_label.setFixedWidth(self.width)
+        self.long_name_label.setFixedWidth(40 * 1.75)
         self.long_name_label.setFixedHeight(80)  # 80 Corresponds to three rows at this font type and size (Arial 23)
         self.long_name_label.setText(self.long_name)  # Solenoid long name
         self.long_name_label.setStyleSheet('color: white')
@@ -131,16 +122,8 @@ class BaseObject:
         self.short_name_label.setFixedSize(self.short_name_label.fontMetrics().boundingRect(self.short_name_label.text()).size())
         self.short_name_label.setStyleSheet('color: white')
 
-        if not self.is_vertical:
-            #Move the label to just below the center of the object, this should not be changed
-            self.short_name_label.move(QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2), self.position.y() + self.height + 5))
-        elif self.name != "Tank":
-            self.short_name_label.move(QPoint(self.position.x() + (self.height / 2) - (self.short_name_label.width() / 2), self.position.y() + self.width + 5))
-        else:
-            self.short_name_label.move(
-                QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2),
-                       self.position.y() + self.height - 15))
-
+        # Move the label to just below the center of the object, this should not be changed
+        self.short_name_label.move(QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2), self.position.y() + self.height + 5))
 
         #Make em visible
         self.long_name_label.show()
@@ -173,15 +156,11 @@ class BaseObject:
         #Moves the label to keep it in the center if it changes length
         self.short_name_label.setFixedSize(self.short_name_label.fontMetrics().boundingRect(self.short_name_label.text()).size())
 
-        if not self.is_vertical:
+        if not self.is_vertical or self.name == "Tank":
             #Move the label to just below the center of the object, this should not be changed
             self.short_name_label.move(QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2), self.position.y() + self.height + 5))
         elif self.name != "Tank":
             self.short_name_label.move(QPoint(self.position.x() + (self.height / 2) - (self.short_name_label.width() / 2), self.position.y() + self.width + 5))
-        else:
-            self.short_name_label.move(
-                QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2),
-                       self.position.y() + self.height - 15))
 
     def setAvionicsNumber(self, number):
         """
@@ -265,6 +244,7 @@ class BaseObject:
             self.context_menu.move(point)
             self.position = point
             self.setLongNameLabelPosition(self.long_name_label_position_num)
+            self.setShortName(self.short_name)
 
         # Tells widget painter to update screen
         self.widget_parent.update()
@@ -288,7 +268,7 @@ class BaseObject:
 
             menu.addAction(self.plotMenuActions[-1])
 
-        menu.exec_(self.mapToGlobal(event))
+        menu.exec_(self.button.mapToGlobal(event))
 
     def link_plot(self, plot, button):
         """

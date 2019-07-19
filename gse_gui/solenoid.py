@@ -23,8 +23,12 @@ class Solenoid(BaseObject):
         :return:
         """
 
-        # Initialize base classes
-        super().__init__(parent=widget_parent, position=position, fluid=fluid, width= 40*1.75, height = 18*1.75, name = "Solenoid", is_vertical=isVertical, is_being_edited = False)
+        # TODO: Still bleah, should have a way to rotate or something
+        if isVertical:
+            super().__init__(parent=widget_parent, position=position, fluid=fluid, width=18 * 1.75, height=40 * 1.75,name="Solenoid", is_vertical=isVertical, is_being_edited=False)
+        else:
+            # Initialize base classes
+            super().__init__(parent=widget_parent, position=position, fluid=fluid, width= 40*1.75, height = 18*1.75, name = "Solenoid", is_vertical=isVertical, is_being_edited = False)
 
         # TODO: Grab height and width from csv file
         # TODO: Grab object scale from widget_parent
@@ -41,28 +45,16 @@ class Solenoid(BaseObject):
         # TODO: Make this not a mess
         if self.labelPosition == 0:
             self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-            if self.is_vertical == 0:
-                self.long_name_label.move(self.position.x(), self.position.y() - self.long_name_label.height())
-            else:
-                self.long_name_label.move(self.position.x() - self.long_name_label.width() / 2 + self.height / 2, self.position.y() - self.long_name_label.height())
+            self.long_name_label.move(self.position.x() - self.long_name_label.width() / 2 + self.width / 2, self.position.y() - self.long_name_label.height())
         elif self.labelPosition == 1:
             self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
-            if self.is_vertical == 0:
-                self.long_name_label.move(self.position.x() + self.width, self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
-            else:
-                self.long_name_label.move(self.position.x() + self.height, self.position.y() - self.long_name_label.height() / 2 + self.width / 2)
+            self.long_name_label.move(self.position.x() + self.width, self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
         elif self.labelPosition == 2:
             self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
-            if self.is_vertical == 0:
-                self.long_name_label.move(self.position.x(), self.position.y() + self.height)
-            else:
-                self.long_name_label.move(self.position.x() - self.long_name_label.width() / 2 + self.height / 2, self.position.y() + self.width)
+            self.long_name_label.move(self.position.x() - self.long_name_label.width() / 2 + self.width / 2, self.position.y() + self.height)
         elif self.labelPosition == 3:
             self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
-            if self.is_vertical == 0:
-                self.long_name_label.move(self.position.x() - self.width, self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
-            else:
-                self.long_name_label.move(self.position.x() - self.width, self.position.y() - self.long_name_label.height() / 2 + self.width / 2)
+            self.long_name_label.move(self.position.x() - self.height, self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
 
     @overrides
     def draw(self):
@@ -92,10 +84,11 @@ class Solenoid(BaseObject):
             path.lineTo(self.width, self.height)  # Straight Up
             path.lineTo(0, 0)
         else:  # Draw vertically
-            path.lineTo(self.height, 0)
-            path.lineTo(0, self.width)
-            path.lineTo(self.height, self.width)
+            path.lineTo(self.width, 0)
+            path.lineTo(0, self.height)
+            path.lineTo(self.width, self.height)
             path.lineTo(0, 0)
+
 
         path.translate(self.position.x(), self.position.y())
 
@@ -150,27 +143,18 @@ class Solenoid(BaseObject):
         # This is a fucking mess but I am too hella lazy to fix it rn
         # TODO: Make this not a mess
         if self.labelPosition == 0:
-            label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-            if self.is_vertical == 0:
-                label.move(self.position.x(), self.position.y() - label.height())
-            else:
-                label.move(self.position.x() - label.width() / 2 + self.height / 2, self.position.y() - label.height())
+            self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+            self.long_name_label.move(self.position.x() - self.long_name_label.width() / 2 + self.width / 2,
+                                      self.position.y() - self.long_name_label.height())
         elif self.labelPosition == 1:
-            label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
-            if self.is_vertical == 0:
-                label.move(self.position.x() + self.width, self.position.y() - label.height() / 2 + self.height / 2)
-            else:
-                label.move(self.position.x() + self.height, self.position.y() - label.height() / 2 + self.width / 2)
+            self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
+            self.long_name_label.move(self.position.x() + self.width,
+                                      self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
         elif self.labelPosition == 2:
-            label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
-            if self.is_vertical == 0:
-                label.move(self.position.x(), self.position.y() + self.height)
-            else:
-                label.move(self.position.x() - label.width() / 2 + self.height / 2, self.position.y() + self.width)
+            self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
+            self.long_name_label.move(self.position.x() - self.long_name_label.width() / 2 + self.width / 2,
+                                      self.position.y() + self.height)
         elif self.labelPosition == 3:
-            label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
-            if self.is_vertical == 0:
-                label.move(self.position.x() - self.width, self.position.y() - label.height() / 2 + self.height / 2)
-            else:
-                label.move(self.position.x() - self.width, self.position.y() - label.height() / 2 + self.width / 2)
-
+            self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
+            self.long_name_label.move(self.position.x() - self.height,
+                                      self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
