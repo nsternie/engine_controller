@@ -45,6 +45,7 @@ class ControlsPanelWidget(QWidget):
         self.label_position_combobox = QComboBox(self)
         self.avionics_number_textbox = QLineEdit(self)
         self.fluid_combobox = QComboBox(self)
+        self.short_name_textbox = QLineEdit(self)
 
         # Inits above widgets
         self.initEditFrame()
@@ -63,6 +64,7 @@ class ControlsPanelWidget(QWidget):
         self.createLineEdit(self.avionics_number_textbox, "Avionics Number", QIntValidator())
         self.createComboBox(self.fluid_combobox, "Fluid", Constants.fluids)
         self.createTFRadioButtons("Position is", "Locked", "Unlocked", False)
+        self.createLineEdit(self.short_name_textbox, "Short Name")
 
         self.edit_frame.hide()
 
@@ -137,6 +139,7 @@ class ControlsPanelWidget(QWidget):
         self.label_position_combobox.setCurrentIndex(object_.long_name_label_position_num)
         self.avionics_number_textbox.setText(str(object_.avionics_number))
         self.fluid_combobox.setCurrentText(Constants.fluid[object_.fluid])
+        self.short_name_textbox.setText(object_.short_name)
 
         self.avionics_number_textbox.setDisabled(True)
 
@@ -169,6 +172,8 @@ class ControlsPanelWidget(QWidget):
                     object_.long_name_label.setVisible(text)
                 elif identifier == "Position is":
                     object_.setPositionLock(text)
+                elif identifier == "Short Name":
+                    object_.setShortName(text)
 
     # FIXME: Things don't work well if more than one object are in here
     # HMM: Move is_being_edited to object class and call this function here

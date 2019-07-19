@@ -57,12 +57,13 @@ class BaseObject:
         self.context_menu = QMenu(self.widget_parent)
         self.button = PlotButton(self.short_name, self, 'data.csv', 'Pressure', self.widget_parent)
         self.long_name_label = QLabel(self.widget_parent)
+        self.short_name_label = QLabel(self.widget_parent)
         self.long_name_label_position_num = long_name_label_position_num
         # TODO: Do something with this:
         self.short_name_label = QLabel(self.widget_parent)
 
         self._initButton()
-        self._initLabel()
+        self._initLabels()
 
     def _initButton(self):
         """
@@ -98,7 +99,7 @@ class BaseObject:
         # Raise button above label
         self.button.raise_()
 
-    def _initLabel(self):
+    def _initLabels(self):
         """
         Basic function that handles all the setup for the object label
         Should only be called from __init__
@@ -108,22 +109,42 @@ class BaseObject:
         font.setStyleStrategy(QFont.PreferAntialias)
         font.setFamily("Arial")
         font.setPointSize(23)
-        self.long_name_label.setFont(font)
 
+        #### Long Name Label ####
         # Sets the sizing of the label
+        self.long_name_label.setFont(font)
         self.long_name_label.setFixedWidth(self.width)
         self.long_name_label.setFixedHeight(80)  # 80 Corresponds to three rows at this font type and size (Arial 23)
         self.long_name_label.setText(self.long_name)  # Solenoid long name
         self.long_name_label.setStyleSheet('color: white')
         self.long_name_label.setWordWrap(1)
-
         # Move the label into position
         self.setLongNameLabelPosition(self.long_name_label_position_num)
-
         # Sets alignment of label
         self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
 
+        #### Short Name Label ####
+        font.setPointSize(10)
+        self.short_name_label.setFont(font)
+        self.short_name_label.setText(self.short_name)
+        # Make the label size exactly the size of the text
+        self.short_name_label.setFixedSize(self.short_name_label.fontMetrics().boundingRect(self.short_name_label.text()).size())
+        self.short_name_label.setStyleSheet('color: white')
+
+        if not self.is_vertical:
+            #Move the label to just below the center of the object, this should not be changed
+            self.short_name_label.move(QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2), self.position.y() + self.height + 5))
+        elif self.name != "Tank":
+            self.short_name_label.move(QPoint(self.position.x() + (self.height / 2) - (self.short_name_label.width() / 2), self.position.y() + self.width + 5))
+        else:
+            self.short_name_label.move(
+                QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2),
+                       self.position.y() + self.height - 15))
+
+
+        #Make em visible
         self.long_name_label.show()
+        self.short_name_label.show()
 
     def setToolTip_(self, text):
         """
@@ -143,10 +164,24 @@ class BaseObject:
 
     def setShortName(self, name):
         """
-        Sets short name of the object
+        Sets short name and label of object
         :param name: short_name of the object
         """
         self.short_name = name
+        self.short_name_label.setText(name)
+
+        #Moves the label to keep it in the center if it changes length
+        self.short_name_label.setFixedSize(self.short_name_label.fontMetrics().boundingRect(self.short_name_label.text()).size())
+
+        if not self.is_vertical:
+            #Move the label to just below the center of the object, this should not be changed
+            self.short_name_label.move(QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2), self.position.y() + self.height + 5))
+        elif self.name != "Tank":
+            self.short_name_label.move(QPoint(self.position.x() + (self.height / 2) - (self.short_name_label.width() / 2), self.position.y() + self.width + 5))
+        else:
+            self.short_name_label.move(
+                QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2),
+                       self.position.y() + self.height - 15))
 
     def setAvionicsNumber(self, number):
         """
