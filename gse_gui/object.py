@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 
 from constants import Constants
 from plotButton import PlotButton
+from customLabel import CustomLabel
 from overrides import overrides
 
 """
@@ -57,7 +58,7 @@ class BaseObject:
         self.context_menu = QMenu(self.widget_parent)
         self.button = PlotButton(self.short_name, self, 'data.csv', 'Pressure', self.widget_parent)
         self.long_name_label = QLabel(self.widget_parent)
-        self.short_name_label = QLabel(self.widget_parent)
+        self.short_name_label = CustomLabel(widget_parent= self.widget_parent, object_ = self, is_vertical = self.is_vertical)
         self.long_name_label_position_num = long_name_label_position_num
 
         self._initButton()
@@ -118,12 +119,14 @@ class BaseObject:
         font.setPointSize(10)
         self.short_name_label.setFont(font)
         self.short_name_label.setText(self.short_name)
-        # Make the label size exactly the size of the text
-        self.short_name_label.setFixedSize(self.short_name_label.fontMetrics().boundingRect(self.short_name_label.text()).size())
         self.short_name_label.setStyleSheet('color: white')
 
-        # Move the label to just below the center of the object, this should not be changed
-        self.short_name_label.move(QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2), self.position.y() + self.height + 5))
+        self.short_name_label.setFixedSize_()
+
+        if self.is_vertical:
+            self.short_name_label.moveToPosition("Left")
+        else:
+            self.short_name_label.moveToPosition("Bottom")
 
         #Make em visible
         self.long_name_label.show()
@@ -153,14 +156,8 @@ class BaseObject:
         self.short_name = name
         self.short_name_label.setText(name)
 
-        #Moves the label to keep it in the center if it changes length
-        self.short_name_label.setFixedSize(self.short_name_label.fontMetrics().boundingRect(self.short_name_label.text()).size())
-
-        if not self.is_vertical or self.name == "Tank":
-            #Move the label to just below the center of the object, this should not be changed
-            self.short_name_label.move(QPoint(self.position.x() + (self.width / 2) - (self.short_name_label.width() / 2), self.position.y() + self.height + 5))
-        elif self.name != "Tank":
-            self.short_name_label.move(QPoint(self.position.x() + (self.height / 2) - (self.short_name_label.width() / 2), self.position.y() + self.width + 5))
+        # Moves the label to keep it in the center if it changes length
+        self.short_name_label.setFixedSize_()
 
     def setAvionicsNumber(self, number):
         """
@@ -244,7 +241,7 @@ class BaseObject:
             self.context_menu.move(point)
             self.position = point
             self.setLongNameLabelPosition(self.long_name_label_position_num)
-            self.setShortName(self.short_name)
+            self.short_name_label.moveToPosition()
 
         # Tells widget painter to update screen
         self.widget_parent.update()

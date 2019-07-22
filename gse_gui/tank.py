@@ -34,6 +34,10 @@ class Tank(BaseObject):
         # Tracks the percentage of fluid in the tank
         self.fillPercent = 0
 
+        # Here is where some things done by the super init is re-done for tank specific objects
+        self.short_name_label.setIsVertical(False)
+        self.short_name_label.moveToPosition("Bottom")
+
         # TODO: Make this a better system
         self.long_name_label.setFixedWidth(self.width)
         self.setLongNameLabelPosition(self.long_name_label_position_num)

@@ -156,5 +156,5 @@ class Solenoid(BaseObject):
                                       self.position.y() + self.height)
         elif self.labelPosition == 3:
             self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
-            self.long_name_label.move(self.position.x() - self.height,
+            self.long_name_label.move(self.position.x() - self.width,
                                       self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
