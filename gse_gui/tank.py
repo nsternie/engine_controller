@@ -93,7 +93,7 @@ class Tank(BaseObject):
         self.widget_parent.painter.drawPath(path) # Draw Path
 
         # Debug randomness
-        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 10, 10), Constants.fluidColor[self.fluid])
+        #self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 10, 10), Constants.fluidColor[self.fluid])
 
         # End tank outline draw
 
@@ -119,6 +119,7 @@ class Tank(BaseObject):
 
         self.widget_parent.painter.drawPath(path)
         # End fill in bottom arc
+
 
         # Fill in tank body
         # Maps fill percentage to the height of the body to fill
@@ -148,6 +149,10 @@ class Tank(BaseObject):
             path.lineTo(self.position.x() + self.width / 2, self.position.y() + arcHeight)
 
         self.widget_parent.painter.drawPath(path)
+
+        # self.widget_parent.painter.eraseRect(
+        #     QRect(self.long_name_label.pos().x(), self.long_name_label.pos().y(), self.long_name_label.width(),
+        #           self.long_name_label.height()))
 
         self.widget_parent.painter.setBrush(0)
 

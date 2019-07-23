@@ -13,7 +13,7 @@ Base class for GUI objects. Used to define parameters all GUI objects need
 
 class BaseObject:
 
-    def __init__(self, parent: QWidget, position: QPointF, fluid: int, width: float, height : float, name: str, avionics_number: int = -1,
+    def __init__(self, parent: QWidget, position: QPointF, fluid: int, width: float, height : float, name: str, scale: float = 1, avionics_number: int = 5,
                  short_name: str = 'OX-SN-G07', safety_status: int = -1, long_name: str = 'LOX Dewar Drain',
                  is_vertical: bool = False, is_being_edited: bool = False, is_being_dragged: bool = False, locked: bool = False, position_locked: bool = False,
                  long_name_label_position_num: int = 0):
@@ -26,6 +26,7 @@ class BaseObject:
         :param width: width of object
         :param height: height of object
         :param name: name of object
+        :param scale: scale applied to the object
         :param avionics_number: avionics identifier
         :param short_name: abbreviated name on schematics
         :param safety_status: safety criticality
@@ -46,6 +47,7 @@ class BaseObject:
         self.width = width
         self.height = height
         self.name = name
+        self.scale = scale
         self.avionics_number = avionics_number
         self.short_name = short_name
         self.safety_status = safety_status
@@ -157,7 +159,38 @@ class BaseObject:
         self.short_name_label.setText(name)
 
         # Moves the label to keep it in the center if it changes length
-        self.short_name_label.setFixedSize_()
+        self.short_name_label.moveToPosition()
+
+    def setScale(self, scale):
+        """
+        Sets scale of the object, and moves origin to maintain same center position
+        :param scale: scale on the object
+
+        """
+
+        # old_scale used for the factor to change size
+        old_scale = self.scale
+        self.scale = scale
+
+        # The origin of objects is the top left corner, but to maintain alignment should be scaled from the center.
+        # To achieve this, the old center and new center are calculated and the origin is offset to make sure the
+        # center position always remains constant
+        center_position = self.position + QPoint(int(self.width/2), int(self.height/2))
+        scaled_center_position = self.position + QPoint(int((self.width*(self.scale/old_scale) / 2)), int((self.height*(self.scale/old_scale))/2))
+        center_offset = scaled_center_position - center_position
+
+        # Update object values accordingly
+        self.width = self.width * (self.scale/old_scale)
+        self.height = self.height * (self.scale/old_scale)
+        self.button.resize(self.width, self.height)
+
+        # Move things into the correct location
+        self.move(QPointF(self.position).toPoint() - QPointF(center_offset).toPoint())
+        self.button.move(self.position)
+
+        # Tells widget painter to update screen
+        self.widget_parent.update()
+
 
     def setAvionicsNumber(self, number):
         """

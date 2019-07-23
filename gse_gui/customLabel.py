@@ -47,6 +47,10 @@ class CustomLabel(QLabel):
         position based on last set value
         :param position_string: string representing position of label. Can be "Top", "Bottom", "Right", "Left"
         """
+
+        # Make sure the label width and height are up to date
+        self.setFixedSize_()
+
         if not position_string is None:
             self.position_string = position_string
 

@@ -95,8 +95,7 @@ class Solenoid(BaseObject):
         self.widget_parent.painter.drawPath(path)
 
         # This is debug, draws a box around the origin of object
-        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 7, 7),
-                                      Constants.fluidColor[self.fluid])
+        #self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 7, 7),Constants.fluidColor[self.fluid])
 
     @overrides
     def onClick(self):

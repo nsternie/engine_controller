@@ -46,6 +46,7 @@ class ControlsPanelWidget(QWidget):
         self.avionics_number_textbox = QLineEdit(self)
         self.fluid_combobox = QComboBox(self)
         self.short_name_textbox = QLineEdit(self)
+        self.scale_spinbox = QDoubleSpinBox(self)
 
         # Inits above widgets
         self.initEditFrame()
@@ -65,6 +66,7 @@ class ControlsPanelWidget(QWidget):
         self.createComboBox(self.fluid_combobox, "Fluid", Constants.fluids)
         self.createTFRadioButtons("Position is", "Locked", "Unlocked", False)
         self.createLineEdit(self.short_name_textbox, "Short Name")
+        self.createSpinbox(self.scale_spinbox, "Scale", .1, 10, 0.1)
 
         self.edit_frame.hide()
 
@@ -116,7 +118,7 @@ class ControlsPanelWidget(QWidget):
 
         self.edit_form_layout.addRow(identifier_label, hbox)
 
-    def createComboBox(self, comboBox: QComboBox, identifier, items: []):
+    def createComboBox(self, comboBox: QComboBox, identifier:str, items: []):
         """
         Created a drop-down box for user selection
         :param comboBox: reference to combobox
@@ -131,6 +133,18 @@ class ControlsPanelWidget(QWidget):
 
         self.edit_form_layout.addRow(identifier_label, comboBox)
 
+    def createSpinbox(self, spinBox: QSpinBox, identifier:str, min:int = 0, max:int = 100, step:float = 1):
+
+        identifier_label = QLabel(identifier + ":")
+        spinBox.setMinimum(min)
+        spinBox.setMaximum(max)
+        spinBox.setSingleStep(step)
+
+        spinBox.valueChanged.connect(lambda: self.updateEditingObjectFields(spinBox.value(), identifier))
+
+        self.edit_form_layout.addRow(identifier_label, spinBox)
+
+
     def updateEditPanelFields(self, object_):
         """
         Updates the various fields in the edit frame when a new object is selected for editing
@@ -140,6 +154,7 @@ class ControlsPanelWidget(QWidget):
         self.avionics_number_textbox.setText(str(object_.avionics_number))
         self.fluid_combobox.setCurrentText(Constants.fluid[object_.fluid])
         self.short_name_textbox.setText(object_.short_name)
+        self.scale_spinbox.setValue(object_.scale)
 
         self.avionics_number_textbox.setDisabled(True)
 
@@ -165,7 +180,8 @@ class ControlsPanelWidget(QWidget):
                     elif text == "Left":
                         object_.setLongNameLabelPosition(3)
                 elif identifier == "Avionics Number":
-                    object_.setAvionicsNumber(text)
+                    if text != "":
+                        object_.setAvionicsNumber(int(text))
                 elif identifier == "Fluid":
                     object_.setFluid(text)
                 elif identifier == "Long Name Label":
@@ -174,6 +190,8 @@ class ControlsPanelWidget(QWidget):
                     object_.setPositionLock(text)
                 elif identifier == "Short Name":
                     object_.setShortName(text)
+                elif identifier == "Scale":
+                    object_.setScale(text)
 
     # FIXME: Things don't work well if more than one object are in here
     # HMM: Move is_being_edited to object class and call this function here

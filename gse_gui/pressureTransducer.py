@@ -80,33 +80,22 @@ class PressureTransducer(BaseObject):
         self.labelPosition = label_num
         self.long_name_label_position_num = label_num
 
-        label = self.long_name_label
-        # This is a fucking mess but I am too hella lazy to fix it rn
-        # TODO: Make this not a mess
         if self.labelPosition == 0:
-            label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-            if self.is_vertical == 0:
-                label.move(self.position.x(), self.position.y() - label.height())
-            else:
-                label.move(self.position.x() - label.width() / 2 + self.height / 2, self.position.y() - label.height())
+            self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+            self.long_name_label.move(self.position.x() - self.long_name_label.width() / 2 + self.width / 2,
+                                      self.position.y() - self.long_name_label.height())
         elif self.labelPosition == 1:
-            label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
-            if self.is_vertical == 0:
-                label.move(self.position.x() + self.width, self.position.y() - label.height() / 2 + self.height / 2)
-            else:
-                label.move(self.position.x() + self.height, self.position.y() - label.height() / 2 + self.width / 2)
+            self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
+            self.long_name_label.move(self.position.x() + self.width,
+                                      self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
         elif self.labelPosition == 2:
-            label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
-            if self.is_vertical == 0:
-                label.move(self.position.x(), self.position.y() + self.height)
-            else:
-                label.move(self.position.x() - label.width() / 2 + self.height / 2, self.position.y() + self.width)
+            self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignTop)
+            self.long_name_label.move(self.position.x() - self.long_name_label.width() / 2 + self.width / 2,
+                                      self.position.y() + self.height)
         elif self.labelPosition == 3:
-            label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
-            if self.is_vertical == 0:
-                label.move(self.position.x() - self.width, self.position.y() - label.height() / 2 + self.height / 2)
-            else:
-                label.move(self.position.x() - self.width, self.position.y() - label.height() / 2 + self.width / 2)
+            self.long_name_label.setAlignment(Qt.AlignCenter | Qt.AlignCenter)
+            self.long_name_label.move(self.position.x() - self.height,
+                                      self.position.y() - self.long_name_label.height() / 2 + self.height / 2)
 
     @overrides
     def onClick(self):
@@ -126,3 +115,5 @@ class PressureTransducer(BaseObject):
         """
         self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
         self.widget_parent.painter.drawRect(QRect(self.position.x(), self.position.y(), self.width, self.height))
+
+        #self.widget_parent.painter.eraseRect(QRect(self.position.x(), self.position.y(), self.width, self.height))

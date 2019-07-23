@@ -1,4 +1,5 @@
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QColor
 
 """
 Class to hold any constant value that is important to the entire program
@@ -28,8 +29,8 @@ class Constants:
         0: Qt.white,
         "Fuel": Qt.magenta,
         1: Qt.magenta,
-        "OX": Qt.cyan,
-        2: Qt.cyan,
+        "OX": QColor(60,126,232),
+        2: QColor(60,126,232),
         "LN2": Qt.green,
         3: Qt.green
     }
