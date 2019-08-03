@@ -166,6 +166,9 @@ class ControlsWidget(QWidget):
             self.controlsPanel.edit_frame.hide()
             self.controlsPanel.save()
 
+        # Tells painter to update screen
+        self.update()
+
     def paintEvent(self, e):
         """
         This event is called automatically in the background by pyQt. It is used to update the drawing on screen

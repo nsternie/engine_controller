@@ -76,7 +76,7 @@ class Tank(BaseObject):
         """
 
         # Height of curved arc at top and bottom of tank
-        arcHeight = 20
+        arcHeight = 20 * self.scale
 
         # Draws the tank outline
         path = QPainterPath()
@@ -155,5 +155,6 @@ class Tank(BaseObject):
         #           self.long_name_label.height()))
 
         self.widget_parent.painter.setBrush(0)
-
         # End fill in top arc
+
+        super().draw()

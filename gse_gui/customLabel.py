@@ -57,7 +57,7 @@ class CustomLabel(QLabel):
         if self.position_string == "Top":
             self.move(self.getXCenterPosition(), self.object_.position.y() + self.object_.height - self.height())
         elif self.position_string == "Bottom":
-            self.move(self.getXCenterPosition(), self.object_.position.y() + self.object_.height)
+            self.move(self.getXCenterPosition(), self.object_.position.y() + self.object_.height + 3)
         elif self.position_string == "Right":
             self.move(self.object_.position.x() + self.object_.width, self.getYCenterPosition())
         elif self.position_string == "Left":

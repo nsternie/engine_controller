@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 from constants import Constants
 from plotButton import PlotButton
 from customLabel import CustomLabel
+from anchorPoint import AnchorPoint
 from overrides import overrides
 
 """
@@ -62,9 +63,14 @@ class BaseObject:
         self.long_name_label = QLabel(self.widget_parent)
         self.short_name_label = CustomLabel(widget_parent= self.widget_parent, object_ = self, is_vertical = self.is_vertical)
         self.long_name_label_position_num = long_name_label_position_num
+        self.anchor_points = []
+        self.setAnchorPoints()
 
         self._initButton()
         self._initLabels()
+
+        # Add object to list
+        self.widget_parent.object_list.append(self)
 
     def _initButton(self):
         """
@@ -140,7 +146,6 @@ class BaseObject:
         :param text: text to be set on the tooltip
         """
         self.button.setToolTip(self.short_name + "\n" + text)
-        print(text)
 
     def setLongName(self, name):
         """
@@ -188,6 +193,9 @@ class BaseObject:
         self.move(QPointF(self.position).toPoint() - QPointF(center_offset).toPoint())
         self.button.move(self.position)
 
+        # Update some other dependent values
+        self.setAnchorPoints()
+
         # Tells widget painter to update screen
         self.widget_parent.update()
 
@@ -233,6 +241,29 @@ class BaseObject:
         else:
             self.long_name_label.move(label_position.x(),label_position.y())
 
+    def setAnchorPoints(self):
+        """
+        Sets the anchor points for the object. Called when object is created, and when scale changes
+        """
+        #HMM: Should this be combined with update anchor points somehow?
+
+        # Default points are the midpoints of the four sides.
+        anchor_points = [AnchorPoint(QPoint(int(self.width/2) , 0                  ),self),
+                         AnchorPoint(QPoint(int(self.width/2) , self.height        ),self),
+                         AnchorPoint(QPoint(0                 , int(self.height/2) ),self),
+                         AnchorPoint(QPoint(self.width        , int(self.height/2) ),self)
+                        ]
+
+        self.anchor_points = anchor_points
+
+
+    def updateAnchorPoints(self):
+        """
+        Updates the position of the anchor points for the object. Called when object is moved
+        SetAnchorPoints cannot be called when the object is moved, because alignment values will be reset
+        """
+        for ap in self.anchor_points:
+            ap.updatePosition()
 
     def onClick(self):
         """
@@ -255,13 +286,33 @@ class BaseObject:
         """
         Draws the object
         Will almost always be overridden, this exists to
-        show user it needs an override
+        provide some default functionality
         """
 
-        # Draws simple 10 x 10 box
-        self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
-        self.widget_parent.painter.fillRect(QRectF(self.position.x(), self.position.y(), 10, 10),
-                                            Constants.fluidColor[self.fluid])
+        if self.widget_parent.window.is_editing:
+            # Draws small anchor points (6x6 box) on the object to help user when editing
+            for point in self.anchor_points:
+                self.widget_parent.painter.setPen(Constants.fluidColor[self.fluid])
+                self.widget_parent.painter.drawRect(QRectF(point.x() - 3, point.y() - 3, 6, 6))
+
+
+        # Checks if the alignment lines (yellow dashed lines) should be drawn
+        if self.is_being_dragged:
+
+            pen = QPen()
+            pen.setColor(Qt.yellow)
+            pen.setStyle(Qt.DashLine)
+            self.widget_parent.painter.setPen(pen)
+
+            for ap in self.anchor_points:
+                if ap.x_aligned:
+                    self.widget_parent.painter.drawLine(QPoint(ap.x(), 0), QPoint(ap.x(),
+                                                                                        self.widget_parent.gui.screenResolution[
+                                                                                                 1]))
+                if ap.y_aligned:
+                    self.widget_parent.painter.drawLine(QPoint(0, ap.y()), QPoint(self.widget_parent.gui.screenResolution[
+                                                                                      0],ap.y()))
+
 
     def move(self, point: QPoint):
         """
@@ -273,6 +324,7 @@ class BaseObject:
             self.button.move(point)
             self.context_menu.move(point)
             self.position = point
+            self.updateAnchorPoints()
             self.setLongNameLabelPosition(self.long_name_label_position_num)
             self.short_name_label.moveToPosition()
 
