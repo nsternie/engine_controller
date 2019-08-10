@@ -70,9 +70,6 @@ class BaseObject:
         self._initButton()
         self._initLabels()
 
-        # Add object to list
-        self.widget_parent.object_list.append(self)
-
     def _initButton(self):
         """
         Basic function that handles all the setup for the PlotButton

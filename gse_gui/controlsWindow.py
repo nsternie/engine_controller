@@ -102,12 +102,6 @@ class ControlsWidget(QWidget):
         # Object Tracker
         self.object_list = []
 
-        # TODO: Get rid of these individual lists and make it all one list
-        # Solenoid and tank trackers
-        self.solenoid_list = []
-        self.tank_list = []
-        self.pressure_transducer_list = []
-
         # painter controls the drawing of everything on the widget
         self.painter = QPainter()
 
@@ -218,12 +212,6 @@ class ControlsWidget(QWidget):
 
         # Remove object from any tracker lists
         self.object_list.remove(object_)
-        if object_.object_name == "Solenoid":
-            self.solenoid_list.remove(object_)
-        elif object_.object_name == "Tank":
-            self.tank_list.remove(object_)
-        elif object_.object_name == "Pressure Transducer":
-            self.pressure_transducer_list.remove(object_)
 
         #Tells the object to delete itself
         object_.deleteSelf()
@@ -242,13 +230,8 @@ class ControlsWidget(QWidget):
         self.painter.setRenderHint(QPainter.HighQualityAntialiasing)
 
         # Draw Solenoids
-        for solenoid in self.solenoid_list:
-            solenoid.draw()
-        # Draw Tanks
-        for tank in self.tank_list:
-            tank.draw()
-        for pt in self.pressure_transducer_list:
-            pt.draw()
+        for object_ in self.object_list:
+            object_.draw()
 
         self.painter.end()
 
@@ -278,21 +261,18 @@ class ControlsWidget(QWidget):
 
             # Below ifs creates new objects at the point where the right click
             if action is not None:
+                self.controlsPanel.removeAllEditingObjects()
+
                 if action.text() == "New Solenoid":
-                    self.controlsPanel.removeAllEditingObjects()
-                    self.solenoid_list.append(Solenoid(self, point, 0, 0))
-                    self.controlsPanel.addEditingObjects(self.solenoid_list[-1])
+                    self.object_list.append(Solenoid(self, point, 0, 0))
                 elif action.text() == "New Tank":
-                    self.controlsPanel.removeAllEditingObjects()
-                    self.tank_list.append(Tank(self, point, 0))
-                    self.controlsPanel.addEditingObjects(self.tank_list[-1])
+                    self.object_list.append(Tank(self, point, 0))
                 elif action.text() == "New Pressure Transducer":
-                    self.controlsPanel.removeAllEditingObjects()
-                    self.pressure_transducer_list.append(PressureTransducer(self, point, 0, 0))
-                    self.controlsPanel.addEditingObjects(self.pressure_transducer_list[-1])
+                    self.object_list.append(PressureTransducer(self, point, 0, 0))
                 else:
                     print(colored("WARNING: Context menu has no action attached to " + action.text(), 'red'))
 
+                self.controlsPanel.addEditingObjects(self.object_list[-1])
 
             self.update()
 
