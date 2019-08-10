@@ -29,6 +29,7 @@ class PlotButton(QPushButton):
         self.dataFile = dataFile
         self.dataType = dataType
 
+
         # Make sure button has no label
         self.setText("")
 

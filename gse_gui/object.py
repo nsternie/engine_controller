@@ -6,7 +6,7 @@ from constants import Constants
 from plotButton import PlotButton
 from customLabel import CustomLabel
 from anchorPoint import AnchorPoint
-from overrides import overrides
+
 
 """
 Base class for GUI objects. Used to define parameters all GUI objects need
@@ -14,6 +14,7 @@ Base class for GUI objects. Used to define parameters all GUI objects need
 
 class BaseObject:
 
+    object_name = "Default Object"
     def __init__(self, parent: QWidget, position: QPointF, fluid: int, width: float, height : float, name: str, scale: float = 1, avionics_number: int = 5,
                  short_name: str = 'OX-SN-G07', safety_status: int = -1, long_name: str = 'LOX Dewar Drain',
                  is_vertical: bool = False, is_being_edited: bool = False, is_being_dragged: bool = False, locked: bool = False, position_locked: bool = False,
@@ -85,15 +86,13 @@ class BaseObject:
         self.button.resize(self.width, self.height)
         self.button.move(self.position.x(), self.position.y())
 
-        self.context_menu.move(self.position.x(), self.position.y())
-
         # Add quitAction
-        self.context_menu.addAction("Test RMB")
+        self.context_menu.addAction("Delete Object")
 
         # Connect plot options to button context menu
         self.button.clicked.connect(lambda: self.onClick())
         self.button.customContextMenuRequested.connect(
-            lambda *args: self.plot_menu(*args, self.button, self.context_menu)
+            lambda *args: self.contextMenuEvent_(*args)
         )
         self.button.show()
         # Raise button above label
@@ -277,6 +276,7 @@ class BaseObject:
             if self.is_being_edited:
                 self.widget_parent.controlsPanel.removeEditingObjects(self)
             else:
+                self.widget_parent.controlsPanel.removeAllEditingObjects()
                 self.widget_parent.controlsPanel.addEditingObjects(self)
 
         # Tells widget painter to update screen
@@ -331,26 +331,53 @@ class BaseObject:
         # Tells widget painter to update screen
         self.widget_parent.update()
 
-    def plot_menu(self, event, button, menu):
+    def deleteSelf(self):
+        """
+        Called for object to delete itself
+        """
+
+        self.button.deleteLater()
+        del self.button
+        self.short_name_label.deleteLater()
+        del self.short_name_label
+        self.long_name_label.deleteLater()
+        del self.long_name_label
+        del self.anchor_points
+        del self._id
+        del self.avionics_number
+        del self
+
+
+    def contextMenuEvent_(self, event):
         """
         Handler for context menu. These menus hand-off data plotting to plot windows
         :param event: default event from pyqt
-        :param button: button instance this plot_menu is connected to
+        :param button: button instance this context_menu is connected to
         :param menu: input QMenu object to display options on
         :return:
         """
-        self.plotMenuActions = []
-        for plot in self.widget_parent.gui.plotWindow.plotList:
-            action = QAction(plot.name)
-            self.plotMenuActions.append(action)
 
-            self.plotMenuActions[-1].triggered.connect(
-                lambda *args, p=plot: self.link_plot(p, button)
-            )
+        action = self.context_menu.exec_(self.button.mapToGlobal(event))
 
-            menu.addAction(self.plotMenuActions[-1])
+        if action is not None:
+            if action.text()== "Delete Object":
+                self.widget_parent.deleteObject(self)
 
-        menu.exec_(self.button.mapToGlobal(event))
+
+
+        # TODO: Re-implement this when plotting is ready
+        # self.plotMenuActions = []
+        # for plot in self.widget_parent.gui.plotWindow.plotList:
+        #     action = QAction(plot.name)
+        #     self.plotMenuActions.append(action)
+        #
+        #     self.plotMenuActions[-1].triggered.connect(
+        #         lambda *args, p=plot: self.link_plot(p, button)
+        #     )
+        #
+        #     menu.addAction(self.plotMenuActions[-1])
+        #
+        # menu.exec_(self.button.mapToGlobal(event))
 
     def link_plot(self, plot, button):
         """

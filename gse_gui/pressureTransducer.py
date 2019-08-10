@@ -10,6 +10,7 @@ from object import BaseObject
 
 class PressureTransducer(BaseObject):
 
+    object_name = "Pressure Transducer"
     def __init__(self, widget_parent, position, fluid, isVertical):
 
         """
@@ -49,6 +50,7 @@ class PressureTransducer(BaseObject):
         font.setPointSize(23)
         self.pressure_label.setFont(font)
 
+        self.pressure_label.show()
         self.pressure_label.lower()
 
     def setPressure(self, pressure: float):
@@ -119,3 +121,13 @@ class PressureTransducer(BaseObject):
         super().draw()
 
         #self.widget_parent.painter.eraseRect(QRect(self.position.x(), self.position.y(), self.width, self.height))
+
+    @overrides
+    def deleteSelf(self):
+        """
+        Delete itself
+        """
+        self.pressure_label.deleteLater()
+        del self.pressure_label
+
+        super().deleteSelf()

@@ -15,7 +15,7 @@ class GUI:
 
         self.screenResolution = [app.desktop().screenGeometry().width(),app.desktop().screenGeometry().height()]
 
-        self.plotWindow = PlotWindow()
+        #self.plotWindow = PlotWindow()
         self.controlsWindow = ControlsWindow(self)
 
 

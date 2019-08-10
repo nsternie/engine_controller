@@ -219,10 +219,11 @@ class ControlsPanelWidget(QWidget):
         """
         Sets all objects to not be editing and clears the editing list
         """
-        for object in self.objects_editing:
-            object.is_being_edited = False
+        for object_ in self.objects_editing:
+            object_.is_being_edited = False
 
         self.objects_editing.clear()
+        self.edit_frame.hide()
 
     def save(self):
         """

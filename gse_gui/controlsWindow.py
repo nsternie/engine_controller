@@ -3,12 +3,14 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from csvHelper import CsvHelper
-from constants import Constants
 from solenoid import Solenoid
 from tank import Tank
 from pressureTransducer import PressureTransducer
 from MathHelper import MathHelper
 from controlsPanelWidget import  ControlsPanelWidget
+from overrides import overrides
+
+from termcolor import colored
 
 """
 This file contains the class to create the window and widget
@@ -53,6 +55,19 @@ class ControlsWindow(QMainWindow):
         self.show()
 
 
+        # Menu shit that is not ready yet
+        # exitAct = QAction('&Save', self)
+        # exitAct.setStatusTip('Exit application')
+        # exitAct.triggered.connect(qApp.quit)
+        #
+        # self.statusBar()
+        # self.statusBar().showMessage('Ready')
+        #
+        # menubar = self.menuBar()
+        # fileMenu = menubar.addMenu('&File')
+        # fileMenu.addAction(exitAct)
+
+
 
 class ControlsWidget(QWidget):
     """
@@ -80,9 +95,14 @@ class ControlsWidget(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.show()
 
+        # Keeps track of all the different object types
+        # Fun Fact you can call self.object_type_list[0](init vars) to create a new Solenoid Object
+        self.object_type_list = [Solenoid, Tank, PressureTransducer]
+
         # Object Tracker
         self.object_list = []
 
+        # TODO: Get rid of these individual lists and make it all one list
         # Solenoid and tank trackers
         self.solenoid_list = []
         self.tank_list = []
@@ -91,8 +111,20 @@ class ControlsWidget(QWidget):
         # painter controls the drawing of everything on the widget
         self.painter = QPainter()
 
-        self.initConfigFiles()
-        self.createObjects()
+        self.context_menu = QMenu(self)
+
+        self.initContextMenu()
+
+        #self.initConfigFiles()
+        #self.createObjects()
+
+
+        # TODO: Move this button to the edit menu bar
+        self.edit_button = QPushButton("EDIT", self)
+        self.edit_button.clicked.connect(lambda: self.toggleEdit())
+        self.edit_button.move(self.gui.screenResolution[0] - self.window.panel_width - self.edit_button.width() - 30,
+                              30)
+        self.edit_button.show()
 
         # Masa Logo on bottom left of screen
         # FIXME: Make this not blurry as hell
@@ -147,10 +179,18 @@ class ControlsWidget(QWidget):
 
         self.pressure_transducer_list.append(PressureTransducer(self, QPointF(20, 300), 0, False))
 
-        self.edit_button = QPushButton("EDIT", self)
-        self.edit_button.clicked.connect(lambda : self.toggleEdit())
-        self.edit_button.move(self.gui.screenResolution[0]-self.window.panel_width - self.edit_button.width() - 30, 30)
-        self.edit_button.show()
+    def initContextMenu(self):
+        """
+        Inits the context menu for when someone right clicks on the widget (background)
+        """
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(lambda *args: self.contextMenuEvent_(*args)) # *args passes point
+
+        # For all the object types, create a right button action called "New 'Object Name'"
+        for object_type in self.object_type_list:
+            self.context_menu.addAction("New " + object_type.object_name)
+
 
 
     def toggleEdit(self):
@@ -169,6 +209,28 @@ class ControlsWidget(QWidget):
         # Tells painter to update screen
         self.update()
 
+    def deleteObject(self, object_):
+        """
+        Deletes an object
+
+        :param object_: Object to delete
+        """
+
+        # Remove object from any tracker lists
+        self.object_list.remove(object_)
+        if object_.object_name == "Solenoid":
+            self.solenoid_list.remove(object_)
+        elif object_.object_name == "Tank":
+            self.tank_list.remove(object_)
+        elif object_.object_name == "Pressure Transducer":
+            self.pressure_transducer_list.remove(object_)
+
+        #Tells the object to delete itself
+        object_.deleteSelf()
+
+        self.update()
+
+    @overrides
     def paintEvent(self, e):
         """
         This event is called automatically in the background by pyQt. It is used to update the drawing on screen
@@ -185,8 +247,53 @@ class ControlsWidget(QWidget):
         # Draw Tanks
         for tank in self.tank_list:
             tank.draw()
-
         for pt in self.pressure_transducer_list:
             pt.draw()
 
         self.painter.end()
+
+    @overrides
+    def mouseReleaseEvent(self, e:QMouseEvent):
+        """
+        This event is called when the user clicks on the widget background, ie. no buttons, labels, etc.
+        It tells the controls panel to removes all the editing objects and clear itself.
+        """
+
+        self.controlsPanel.removeAllEditingObjects()
+
+        # Tells widget painter to update screen
+        self.update()
+
+    def contextMenuEvent_(self, point):
+        """
+        This event is called when the user right clicks on the widget background, ie. no buttons, labels, etc.
+        and selects an action. This function is called both in edit and non-edit mode.
+
+        :param point: point where right click occurred
+        """
+
+        # If window is in edit mode
+        if self.window.is_editing:
+            action = self.context_menu.exec_(self.mapToGlobal(point))
+
+            # Below ifs creates new objects at the point where the right click
+            if action is not None:
+                if action.text() == "New Solenoid":
+                    self.controlsPanel.removeAllEditingObjects()
+                    self.solenoid_list.append(Solenoid(self, point, 0, 0))
+                    self.controlsPanel.addEditingObjects(self.solenoid_list[-1])
+                elif action.text() == "New Tank":
+                    self.controlsPanel.removeAllEditingObjects()
+                    self.tank_list.append(Tank(self, point, 0))
+                    self.controlsPanel.addEditingObjects(self.tank_list[-1])
+                elif action.text() == "New Pressure Transducer":
+                    self.controlsPanel.removeAllEditingObjects()
+                    self.pressure_transducer_list.append(PressureTransducer(self, point, 0, 0))
+                    self.controlsPanel.addEditingObjects(self.pressure_transducer_list[-1])
+                else:
+                    print(colored("WARNING: Context menu has no action attached to " + action.text(), 'red'))
+
+
+            self.update()
+
+

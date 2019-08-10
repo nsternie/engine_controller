@@ -12,6 +12,7 @@ Class to handle all solenoid objects and their functionality
 """
 class Solenoid(BaseObject):
 
+    object_name = "Solenoid"
     def __init__(self, widget_parent, position, fluid, isVertical):
 
         """
@@ -94,6 +95,8 @@ class Solenoid(BaseObject):
 
         self.widget_parent.painter.drawPath(path)
 
+        self.widget_parent.painter.setBrush(0)
+
         super().draw()
 
         # This is debug, draws a box around the origin of object
@@ -122,11 +125,9 @@ class Solenoid(BaseObject):
         if self.state == 0:
             self.state = 1
             self.setToolTip_("State: Open")
-            print("Test")
         elif self.state == 1:
             self.state = 0
             self.setToolTip_("State: Closed")
-            print("test")
         else:
             print("WARNING STATE OF SOLENOID " + str(self._id) + " IS NOT PROPERLY DEFINED")
 
